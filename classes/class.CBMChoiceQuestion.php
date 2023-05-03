@@ -209,6 +209,50 @@ class CBMChoiceQuestion extends assQuestion
         parent::loadFromDb($questionId);
     }
 
+    public function isComplete() : bool
+    {
+        foreach ([$this->title, $this->author, $this->question] as $text) {
+            if (!is_string($text) || $text === "") {
+                return false;
+            }
+        }
+
+        if (
+            $this->getAnswersVariant() === "answers_variant_single"
+            && $this->getAnswersSingle() === []
+        ) {
+            return false;
+        }
+
+        if (
+            $this->getAnswersVariant() === "answers_variant_multi"
+            && $this->getAnswersMulti() === []
+        ) {
+            return false;
+        }
+
+        return $this->getMaximumPoints() > 0;
+    }
+
+    public function getMaximumPoints() : float
+    {
+        $points = 0;
+        if ($this->getAnswersVariant() === "answers_variant_single") {
+            foreach ($this->getAnswersSingle() as $answer) {
+                if ($answer->getPoints() > $points) {
+                    $points = $answer->getPoints();
+                }
+            }
+        }
+
+        if ($this->getAnswersVariant() === "answers_variant_multi") {
+            foreach ($this->getAnswersMulti() as $answer) {
+                $points += max($answer->getPoints(), $answer->getPointsUnchecked());
+            }
+        }
+        return $points;
+    }
+
     /**
      * @inheritDoc
      */

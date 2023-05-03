@@ -128,7 +128,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
-        $a = $form->getInput("answers_variant");
         $this->object->setPoints((int)$form->getInput("points"));
         $this->object->setHideMeasure((bool)$form->getInput("hide_measure"));
         $this->object->setAnswersVariant($form->getInput("answers_variant"));
