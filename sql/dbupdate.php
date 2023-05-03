@@ -117,3 +117,24 @@ if (
     $ilDB->renameTableColumn("cbm_choice_qst_data", "answer_types", "answer_type");
 }
 ?>
+<#8>
+<?php
+if ($ilDB->tableExists("cbm_choice_qst_data")) {
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "answers_variant")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "answers_variant");
+    }
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "answers_single")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "answers_single");
+    }
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "answers_multi")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "answers_multi");
+    }
+
+    if (!$ilDB->tableColumnExists("cbm_choice_qst_data", "answers")) {
+        $ilDB->addTableColumn("cbm_choice_qst_data", "answers", [
+            "type" => "clob",
+            "notnull" => true,
+        ]);
+    }
+}
+?>

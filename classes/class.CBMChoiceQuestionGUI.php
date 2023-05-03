@@ -18,7 +18,10 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+use GuzzleHttp\Psr7\UploadedFile;
 use ILIAS\DI\Container;
+use ILIAS\FileUpload\Exception\IllegalStateException;
+use ILIAS\FileUpload\Location;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\QuestionConfigForm;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -81,45 +84,23 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             $form = new QuestionConfigForm($this);
             $form->setValuesByArray([
                 "hide_measure" => $this->object->isMeasureHidden(),
-                "answers_variant" => $this->object->getAnswersVariant(),
                 "shuffle" => $this->object->getShuffle(),
                 "thumb_size" => $this->object->getThumbSize(),
                 "answer_type" => $this->object->getAnswerType(),
             ], true);
+            if ($this->object->getAnswers() !== []) {
+                $form->setValuesByArray([
+                    "answers" => $this->object->getAnswers()
+                ], true);
+            }
         }
-
-        /**
-         * @var ilSingleChoiceWizardInputGUI $answersSingle
-         * @var ilMultipleChoiceWizardInputGUI $answersMulti
-         */
-        $answersSingle = $form->getItemByPostVar("answers_single");
-        $answersMulti = $form->getItemByPostVar("answers_multi");
-
-        if ($answersSingle->getValues() === []) {
-            $answersSingle->setValues(array_map(
-                static function (ASS_AnswerBinaryStateImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $this->object->getAnswersSingle()
-            ));
-        }
-        if ($answersMulti->getValues() === []) {
-            $answersMulti->setValues(array_map(
-                static function (ASS_AnswerMultipleResponseImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $this->object->getAnswersMulti()
-            ));
-        }
-
 
         $this->tpl->setVariable('QUESTION_DATA', $form->getHTML());
     }
 
     /**
      * @inheritDoc
+     * @throws IllegalStateException
      */
     public function writePostData($always = false) : int
     {
@@ -136,10 +117,63 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize($thumbSize === "" ? null : (int) $thumbSize);
         $this->object->setHideMeasure((bool) $form->getInput("hide_measure"));
-        $this->object->setAnswersVariant($form->getInput("answers_variant"));
-        $this->object->setAnswersSingle($form->getItemByPostVar("answers_single")->getValues());
-        $this->object->setAnswersMulti($form->getItemByPostVar("answers_multi")->getValues());
         $this->object->setAnswerType((int) $form->getInput("answer_type"));
+        /**
+         * @var array $answers
+         */
+        $answers = $form->getInput("answers");
+
+        $upload = $this->dic->upload();
+        $uploadResults = [];
+        if ($upload->hasUploads()) {
+            try {
+                if (!$upload->hasBeenProcessed()) {
+                    $upload->process();
+                }
+                $uploadResults = $upload->getResults();
+            } catch (IllegalStateException $e) {
+                ilUtil::sendFailure($this->plugin->txt("question.config.answerImage.uploadFailure"), true);
+                $this->editQuestion($form);
+                return 1;
+            }
+        }
+
+        foreach ($answers as $key => $answer) {
+            $answers[$key]["answerCorrect"] = (bool) $answer["answerCorrect"];
+
+            //Check image uploaded for question
+            if (!isset($uploadResults[$answer["answerImage"]["tmp_name"]])) {
+                //If no image uploaded, try to reuse previous value to keep image
+                foreach ($this->object->getAnswers() as $existingKey => $existingAnswer) {
+                    if ($existingAnswer["answerText"] === $answer["answerText"] && $key === $existingKey) {
+                        $answers[$key]["answerImage"] = $existingAnswer["answerImage"];
+                        continue 2;
+                    }
+                }
+                $answers[$key]["answerImage"] = "";
+                continue;
+            }
+            $uploadResult = $uploadResults[$answer["answerImage"]["tmp_name"]];
+
+            $destination = "cbm_choice_question/{$this->object->getId()}/answerImages";
+            $fileName = $key . "." . pathinfo($answer["answerImage"]["name"], PATHINFO_EXTENSION);
+
+            $fullPath = "cbm_choice_question/{$this->object->getId()}/answerImages" . "/" . $fileName;
+            if ($uploadResult->isOK()) {
+                $upload->moveOneFileTo(
+                    $uploadResult,
+                    $destination,
+                    Location::STORAGE,
+                    $fileName,
+                    true
+                );
+            }
+
+            $answers[$key]["answerImage"] = $fullPath;
+        }
+
+        $this->object->setAnswers($answers);
+
         return 0;
     }
 

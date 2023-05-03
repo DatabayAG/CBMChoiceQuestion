@@ -37,17 +37,9 @@ class CBMChoiceQuestion extends assQuestion
     private $measureHidden = false;
 
     /**
-     * @var ASS_AnswerBinaryStateImage[]
+     * @var array<int, array{answerText: string, answerCorrect: bool, answerImage: string}>
      */
-    private $answersSingle = [];
-    /**
-     * @var ASS_AnswerMultipleResponseImage[]
-     */
-    private $answersMulti = [];
-    /**
-     * @var string
-     */
-    private $answersVariant = "answers_variant_single";
+    private $answers = [];
     /**
      * @var ?integer
      */
@@ -209,12 +201,10 @@ class CBMChoiceQuestion extends assQuestion
             $this->setLastChange($data['tstamp']);
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data['question_text'], 1));
             $this->setHideMeasure((bool) $data['hide_measure']);
-            $this->setAnswersVariant($data['answers_variant']);
-            $this->setAnswersSingle(unserialize($data['answers_single'] ?? "", ["allowed_classes" => true]) ?: []);
-            $this->setAnswersMulti(unserialize($data['answers_multi'] ?? "", ["allowed_classes" => true]) ?: []);
             $this->setShuffle((bool) $data["shuffle"]);
             $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
             $this->setAnswerType((int) $data["answer_type"]);
+            $this->setAnswers(unserialize($data["answers"] ?? "", ["allowed_classes" => false]) ?: []);
 
             try {
                 $this->setAdditionalContentEditingMode($data['add_cont_edit_mode']);
@@ -233,17 +223,7 @@ class CBMChoiceQuestion extends assQuestion
             }
         }
 
-        if (
-            $this->getAnswersVariant() === "answers_variant_single"
-            && $this->getAnswersSingle() === []
-        ) {
-            return false;
-        }
-
-        if (
-            $this->getAnswersVariant() === "answers_variant_multi"
-            && $this->getAnswersMulti() === []
-        ) {
+        if ($this->getAnswers() === []) {
             return false;
         }
 
@@ -253,6 +233,7 @@ class CBMChoiceQuestion extends assQuestion
     public function getMaximumPoints() : float
     {
         $points = 0.0;
+        /*
         if ($this->getAnswersVariant() === "answers_variant_single") {
             foreach ($this->getAnswersSingle() as $answer) {
                 if ((float) $answer->getPoints() > $points) {
@@ -265,7 +246,7 @@ class CBMChoiceQuestion extends assQuestion
             foreach ($this->getAnswersMulti() as $answer) {
                 $points += max((float) $answer->getPoints(), (float) $answer->getPointsUnchecked());
             }
-        }
+        }*/
         return $points;
     }
 
@@ -281,9 +262,7 @@ class CBMChoiceQuestion extends assQuestion
             ],
             [
                 "hide_measure" => ["integer", (int) $this->isMeasureHidden()],
-                "answers_variant" => ["text", $this->getAnswersVariant()],
-                "answers_single" => ["clob", serialize($this->getAnswersSingle())],
-                "answers_multi" => ["clob", serialize($this->getAnswersMulti())],
+                "answers" => ["clob", serialize($this->getAnswers())],
                 "shuffle" => ["integer", (bool) $this->getShuffle()],
                 "thumb_size" => ["integer", $this->getThumbSize()],
                 "answer_type" => ["integer", $this->getAnswerType()],
@@ -299,113 +278,6 @@ class CBMChoiceQuestion extends assQuestion
     public function setHideMeasure(bool $status) : void
     {
         $this->measureHidden = $status;
-    }
-
-    public function addAnswerSingle(string $answerText = "", float $points = 0.0, int $order = 0, string $answerImage = "") : void
-    {
-        $answerText = $this->getHtmlQuestionContentPurifier()->purify($answerText);
-        if (array_key_exists($order, $this->getAnswersSingle())) {
-            // insert answer
-            $answer = new ASS_AnswerBinaryStateImage($answerText, $points, $order, 1, $answerImage);
-            $newChoices = [];
-            for ($i = 0; $i < $order; $i++) {
-                $newChoices[] = $this->getAnswersSingle()[$i];
-            }
-            $newChoices[] = $answer;
-            for ($i = $order; $i < count($this->getAnswersSingle()); $i++) {
-                $changed = $this->getAnswersSingle()[$i];
-                $changed->setOrder($i + 1);
-                $newChoices[] = $changed;
-            }
-            $this->setAnswersMulti($newChoices);
-        } else {
-            // add answer
-            $answer = new ASS_AnswerBinaryStateImage($answerText, $points, count($this->getAnswersSingle()), 1, $answerImage);
-            $this->answersSingle[] = $answer;
-        }
-    }
-
-    public function addAnswerMulti(
-        string $answerText = "",
-        float $points = 0.0,
-        float $pointsUnchecked = 0.0,
-        int $order = 0,
-        string $answerImage = ""
-    ) : void {
-        $answerText = $this->getHtmlQuestionContentPurifier()->purify($answerText);
-        if (array_key_exists($order, $this->getAnswersMulti())) {
-            // insert answer
-            $answer = new ASS_AnswerMultipleResponseImage($answerText, $points, $order, $pointsUnchecked, $answerImage);
-            $newChoices = [];
-            for ($i = 0; $i < $order; $i++) {
-                $newChoices[] = $this->getAnswersMulti()[$i];
-            }
-            $newChoices[] = $answer;
-            for ($i = $order; $i < count($this->getAnswersMulti()); $i++) {
-                $changed = $this->getAnswersMulti()[$i];
-                $changed->setOrder($i + 1);
-                $newChoices[] = $changed;
-            }
-            $this->setAnswersMulti($newChoices);
-        } else {
-            // add answer
-            $answer = new ASS_AnswerMultipleResponseImage($answerText, $points, count($this->getAnswersMulti()), $pointsUnchecked, $answerImage);
-            $this->answersMulti[] = $answer;
-        }
-    }
-
-    /**
-     * @return ASS_AnswerBinaryStateImage[]
-     */
-    public function getAnswersSingle() : array
-    {
-        return $this->answersSingle;
-    }
-
-    /**
-     * @param ASS_AnswerBinaryStateImage[] $answersSingle
-     * @return CBMChoiceQuestion
-     */
-    public function setAnswersSingle(array $answersSingle) : CBMChoiceQuestion
-    {
-        $this->answersSingle = $answersSingle;
-        return $this;
-    }
-
-    /**
-     * @return ASS_AnswerMultipleResponseImage[]
-     */
-    public function getAnswersMulti() : array
-    {
-        return $this->answersMulti;
-    }
-
-    /**
-     * @param ASS_AnswerMultipleResponseImage[] $answersMulti
-     * @return CBMChoiceQuestion
-     */
-    public function setAnswersMulti(array $answersMulti) : CBMChoiceQuestion
-    {
-        $this->answersMulti = $answersMulti;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAnswersVariant() : string
-    {
-        return $this->answersVariant;
-    }
-
-    /**
-     * @param string $answersVariant
-     * @return CBMChoiceQuestion
-     */
-    public function setAnswersVariant(string $answersVariant) : CBMChoiceQuestion
-    {
-        $this->answersVariant = $answersVariant;
-        return $this;
     }
 
     /**
@@ -441,6 +313,24 @@ class CBMChoiceQuestion extends assQuestion
     public function setAnswerType(int $answer_type) : CBMChoiceQuestion
     {
         $this->answer_type = $answer_type;
+        return $this;
+    }
+
+    /**
+     * @return array[]
+     */
+    public function getAnswers() : array
+    {
+        return $this->answers;
+    }
+
+    /**
+     * @param array[] $answers
+     * @return CBMChoiceQuestion
+     */
+    public function setAnswers(array $answers) : CBMChoiceQuestion
+    {
+        $this->answers = $answers;
         return $this;
     }
 }

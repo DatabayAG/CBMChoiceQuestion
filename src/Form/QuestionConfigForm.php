@@ -19,20 +19,17 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\CBMChoiceQuestion\Form;
 
-use ASS_AnswerBinaryStateImage;
-use ASS_AnswerMultipleResponseImage;
 use CBMChoiceQuestionGUI;
 use ilCBMChoiceQuestionPlugin;
 use ilCheckboxInputGUI;
 use ilHiddenInputGUI;
 use ILIAS\DI\Container;
-use ilMultipleChoiceWizardInputGUI;
+use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\FieldMappingInput;
+use ilImageFileInputGUI;
 use ilNumberInputGUI;
 use ilPropertyFormGUI;
-use ilRadioGroupInputGUI;
-use ilRadioOption;
 use ilSelectInputGUI;
-use ilSingleChoiceWizardInputGUI;
+use ilTextInputGUI;
 
 /**
  * Class QuestionConfigForm
@@ -103,38 +100,20 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $this->addItem($measure);
 
         //$parent->populateTaxonomyFormSection($form);
+        $imageFile = new ilImageFileInputGUI($this->lng->txt("answer_image"), "answerImage");
+        $imageFile->setALlowDeletion(false);
+        $answers = new FieldMappingInput($this->lng->txt("answers"), "answers");
+        $answers->addField(new ilTextInputGUI($this->lng->txt("answer_text"), "answerText"));
+        $answers->addField($imageFile, false);
+        $answers->addField(new ilCheckboxInputGUI($this->plugin->txt("question.config.correct"), "answerCorrect"));
+        $answers->setRequired(true);
+        $answers->setRowData([[
+            "answerText" => "",
+            "answerImage" => "",
+            "answerCorrect" => false
+        ]]);
 
-        $answersVariant = new ilRadioGroupInputGUI($this->lng->txt("answers"), "answers_variant");
-        $answersSingleOption = new ilRadioOption($this->lng->txt("assSingleChoice"), "answers_variant_single");
-        $answersMultiOption = new ilRadioOption($this->lng->txt("assMultipleChoice"), "answers_variant_multi");
-
-        $answersSingle = new ilSingleChoiceWizardInputGUI("AAA", "answers_single");
-        $answersSingle->setRequired(true);
-        $answersSingle->setQuestionObject($parent->object);
-        $answersSingle->setSingleline(true);
-        if (count($parent->object->getAnswersSingle()) === 0) {
-            $parent->object->addAnswerSingle();
-        }
-
-        $answersMulti = new ilMultipleChoiceWizardInputGUI("BB", "answers_multi");
-        $answersMulti->setRequired(true);
-        $answersMulti->setQuestionObject($parent->object);
-        $answersMulti->setSingleline(true);
-        if (count($parent->object->getAnswersMulti()) === 0) {
-            $parent->object->addAnswerMulti();
-        }
-
-        $answersSingleOption->addSubItem($answersSingle);
-        $answersMultiOption->addSubItem($answersMulti);
-
-        $answersVariant->setRequired(true);
-        $answersVariant->addOption($answersSingleOption);
-        $answersVariant->addOption($answersMultiOption);
-
-        //ToDo: Aktuells problem: Werter werden nicht mehr angezeigt (also der default leer wert, der erlaubt einen zu definieren für single und multii
-
-        $this->addItem($answersVariant);
-
+        $this->addItem($answers);
         $parent->addQuestionFormCommandButtons($this);
     }
 }
