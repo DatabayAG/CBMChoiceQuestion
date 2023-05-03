@@ -42,7 +42,18 @@ class CBMChoiceQuestion extends assQuestion
      * @var ASS_AnswerMultipleResponseImage[]
      */
     private $answersMulti = [];
+    /**
+     * @var string
+     */
     private $answersVariant = "answers_variant_single";
+    /**
+     * @var ?integer
+     */
+    protected $thumbSize;
+    /**
+     * @var int
+     */
+    private $answer_type = 0;
 
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
@@ -199,6 +210,9 @@ class CBMChoiceQuestion extends assQuestion
             $this->setAnswersVariant($data['answers_variant']);
             $this->setAnswersSingle(unserialize($data['answers_single'] ?? "", ["allowed_classes" => true]) ?: []);
             $this->setAnswersMulti(unserialize($data['answers_multi'] ?? "", ["allowed_classes" => true]) ?: []);
+            $this->setShuffle((bool)$data["shuffle"]);
+            $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
+            $this->setAnswerType((int) $data["answer_type"]);
 
             try {
                 $this->setAdditionalContentEditingMode($data['add_cont_edit_mode']);
@@ -209,7 +223,7 @@ class CBMChoiceQuestion extends assQuestion
         parent::loadFromDb($questionId);
     }
 
-    public function isComplete() : bool
+    public function isComplete(): bool
     {
         foreach ([$this->title, $this->author, $this->question] as $text) {
             if (!is_string($text) || $text === "") {
@@ -234,7 +248,7 @@ class CBMChoiceQuestion extends assQuestion
         return $this->getMaximumPoints() > 0;
     }
 
-    public function getMaximumPoints() : float
+    public function getMaximumPoints(): float
     {
         $points = 0.0;
         if ($this->getAnswersVariant() === "answers_variant_single") {
@@ -258,7 +272,6 @@ class CBMChoiceQuestion extends assQuestion
      */
     public function saveAdditionalQuestionDataToDb()
     {
-        $aa = serialize($this->getAnswersSingle());
         $this->db->replace(
             $this->getAdditionalTableName(),
             [
@@ -269,6 +282,9 @@ class CBMChoiceQuestion extends assQuestion
                 "answers_variant" => ["text", $this->getAnswersVariant()],
                 "answers_single" => ["clob", serialize($this->getAnswersSingle())],
                 "answers_multi" => ["clob", serialize($this->getAnswersMulti())],
+                "shuffle" => ["integer", (bool)$this->getShuffle()],
+                "thumb_size" => ["integer", $this->getThumbSize()],
+                "answer_type" => ["integer", $this->getAnswerType()],
             ]
         );
     }
@@ -388,6 +404,42 @@ class CBMChoiceQuestion extends assQuestion
     public function setAnswersVariant(string $answersVariant): CBMChoiceQuestion
     {
         $this->answersVariant = $answersVariant;
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getThumbSize(): ?int
+    {
+        return $this->thumbSize;
+    }
+
+    /**
+     * @param int|null $thumbSize
+     * @return CBMChoiceQuestion
+     */
+    public function setThumbSize(?int $thumbSize): CBMChoiceQuestion
+    {
+        $this->thumbSize = $thumbSize;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAnswerType(): int
+    {
+        return $this->answer_type;
+    }
+
+    /**
+     * @param int $answer_type
+     * @return CBMChoiceQuestion
+     */
+    public function setAnswerType(int $answer_type): CBMChoiceQuestion
+    {
+        $this->answer_type = $answer_type;
         return $this;
     }
 }

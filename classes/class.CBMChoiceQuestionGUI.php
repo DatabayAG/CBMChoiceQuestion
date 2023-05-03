@@ -81,6 +81,9 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             $form->setValuesByArray([
                 "hide_measure" => $this->object->isMeasureHidden(),
                 "answers_variant" => $this->object->getAnswersVariant(),
+                "shuffle" => $this->object->getShuffle(),
+                "thumb_size" => $this->object->getThumbSize(),
+                "answer_type" => $this->object->getAnswerType(),
             ], true);
 
         }
@@ -128,12 +131,15 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
+        $thumbSize = $form->getInput("thumb_size");
         $this->object->setPoints((int)$form->getInput("points"));
+        $this->object->setShuffle((bool) $form->getInput("shuffle"));
+        $this->object->setThumbSize($thumbSize === "" ? null : (int) $thumbSize);
         $this->object->setHideMeasure((bool)$form->getInput("hide_measure"));
         $this->object->setAnswersVariant($form->getInput("answers_variant"));
         $this->object->setAnswersSingle($form->getItemByPostVar("answers_single")->getValues());
         $this->object->setAnswersMulti($form->getItemByPostVar("answers_multi")->getValues());
-
+        $this->object->setAnswerType((int) $form->getInput("answer_type"));
         return 0;
     }
 

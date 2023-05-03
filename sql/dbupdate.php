@@ -70,3 +70,50 @@ if (
     ]);
 }
 ?>
+<#5>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+) {
+    if (!$ilDB->tableColumnExists("cbm_choice_qst_data", "shuffle")) {
+        $ilDB->addTableColumn("cbm_choice_qst_data", "shuffle", [
+            "type" => "integer",
+            "length" => 1,
+            "notnull" => true,
+            "default" => true,
+        ]);
+    }
+
+    if (!$ilDB->tableColumnExists("cbm_choice_qst_data", "thumb_size")) {
+        $ilDB->addTableColumn("cbm_choice_qst_data", "thumb_size", [
+            "type" => "integer",
+            "length" => 4,
+            "notnull" => false,
+            "default" => null
+        ]);
+    }
+}
+?>
+<#6>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "answer_types")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "answer_types", [
+        "type" => "integer",
+        "length" => 2,
+        "notnull" => true,
+        "default" => 0,
+    ]);
+}
+?>
+<#7>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && $ilDB->tableColumnExists("cbm_choice_qst_data", "answer_types")
+) {
+    $ilDB->renameTableColumn("cbm_choice_qst_data", "answer_types", "answer_type");
+}
+?>

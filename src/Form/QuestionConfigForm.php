@@ -25,9 +25,11 @@ use ilCheckboxInputGUI;
 use ilHiddenInputGUI;
 use ILIAS\DI\Container;
 use ilMultipleChoiceWizardInputGUI;
+use ilNumberInputGUI;
 use ilPropertyFormGUI;
 use ilRadioGroupInputGUI;
 use ilRadioOption;
+use ilSelectInputGUI;
 use ilSingleChoiceWizardInputGUI;
 
 /**
@@ -64,6 +66,33 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $points = new ilHiddenInputGUI('points');
         $points->setValue(1);
         $this->addItem($points);
+
+        $shuffle = new ilCheckboxInputGUI($this->lng->txt("shuffle_answers"), "shuffle");
+        $shuffle->setValue(true);
+        $shuffle->setRequired(false);
+        $this->addItem($shuffle);
+
+        $answerTypes = new ilSelectInputGUI($this->lng->txt("answer_types"), "answer_type");
+        $answerTypes->setRequired(false);
+        $answerTypes->setOptions(
+            [
+                $this->lng->txt('answers_singleline'),
+                $this->lng->txt('answers_multiline')
+            ]
+        );
+        $this->addItem($answerTypes);
+
+        if ($parent->object->getAnswerType() === 0) {
+            // thumb size
+            $thumb_size = new ilNumberInputGUI($this->lng->txt("thumb_size"), "thumb_size");
+            $thumb_size->setSuffix($this->lng->txt("thumb_size_unit_pixel"));
+            $thumb_size->setMinValue(20);
+            $thumb_size->setDecimals(0);
+            $thumb_size->setSize(6);
+            $thumb_size->setInfo($this->lng->txt('thumb_size_info'));
+            $thumb_size->setRequired(false);
+            $this->addItem($thumb_size);
+        }
 
         $measure = new ilCheckboxInputGUI($this->plugin->txt('field_hide_measure'), 'hide_measure');
         $measure->setInfo($this->plugin->txt('field_hide_measure_info'));
