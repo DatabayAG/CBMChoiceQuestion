@@ -1,0 +1,12 @@
+/* This file was automatically generated from the en.lang.json file. DO NOT EDIT! */
+
+field_hide_measure#:#Maßnahmenfeld verstecken
+field_hide_measure_info#:#Falls aktiviert, wird das Maßnahmenfeld während der Bearbeitung durch einen Lernenden versteckt.
+CBMChoiceQuestion#:#Certainty based marking Question
+general.cmd.undefined#:#No command was found
+general.cmd.notFound#:#Command '%s' could not be found
+general.update.success#:#Update successful
+general.update.failed#:#Update failed
+general.plugin.settings#:#Plugin Settings
+general.plugin.notActivated#:#Plugin is not active, yet. Please activate it.
+general.plugin.requiredParameterMissing#:#The required parameter '%s' could not be found.

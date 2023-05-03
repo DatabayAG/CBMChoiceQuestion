@@ -1,0 +1,30 @@
+{
+  "name": "plugin/cbm-choice-question",
+  "description": "An ILIAS Question plugin",
+  "type": "project",
+  "license": "GPL",
+  "authors": [
+    {
+      "name": "mbeym",
+      "email": "mbeym@databay.de"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "ILIAS\\Plugin\\CBMChoiceQuestion\\": "src/",
+      "ILIAS\\Plugin\\CBMChoiceQuestion\\Libs\\" : "libs/"
+    },
+    "classmap": ["./src", "./libs"]
+  },
+  "require": {
+    "php": ">=7.3"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-latest",
+    "friendsofphp/php-cs-fixer": "^3.12",
+    "captainhook/captainhook": "^5.10"
+  },
+  "config": {
+    "classmap-authoritative": true
+  }
+}
