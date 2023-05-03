@@ -19,6 +19,8 @@ namespace ILIAS\Plugin\CBMChoiceQuestion\Form\Input;
 use ilCBMChoiceQuestionPlugin;
 use ilFormPropertyGUI;
 use ILIAS\DI\Container;
+use ilImageFileInputGUI;
+use ilCheckboxInputGUI;
 use ilTemplate;
 use ilTemplateException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -55,7 +57,7 @@ class FieldMappingInput extends ilFormPropertyGUI
     protected $dic;
 
     /**
-     * @var array<int, array{header: string, input: ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI }>
+     * @var array<int, array{header: string, input: ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI }>
      */
     private $fieldsData = [];
 
@@ -73,7 +75,7 @@ class FieldMappingInput extends ilFormPropertyGUI
     }
 
     /**
-     * @param ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI $input
+     * @param ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
      * @param bool                                             $required
      * @return FieldMappingInput
      */
@@ -121,7 +123,7 @@ class FieldMappingInput extends ilFormPropertyGUI
         foreach ($this->fieldsData as $index => $fieldData) {
             /**
              * @var string                                           $header
-             * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI $input
+             * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
              */
             $header = $fieldData["header"];
             $input = $fieldData["input"];
@@ -200,13 +202,13 @@ class FieldMappingInput extends ilFormPropertyGUI
     }
 
     /**
-     * @return ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|null
+     * @return ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI|null
      */
     private function getInputTemplate(string $postVar) : ?ilFormPropertyGUI
     {
         foreach ($this->fieldsData as $fieldData) {
             /**
-             * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI $input
+             * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
              */
             $input = $fieldData["input"];
             if ($input->getPostVar() === $postVar) {
@@ -219,13 +221,17 @@ class FieldMappingInput extends ilFormPropertyGUI
     /**
      * @param int                                              $rowNumber
      * @param mixed                                            $value
-     * @param ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI $inputTemplate
-     * @return ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI
+     * @param ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $inputTemplate
+     * @return ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI
      */
     private function createTmpInput(int $rowNumber, $value, $inputTemplate) : ilFormPropertyGUI
     {
         $input = clone $inputTemplate;
-        $input->setValue($value);
+        if ($input instanceof ilCheckboxInputGUI) {
+            $input->setChecked($value === "1" || $value === 1 || $value === true);
+        } else {
+            $input->setValue($value);
+        }
         $input->setPostVar($this->createPostVar($rowNumber, $input->getPostVar()));
 
         if ($this->inputSetAlert($input, $rowNumber)) {
@@ -249,6 +255,29 @@ class FieldMappingInput extends ilFormPropertyGUI
             ilUtil::sendFailure($this->plugin->txt("updateFailure"));
             return false;
         }
+
+        foreach ($this->fieldsData as $fieldData) {
+            $input = $fieldData["input"];
+            foreach ($rowData as $rowKey => $row) {
+                if ($input instanceof ilImageFileInputGUI) {
+                    $data = [];
+                    foreach ($_FILES[$basePostVar] as $fieldName => $fileRow) {
+                        $data[$fieldName] = $fileRow[$rowKey][$input->getPostVar()];
+                    }
+
+                    $rowData[$rowKey][$input->getPostVar()] = $data;
+                }
+                if ($input instanceof ilCheckboxInputGUI) {
+                    $rowData[$rowKey][$input->getPostVar()] = isset($row[$input->getPostVar()])
+                        ? "1"
+                        : "0";
+                }
+            }
+        }
+
+        //Maybe possible to replace with a local variable to avoid even more $_... manipulation.
+        $_POST[$this->getPostVar()] = $rowData;
+        //$this->rowData = $rowData;
 
         foreach ($rowData as $rowNumber => $data) {
             if (count($data) !== count($this->fieldsData)) {
@@ -291,13 +320,36 @@ class FieldMappingInput extends ilFormPropertyGUI
      */
     private function setFakeInputPost(ilFormPropertyGUI $input, int $row, string $basePostVar, $defaultValue) : void
     {
-        $baseData = $this->request->getParsedBody()[$basePostVar][$row];
         $matches = [];
         preg_match("/$basePostVar\[$row]\[(.+)\]/", $input->getPostVar(), $matches);
         $realPostVar = $matches[1];
         $fakedPostVar = "tmp_faked_$realPostVar";
         $input->setPostVar($fakedPostVar);
-        $_POST[$fakedPostVar] = $baseData[$realPostVar] ?? $defaultValue;
+
+        if ($input instanceof ilImageFileInputGUI) {
+            $baseData = [];
+            foreach (["name", "type", "tmp_name", "error", "size"] as $fieldName) {
+                $baseData[$fieldName] = $_FILES[$basePostVar][$fieldName][$row][$realPostVar];
+            }
+        } elseif ($input instanceof ilCheckboxInputGUI) {
+            $baseData = $this->request->getParsedBody()[$basePostVar][$row];
+            $baseData[$realPostVar] = isset($baseData[$realPostVar]) ? "1" : "0";
+        } else {
+            $baseData = $this->request->getParsedBody()[$basePostVar][$row];
+        }
+
+        if ($input instanceof ilImageFileInputGUI) {
+            $data = $baseData ?? [
+                "name" => "",
+                "type" => "",
+                "tmp_name" => "",
+                "error" => 4,
+                "size" => 0
+            ];
+            $_FILES[$fakedPostVar] = $data;
+        } else {
+            $_POST[$fakedPostVar] = $baseData[$realPostVar] ?? $defaultValue;
+        }
     }
 
     /**
@@ -310,8 +362,16 @@ class FieldMappingInput extends ilFormPropertyGUI
     {
         $fakedPostVar = $input->getPostVar();
         $realPostVar = str_replace("tmp_faked_", "", $fakedPostVar);
-        $_POST[$basePostVar][$row][$realPostVar] = $_POST[$fakedPostVar];
-        unset($_POST[$fakedPostVar]);
+        if ($input instanceof ilImageFileInputGUI) {
+            foreach ($_FILES[$fakedPostVar] as $fieldName => $value) {
+                $_FILES[$basePostVar][$fieldName][$row][$basePostVar] = $value;
+            }
+
+            unset($_FILES[$fakedPostVar]);
+        } else {
+            $_POST[$basePostVar][$row][$realPostVar] = $_POST[$fakedPostVar];
+            unset($_POST[$fakedPostVar]);
+        }
     }
 
     /**
