@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -61,7 +63,7 @@ class CBMChoiceQuestion extends assQuestion
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
-    public function getHttpParameterNameForField(string $field): string
+    public function getHttpParameterNameForField(string $field) : string
     {
         return 'question-' . $this->getId() . '-' . $field;
     }
@@ -147,7 +149,7 @@ class CBMChoiceQuestion extends assQuestion
         $originalId = assQuestion::_getOriginalId($this->getId());
         $clone->setId(-1);
 
-        if ((int)$testObjId > 0) {
+        if ((int) $testObjId > 0) {
             $clone->setObjId($testObjId);
         }
 
@@ -206,11 +208,11 @@ class CBMChoiceQuestion extends assQuestion
             $this->setEstimatedWorkingTimeFromDurationString($data['working_time']);
             $this->setLastChange($data['tstamp']);
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data['question_text'], 1));
-            $this->setHideMeasure((bool)$data['hide_measure']);
+            $this->setHideMeasure((bool) $data['hide_measure']);
             $this->setAnswersVariant($data['answers_variant']);
             $this->setAnswersSingle(unserialize($data['answers_single'] ?? "", ["allowed_classes" => true]) ?: []);
             $this->setAnswersMulti(unserialize($data['answers_multi'] ?? "", ["allowed_classes" => true]) ?: []);
-            $this->setShuffle((bool)$data["shuffle"]);
+            $this->setShuffle((bool) $data["shuffle"]);
             $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
             $this->setAnswerType((int) $data["answer_type"]);
 
@@ -223,7 +225,7 @@ class CBMChoiceQuestion extends assQuestion
         parent::loadFromDb($questionId);
     }
 
-    public function isComplete(): bool
+    public function isComplete() : bool
     {
         foreach ([$this->title, $this->author, $this->question] as $text) {
             if (!is_string($text) || $text === "") {
@@ -248,7 +250,7 @@ class CBMChoiceQuestion extends assQuestion
         return $this->getMaximumPoints() > 0;
     }
 
-    public function getMaximumPoints(): float
+    public function getMaximumPoints() : float
     {
         $points = 0.0;
         if ($this->getAnswersVariant() === "answers_variant_single") {
@@ -278,28 +280,28 @@ class CBMChoiceQuestion extends assQuestion
                 "question_fi" => ["integer", $this->getId()],
             ],
             [
-                "hide_measure" => ["integer", (int)$this->isMeasureHidden()],
+                "hide_measure" => ["integer", (int) $this->isMeasureHidden()],
                 "answers_variant" => ["text", $this->getAnswersVariant()],
                 "answers_single" => ["clob", serialize($this->getAnswersSingle())],
                 "answers_multi" => ["clob", serialize($this->getAnswersMulti())],
-                "shuffle" => ["integer", (bool)$this->getShuffle()],
+                "shuffle" => ["integer", (bool) $this->getShuffle()],
                 "thumb_size" => ["integer", $this->getThumbSize()],
                 "answer_type" => ["integer", $this->getAnswerType()],
             ]
         );
     }
 
-    public function isMeasureHidden(): bool
+    public function isMeasureHidden() : bool
     {
         return $this->measureHidden;
     }
 
-    public function setHideMeasure(bool $status): void
+    public function setHideMeasure(bool $status) : void
     {
         $this->measureHidden = $status;
     }
 
-    public function addAnswerSingle(string $answerText = "", float $points = 0.0, int $order = 0, string $answerImage = ""): void
+    public function addAnswerSingle(string $answerText = "", float $points = 0.0, int $order = 0, string $answerImage = "") : void
     {
         $answerText = $this->getHtmlQuestionContentPurifier()->purify($answerText);
         if (array_key_exists($order, $this->getAnswersSingle())) {
@@ -325,12 +327,11 @@ class CBMChoiceQuestion extends assQuestion
 
     public function addAnswerMulti(
         string $answerText = "",
-        float  $points = 0.0,
-        float  $pointsUnchecked = 0.0,
-        int    $order = 0,
+        float $points = 0.0,
+        float $pointsUnchecked = 0.0,
+        int $order = 0,
         string $answerImage = ""
-    ): void
-    {
+    ) : void {
         $answerText = $this->getHtmlQuestionContentPurifier()->purify($answerText);
         if (array_key_exists($order, $this->getAnswersMulti())) {
             // insert answer
@@ -356,7 +357,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return ASS_AnswerBinaryStateImage[]
      */
-    public function getAnswersSingle(): array
+    public function getAnswersSingle() : array
     {
         return $this->answersSingle;
     }
@@ -365,7 +366,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param ASS_AnswerBinaryStateImage[] $answersSingle
      * @return CBMChoiceQuestion
      */
-    public function setAnswersSingle(array $answersSingle): CBMChoiceQuestion
+    public function setAnswersSingle(array $answersSingle) : CBMChoiceQuestion
     {
         $this->answersSingle = $answersSingle;
         return $this;
@@ -374,7 +375,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return ASS_AnswerMultipleResponseImage[]
      */
-    public function getAnswersMulti(): array
+    public function getAnswersMulti() : array
     {
         return $this->answersMulti;
     }
@@ -383,7 +384,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param ASS_AnswerMultipleResponseImage[] $answersMulti
      * @return CBMChoiceQuestion
      */
-    public function setAnswersMulti(array $answersMulti): CBMChoiceQuestion
+    public function setAnswersMulti(array $answersMulti) : CBMChoiceQuestion
     {
         $this->answersMulti = $answersMulti;
         return $this;
@@ -392,7 +393,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return string
      */
-    public function getAnswersVariant(): string
+    public function getAnswersVariant() : string
     {
         return $this->answersVariant;
     }
@@ -401,7 +402,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param string $answersVariant
      * @return CBMChoiceQuestion
      */
-    public function setAnswersVariant(string $answersVariant): CBMChoiceQuestion
+    public function setAnswersVariant(string $answersVariant) : CBMChoiceQuestion
     {
         $this->answersVariant = $answersVariant;
         return $this;
@@ -410,7 +411,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return int|null
      */
-    public function getThumbSize(): ?int
+    public function getThumbSize() : ?int
     {
         return $this->thumbSize;
     }
@@ -419,7 +420,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param int|null $thumbSize
      * @return CBMChoiceQuestion
      */
-    public function setThumbSize(?int $thumbSize): CBMChoiceQuestion
+    public function setThumbSize(?int $thumbSize) : CBMChoiceQuestion
     {
         $this->thumbSize = $thumbSize;
         return $this;
@@ -428,7 +429,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return int
      */
-    public function getAnswerType(): int
+    public function getAnswerType() : int
     {
         return $this->answer_type;
     }
@@ -437,7 +438,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param int $answer_type
      * @return CBMChoiceQuestion
      */
-    public function setAnswerType(int $answer_type): CBMChoiceQuestion
+    public function setAnswerType(int $answer_type) : CBMChoiceQuestion
     {
         $this->answer_type = $answer_type;
         return $this;

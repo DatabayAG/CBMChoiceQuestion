@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -50,7 +52,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         if ($id && $id >= 0) {
             $this->object->loadFromDb($id);
         }
-
     }
 
     /**
@@ -85,7 +86,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 "thumb_size" => $this->object->getThumbSize(),
                 "answer_type" => $this->object->getAnswerType(),
             ], true);
-
         }
 
         /**
@@ -121,7 +121,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     /**
      * @inheritDoc
      */
-    public function writePostData($always = false): int
+    public function writePostData($always = false) : int
     {
         $form = new QuestionConfigForm($this);
         if (!$form->checkInput()) {
@@ -132,10 +132,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
         $thumbSize = $form->getInput("thumb_size");
-        $this->object->setPoints((int)$form->getInput("points"));
+        $this->object->setPoints((int) $form->getInput("points"));
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize($thumbSize === "" ? null : (int) $thumbSize);
-        $this->object->setHideMeasure((bool)$form->getInput("hide_measure"));
+        $this->object->setHideMeasure((bool) $form->getInput("hide_measure"));
         $this->object->setAnswersVariant($form->getInput("answers_variant"));
         $this->object->setAnswersSingle($form->getItemByPostVar("answers_single")->getValues());
         $this->object->setAnswersMulti($form->getItemByPostVar("answers_multi")->getValues());
@@ -157,8 +157,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $show_correct_solution = false,
         $show_manual_scoring = false,
         $show_question_text = true
-    )
-    {
+    ) {
         $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/data/css/styles.css');
         $this->dic->ui()->mainTemplate()->addJavaScript(
             $this->plugin->getDirectory() . '/data/js/main.js'
@@ -168,7 +167,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $notice = '';
         if (($active_id > 0) && (!$show_correct_solution)) {
             $solutions = $this->object->getSolutionMapFromSolutionRecords(
-                (array)$this->object->getSolutionValues($active_id, $pass)
+                (array) $this->object->getSolutionValues($active_id, $pass)
             );
 
             $checkedAnswer = $solutions[qualityQuestion::DECISION_PARAMETER_NAME] ?? '';
@@ -255,7 +254,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     {
         $solutions = [];
         if (is_object($this->getPreviewSession())) {
-            $solutions = (array)$this->getPreviewSession()->getParticipantsSolution();
+            $solutions = (array) $this->getPreviewSession()->getParticipantsSolution();
         }
 
         $template = $this->renderDynamicQuestionOutput($solutions);
@@ -278,12 +277,11 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $is_question_postponed,
         $user_post_solutions,
         $show_specific_inline_feedback
-    )
-    {
+    ) {
         $solutions = [];
         if ($active_id) {
             $solutions = $this->object->getSolutionMapFromSolutionRecords(
-                (array)$this->object->getTestOutputSolutions($active_id, $pass)
+                (array) $this->object->getTestOutputSolutions($active_id, $pass)
             );
         }
 
@@ -299,7 +297,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      * @param array<string, string> $solutions
      * @return ilTemplate
      */
-    private function renderDynamicQuestionOutput(array $solutions): ilTemplate
+    private function renderDynamicQuestionOutput(array $solutions) : ilTemplate
     {
         $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/data/css/styles.css');
         $this->dic->ui()->mainTemplate()->addJavaScript(
