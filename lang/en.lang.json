@@ -16,5 +16,10 @@
       "notActivated": "Plugin is not active, yet. Please activate it.",
       "requiredParameterMissing": "The required parameter '%s' could not be found."
     }
+  },
+  "question": {
+    "config": {
+      "correct": "Correct"
+    }
   }
 }
