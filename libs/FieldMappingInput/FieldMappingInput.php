@@ -89,9 +89,26 @@ class FieldMappingInput extends ilFormPropertyGUI
         return $this;
     }
 
-    public function setRowData(array $rowData) : void
+    protected function sortRowsDataByFields(array $rowsData) : array
     {
-        $this->rowData = $rowData;
+        $sortedRowsData = [];
+
+        foreach ($this->fieldsData as $fieldData) {
+            foreach ($rowsData as $row => $rowData) {
+                /**
+                 * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+                 */
+                $input = $fieldData["input"];
+                $postVar = $input->getPostVar();
+                $sortedRowsData[$row][$postVar] = $rowData[$postVar];
+            }
+        }
+        return $sortedRowsData;
+    }
+
+    public function setRowData(array $rowsData) : void
+    {
+        $this->rowData = $this->sortRowsDataByFields($rowsData);
     }
 
     /**
