@@ -1,0 +1,33 @@
+<div class="fieldMapping_input" id="{FIELD_ID}">
+    <div class="fieldMappings">
+        <table class="fieldMappingTable table table-condensed table-striped">
+            <thead>
+            <tr>
+                <!-- BEGIN table_header -->
+                <th>
+                    {COLUMN_TABLE_HEADER}{COLUMN_TABLE_HEADER_REQUIRED}
+                </th>
+                <!-- END table_header -->
+            </tr>
+            </thead>
+            <tbody>
+            <!-- BEGIN row -->
+            <tr class="fieldMapping_row">
+                <!-- BEGIN table_data -->
+                <td class="fieldMapping_table_data">
+                    {FIELD_INPUT}
+                    <!-- BEGIN input_error -->
+                    <span class="help-block alert alert-danger">{FIELD_INPUT_ERROR}</span>
+                    <!-- END input_error -->
+                </td>
+                <!-- END table_data -->
+                <td class="fieldMapping_table_actions">
+                    <button type="button" name="add" class="btn">{ADD_BUTTON}</button>
+                    <button type="button" name="remove" class="btn">{REMOVE_BUTTON}</button>
+                </td>
+            </tr>
+            <!-- END row -->
+            </tbody>
+        </table>
+    </div>
+</div>

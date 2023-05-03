@@ -1,0 +1,7 @@
+.fieldMapping_table_data > .fieldMappingSelect {
+    width: 100%;
+}
+
+.fieldMapping_header_required {
+    color: red
+}
