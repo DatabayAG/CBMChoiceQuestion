@@ -19,7 +19,10 @@
   },
   "question": {
     "config": {
-      "correct": "Correct"
+      "correct": "Correct",
+      "answerImage": {
+        "uploadFailure": "An error occurred while uploading the image."
+      }
     }
   }
 }

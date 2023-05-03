@@ -11,3 +11,4 @@ general.plugin.settings#:#Plugin Settings
 general.plugin.notActivated#:#Plugin is not active, yet. Please activate it.
 general.plugin.requiredParameterMissing#:#The required parameter '%s' could not be found.
 question.config.correct#:#Correct
+question.config.answerImage.uploadFailure#:#An error occurred while uploading the image.
