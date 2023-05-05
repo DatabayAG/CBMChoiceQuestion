@@ -167,8 +167,8 @@ class FieldMappingInput extends ilFormPropertyGUI
             $colsAdded[] = $postVar;
             $input = $this->createTmpInput($rowNumber, $value, $inputTemplate);
 
-            $tpl->setCurrentBlock("table_data");
-            $tpl->setVariable("FIELD_INPUT", $input->render());
+            $input->insert($tpl);
+
             if ($input->getAlert()) {
                 $tpl->setVariable("FIELD_INPUT_ERROR", $input->getAlert());
             }
