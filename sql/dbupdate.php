@@ -138,3 +138,17 @@ if ($ilDB->tableExists("cbm_choice_qst_data")) {
     }
 }
 ?>
+<#9>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "allow_multiple_selection")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "allow_multiple_selection", [
+        "type" => "integer",
+        "length" => 1,
+        "notnull" => true,
+        "default" => false,
+    ]);
+}
+?>

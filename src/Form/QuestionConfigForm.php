@@ -96,12 +96,15 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $measure = new ilCheckboxInputGUI($this->plugin->txt('field_hide_measure'), 'hide_measure');
         $measure->setInfo($this->plugin->txt('field_hide_measure_info'));
         $measure->setValue('1');
-        //$measure->setChecked($this->object->isMeasureHidden());
         $this->addItem($measure);
 
-        //$parent->populateTaxonomyFormSection($form);
+        $allowMultipleSelection = new ilCheckboxInputGUI(
+            $this->plugin->txt("question.config.allowMultipleSelection"),
+            "allowMultipleSelection"
+        );
+        $this->addItem($allowMultipleSelection);
+
         $imageFile = new ilImageFileInputGUI($this->lng->txt("answer_image"), "answerImage");
-        $imageFile->setALlowDeletion(false);
         $answers = new FieldMappingInput($this->lng->txt("answers"), "answers");
         $answers->addField(new ilTextInputGUI($this->lng->txt("answer_text"), "answerText"));
         $answers->addField($imageFile, false);

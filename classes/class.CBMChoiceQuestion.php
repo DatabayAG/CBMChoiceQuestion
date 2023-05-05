@@ -49,6 +49,11 @@ class CBMChoiceQuestion extends assQuestion
      */
     private $answer_type = 0;
 
+    /**
+     * @var bool
+     */
+    private $allowMultipleSelection = false;
+
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
@@ -205,6 +210,7 @@ class CBMChoiceQuestion extends assQuestion
             $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
             $this->setAnswerType((int) $data["answer_type"]);
             $this->setAnswers(unserialize($data["answers"] ?? "", ["allowed_classes" => false]) ?: []);
+            $this->setAllowMultipleSelection((bool) $data["allow_multiple_selection"]);
 
             try {
                 $this->setAdditionalContentEditingMode($data['add_cont_edit_mode']);
@@ -250,10 +256,7 @@ class CBMChoiceQuestion extends assQuestion
         return $points;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function saveAdditionalQuestionDataToDb()
+    public function saveAdditionalQuestionDataToDb() : void
     {
         $this->db->replace(
             $this->getAdditionalTableName(),
@@ -266,6 +269,7 @@ class CBMChoiceQuestion extends assQuestion
                 "shuffle" => ["integer", (bool) $this->getShuffle()],
                 "thumb_size" => ["integer", $this->getThumbSize()],
                 "answer_type" => ["integer", $this->getAnswerType()],
+                "allow_multiple_selection" => ["integer", $this->isAllowMultipleSelection()]
             ]
         );
     }
@@ -331,6 +335,24 @@ class CBMChoiceQuestion extends assQuestion
     public function setAnswers(array $answers) : CBMChoiceQuestion
     {
         $this->answers = $answers;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAllowMultipleSelection() : bool
+    {
+        return $this->allowMultipleSelection;
+    }
+
+    /**
+     * @param bool $allowMultipleSelection
+     * @return CBMChoiceQuestion
+     */
+    public function setAllowMultipleSelection(bool $allowMultipleSelection) : CBMChoiceQuestion
+    {
+        $this->allowMultipleSelection = $allowMultipleSelection;
         return $this;
     }
 }

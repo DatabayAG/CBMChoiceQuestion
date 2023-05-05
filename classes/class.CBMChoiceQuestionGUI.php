@@ -57,9 +57,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
     }
 
-    /**
-     * @param bool $checkonly
-     */
     public function editQuestion(?QuestionConfigForm $form = null)
     {
         $this->getQuestionTemplate();
@@ -87,6 +84,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 "shuffle" => $this->object->getShuffle(),
                 "thumb_size" => $this->object->getThumbSize(),
                 "answer_type" => $this->object->getAnswerType(),
+                "allowMultipleSelection" => $this->object->isAllowMultipleSelection()
             ], true);
             if ($this->object->getAnswers() !== []) {
                 $form->setValuesByArray([
@@ -118,6 +116,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->object->setThumbSize($thumbSize === "" ? null : (int) $thumbSize);
         $this->object->setHideMeasure((bool) $form->getInput("hide_measure"));
         $this->object->setAnswerType((int) $form->getInput("answer_type"));
+        $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
+
         /**
          * @var array $answers
          */
