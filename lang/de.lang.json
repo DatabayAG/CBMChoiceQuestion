@@ -22,7 +22,8 @@
       "correct": "Korrekt",
       "answerImage": {
         "uploadFailure": "Beim hochladen des Bildes ist eine Fehler aufgetreten."
-      }
+      },
+      "allowMultipleSelection": "Mehrfachauswahl zulassen"
     }
   }
 }

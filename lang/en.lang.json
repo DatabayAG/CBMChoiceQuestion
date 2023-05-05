@@ -22,7 +22,8 @@
       "correct": "Correct",
       "answerImage": {
         "uploadFailure": "An error occurred while uploading the image."
-      }
+      },
+      "allowMultipleSelection": "Allow Multiple Selection"
     }
   }
 }

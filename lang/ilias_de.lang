@@ -12,3 +12,4 @@ general.plugin.notActivated#:#Das Plugin ist nicht aktiviert. Bitte aktivieren S
 general.plugin.requiredParameterMissing#:#Der benötigte Parameter '%s' konnte nicht gefunden werden.
 question.config.correct#:#Korrekt
 question.config.answerImage.uploadFailure#:#Beim hochladen des Bildes ist eine Fehler aufgetreten.
+question.config.allowMultipleSelection#:#Mehrfachauswahl zulassen
