@@ -78,7 +78,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             ));
             */
 
-            $form = new QuestionConfigForm($this);
+            $form = new QuestionConfigForm($this, $this->object->getAnswerType() === 0);
             $form->setValuesByArray([
                 "hide_measure" => $this->object->isMeasureHidden(),
                 "shuffle" => $this->object->getShuffle(),
@@ -98,11 +98,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
     /**
      * @inheritDoc
-     * @throws IllegalStateException
      */
     public function writePostData($always = false) : int
     {
-        $form = new QuestionConfigForm($this);
+        $form = new QuestionConfigForm($this, $this->object->getAnswerType() === 0);
         if (!$form->checkInput()) {
             $form->setValuesByPost();
             $this->editQuestion($form);

@@ -29,6 +29,7 @@ use ilImageFileInputGUI;
 use ilNumberInputGUI;
 use ilPropertyFormGUI;
 use ilSelectInputGUI;
+use ilTextAreaInputGUI;
 use ilTextInputGUI;
 
 /**
@@ -47,7 +48,7 @@ class QuestionConfigForm extends ilPropertyFormGUI
      */
     private $dic;
 
-    public function __construct(CBMChoiceQuestionGUI $parent)
+    public function __construct(CBMChoiceQuestionGUI $parent, bool $singleLineAnswer = true)
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         global $DIC;
@@ -81,7 +82,7 @@ class QuestionConfigForm extends ilPropertyFormGUI
         );
         $this->addItem($answerTypes);
 
-        if ($parent->object->getAnswerType() === 0) {
+        if ($singleLineAnswer) {
             // thumb size
             $thumb_size = new ilNumberInputGUI($this->lng->txt("thumb_size"), "thumb_size");
             $thumb_size->setSuffix($this->lng->txt("thumb_size_unit_pixel"));
@@ -106,7 +107,16 @@ class QuestionConfigForm extends ilPropertyFormGUI
 
         $imageFile = new ilImageFileInputGUI($this->lng->txt("answer_image"), "answerImage");
         $answers = new FieldMappingInput($this->lng->txt("answers"), "answers");
-        $answers->addField(new ilTextInputGUI($this->lng->txt("answer_text"), "answerText"));
+
+        if ($singleLineAnswer) {
+            $answerText = new ilTextInputGUI($this->lng->txt("answer_text"), "answerText");
+        } else {
+            $answerText = new ilTextAreaInputGUI($this->lng->txt("answer_text"), "answerText");
+            $answerText->setUseRte(true);
+            $answerText->setUseRTE(true);
+            $answerText->setRteTagSet('full');
+        }
+        $answers->addField($answerText);
         $answers->addField($imageFile, false);
         $answers->addField(new ilCheckboxInputGUI($this->plugin->txt("question.config.correct"), "answerCorrect"));
         $answers->setRequired(true);
