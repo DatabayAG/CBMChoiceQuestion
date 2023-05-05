@@ -25,5 +25,8 @@
       },
       "allowMultipleSelection": "Allow Multiple Selection"
     }
+  },
+  "scoringMatrix": {
+    "storeAsDefaultForSession": "Store Matrix Values in Session as Default"
   }
 }

@@ -13,3 +13,4 @@ general.plugin.requiredParameterMissing#:#Der benötigte Parameter '%s' konnte n
 question.config.correct#:#Korrekt
 question.config.answerImage.uploadFailure#:#Beim hochladen des Bildes ist eine Fehler aufgetreten.
 question.config.allowMultipleSelection#:#Mehrfachauswahl zulassen
+scoringMatrix.storeAsDefaultForSession#:#Matrixwerte als Standard für die Sitzung speichern

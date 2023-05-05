@@ -25,5 +25,8 @@
       },
       "allowMultipleSelection": "Mehrfachauswahl zulassen"
     }
+  },
+  "scoringMatrix": {
+    "storeAsDefaultForSession": "Matrixwerte als Standard für die Sitzung speichern"
   }
 }
