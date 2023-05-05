@@ -84,7 +84,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 "shuffle" => $this->object->getShuffle(),
                 "thumb_size" => $this->object->getThumbSize(),
                 "answer_type" => $this->object->getAnswerType(),
-                "allowMultipleSelection" => $this->object->isAllowMultipleSelection()
+                "allowMultipleSelection" => $this->object->isAllowMultipleSelection(),
+                "points" => $this->object->getPoints()
             ], true);
             if ($this->object->getAnswers() !== []) {
                 $form->setValuesByArray([

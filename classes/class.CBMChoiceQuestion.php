@@ -238,7 +238,7 @@ class CBMChoiceQuestion extends assQuestion
 
     public function getMaximumPoints() : float
     {
-        $points = 0.0;
+        $points = $this->getPoints();
         /*
         if ($this->getAnswersVariant() === "answers_variant_single") {
             foreach ($this->getAnswersSingle() as $answer) {

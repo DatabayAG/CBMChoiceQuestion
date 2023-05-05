@@ -63,8 +63,12 @@ class QuestionConfigForm extends ilPropertyFormGUI
 
         $parent->addBasicQuestionFormProperties($this);
 
-        $points = new ilHiddenInputGUI('points');
-        $points->setValue(1);
+        $points = new ilNumberInputGUI($this->lng->txt("points"), "points");
+        $points->allowDecimals(true);
+        $points->setRequired(true);
+        $points->setSize(3);
+        $points->setMinValue(0.0);
+        $points->setMinvalueShouldBeGreater(true);
         $this->addItem($points);
 
         $shuffle = new ilCheckboxInputGUI($this->lng->txt("shuffle_answers"), "shuffle");
