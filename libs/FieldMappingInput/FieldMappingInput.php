@@ -260,12 +260,14 @@ class FieldMappingInput extends ilFormPropertyGUI
             $input = $fieldData["input"];
             foreach ($rowData as $rowKey => $row) {
                 if ($input instanceof ilImageFileInputGUI) {
-                    $data = [];
-                    foreach ($_FILES[$basePostVar] as $fieldName => $fileRow) {
-                        $data[$fieldName] = $fileRow[$rowKey][$input->getPostVar()];
+                    $currentValue = $row[$input->getPostVar()];
+                    $uploadedFile = $_FILES[$basePostVar]["tmp_name"][$rowKey][$input->getPostVar()];
+
+                    if ($currentValue === "1" && $uploadedFile === "") {
+                        $uploadedFile = null;
                     }
 
-                    $rowData[$rowKey][$input->getPostVar()] = $data;
+                    $rowData[$rowKey][$input->getPostVar()] = $uploadedFile;
                 }
                 if ($input instanceof ilCheckboxInputGUI) {
                     $rowData[$rowKey][$input->getPostVar()] = isset($row[$input->getPostVar()])

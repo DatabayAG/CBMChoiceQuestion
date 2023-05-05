@@ -141,8 +141,13 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         foreach ($answers as $key => $answer) {
             $answers[$key]["answerCorrect"] = (bool) $answer["answerCorrect"];
 
+            if ($answer["answerImage"] === null) {
+                //Delete Existing File selected
+                $answers[$key]["answerImage"] = "";
+                continue;
+            }
             //Check image uploaded for question
-            if (!isset($uploadResults[$answer["answerImage"]["tmp_name"]])) {
+            if (!isset($uploadResults[$answer["answerImage"]])) {
                 //If no image uploaded, try to reuse previous value to keep image
                 foreach ($this->object->getAnswers() as $existingKey => $existingAnswer) {
                     if ($existingAnswer["answerText"] === $answer["answerText"] && $key === $existingKey) {
@@ -153,10 +158,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $answers[$key]["answerImage"] = "";
                 continue;
             }
-            $uploadResult = $uploadResults[$answer["answerImage"]["tmp_name"]];
+            $uploadResult = $uploadResults[$answer["answerImage"]];
 
             $destination = "cbm_choice_question/{$this->object->getId()}/answerImages";
-            $fileName = $key . "." . pathinfo($answer["answerImage"]["name"], PATHINFO_EXTENSION);
+            $fileName = $key . "." . pathinfo($uploadResult->getName(), PATHINFO_EXTENSION);
 
             $fullPath = "cbm_choice_question/{$this->object->getId()}/answerImages" . "/" . $fileName;
             if ($uploadResult->isOK()) {
