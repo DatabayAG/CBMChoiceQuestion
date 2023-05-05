@@ -88,17 +88,17 @@ class QuestionConfigForm extends ilPropertyFormGUI
 
         if ($singleLineAnswer) {
             // thumb size
-            $thumb_size = new ilNumberInputGUI($this->lng->txt("thumb_size"), "thumb_size");
-            $thumb_size->setSuffix($this->lng->txt("thumb_size_unit_pixel"));
-            $thumb_size->setMinValue(20);
-            $thumb_size->setDecimals(0);
-            $thumb_size->setSize(6);
-            $thumb_size->setInfo($this->lng->txt('thumb_size_info'));
-            $thumb_size->setRequired(false);
-            $this->addItem($thumb_size);
+            $thumbSize = new ilNumberInputGUI($this->lng->txt("thumb_size"), "thumbSize");
+            $thumbSize->setSuffix($this->lng->txt("thumb_size_unit_pixel"));
+            $thumbSize->setMinValue(20);
+            $thumbSize->setDecimals(0);
+            $thumbSize->setSize(6);
+            $thumbSize->setInfo($this->lng->txt('thumb_size_info'));
+            $thumbSize->setRequired(false);
+            $this->addItem($thumbSize);
         }
 
-        $measure = new ilCheckboxInputGUI($this->plugin->txt('field_hide_measure'), 'hide_measure');
+        $measure = new ilCheckboxInputGUI($this->plugin->txt('field_hide_measure'), 'hideMeasure');
         $measure->setInfo($this->plugin->txt('field_hide_measure_info'));
         $measure->setValue('1');
         $this->addItem($measure);

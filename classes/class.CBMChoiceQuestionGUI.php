@@ -80,10 +80,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
             $form = new QuestionConfigForm($this, $this->object->getAnswerType() === 0);
             $form->setValuesByArray([
-                "hide_measure" => $this->object->isMeasureHidden(),
+                "hideMeasure" => $this->object->isMeasureHidden(),
                 "shuffle" => $this->object->getShuffle(),
-                "thumb_size" => $this->object->getThumbSize(),
-                "answer_type" => $this->object->getAnswerType(),
+                "thumbSize" => $this->object->getThumbSize(),
+                "answerType" => $this->object->getAnswerType(),
                 "allowMultipleSelection" => $this->object->isAllowMultipleSelection(),
                 "points" => $this->object->getPoints()
             ], true);
@@ -110,12 +110,12 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
-        $thumbSize = $form->getInput("thumb_size");
+        $thumbSize = $form->getInput("thumbSize");
         $this->object->setPoints((int) $form->getInput("points"));
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize($thumbSize === "" ? null : (int) $thumbSize);
-        $this->object->setHideMeasure((bool) $form->getInput("hide_measure"));
-        $this->object->setAnswerType((int) $form->getInput("answer_type"));
+        $this->object->setHideMeasure((bool) $form->getInput("hideMeasure"));
+        $this->object->setAnswerType((int) $form->getInput("answerType"));
         $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
 
         /**

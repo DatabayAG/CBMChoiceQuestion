@@ -47,7 +47,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @var int
      */
-    private $answer_type = 0;
+    private $answerType = 0;
 
     /**
      * @var bool
@@ -307,16 +307,16 @@ class CBMChoiceQuestion extends assQuestion
      */
     public function getAnswerType() : int
     {
-        return $this->answer_type;
+        return $this->answerType;
     }
 
     /**
-     * @param int $answer_type
+     * @param int $answerType
      * @return CBMChoiceQuestion
      */
-    public function setAnswerType(int $answer_type) : CBMChoiceQuestion
+    public function setAnswerType(int $answerType) : CBMChoiceQuestion
     {
-        $this->answer_type = $answer_type;
+        $this->answerType = $answerType;
         return $this;
     }
 
