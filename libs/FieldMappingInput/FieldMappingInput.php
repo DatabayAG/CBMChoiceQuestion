@@ -23,6 +23,7 @@ use ilImageFileInputGUI;
 use ilCheckboxInputGUI;
 use ilTemplate;
 use ilTemplateException;
+use ilTextAreaInputGUI;
 use Psr\Http\Message\ServerRequestInterface;
 use ilGlyphGUI;
 use ilSelectInputGUI;
@@ -57,7 +58,7 @@ class FieldMappingInput extends ilFormPropertyGUI
     protected $dic;
 
     /**
-     * @var array<int, array{header: string, input: ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI }>
+     * @var array<int, array{header: string, input: ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI }>
      */
     private $fieldsData = [];
 
@@ -75,7 +76,7 @@ class FieldMappingInput extends ilFormPropertyGUI
     }
 
     /**
-     * @param ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+     * @param ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
      * @param bool                                             $required
      * @return FieldMappingInput
      */
@@ -98,7 +99,7 @@ class FieldMappingInput extends ilFormPropertyGUI
         foreach ($this->fieldsData as $fieldData) {
             foreach ($rowsData as $row => $rowData) {
                 /**
-                 * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+                 * @var ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
                  */
                 $input = $fieldData["input"];
                 $postVar = $input->getPostVar();
@@ -123,7 +124,7 @@ class FieldMappingInput extends ilFormPropertyGUI
         foreach ($this->fieldsData as $index => $fieldData) {
             /**
              * @var string                                           $header
-             * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+             * @var ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
              */
             $header = $fieldData["header"];
             $input = $fieldData["input"];
@@ -172,7 +173,7 @@ class FieldMappingInput extends ilFormPropertyGUI
             if ($input->getAlert()) {
                 $tpl->setVariable("FIELD_INPUT_ERROR", $input->getAlert());
             }
-            $tpl->parseCurrentBlock("table_data");
+            //$tpl->parseCurrentBlock("prop_generic");
         }
 
         if (count($colsAdded) !== count($this->fieldsData)) {
@@ -187,12 +188,12 @@ class FieldMappingInput extends ilFormPropertyGUI
 
                     $input = $this->createTmpInput($rowNumber, $inputTemplate->getValue(), $inputTemplate);
 
-                    $tpl->setCurrentBlock("table_data");
-                    $tpl->setVariable("FIELD_INPUT", $input->render());
+                    $tpl->setCurrentBlock("prop_generic");
+                    $tpl->setVariable("PROP_GENERIC", $input->render());
                     if ($input->getAlert()) {
                         $tpl->setVariable("FIELD_INPUT_ERROR", $input->getAlert());
                     }
-                    $tpl->parseCurrentBlock("table_data");
+                    $tpl->parseCurrentBlock("prop_generic");
                 }
             }
         }
@@ -202,13 +203,13 @@ class FieldMappingInput extends ilFormPropertyGUI
     }
 
     /**
-     * @return ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI|null
+     * @return ilTextAreaInputGUI|ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI|null
      */
     private function getInputTemplate(string $postVar) : ?ilFormPropertyGUI
     {
         foreach ($this->fieldsData as $fieldData) {
             /**
-             * @var ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+             * @var ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
              */
             $input = $fieldData["input"];
             if ($input->getPostVar() === $postVar) {
@@ -221,8 +222,8 @@ class FieldMappingInput extends ilFormPropertyGUI
     /**
      * @param int                                              $rowNumber
      * @param mixed                                            $value
-     * @param ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $inputTemplate
-     * @return ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI
+     * @param ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $inputTemplate
+     * @return ilTextAreaInputGUI|ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI
      */
     private function createTmpInput(int $rowNumber, $value, $inputTemplate) : ilFormPropertyGUI
     {
