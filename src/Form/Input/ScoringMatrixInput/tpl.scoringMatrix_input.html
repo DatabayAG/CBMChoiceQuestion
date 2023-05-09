@@ -1,0 +1,39 @@
+<div id="{FIELD_ID}">
+    <div class="">
+        <table class="">
+            <thead>
+            <tr>
+                <th class="scoringMatrixItem"></th>
+                <!-- BEGIN table_header -->
+                <th class="scoringMatrixItem">
+                    {COL_NAME}
+                </th>
+                <!-- END table_header -->
+            </tr>
+            </thead>
+            <tbody>
+            <!-- BEGIN row -->
+            <tr class="scoringMatrix-row">
+                <td class="scoringMatrixItem">
+                    {ROW_NAME}
+                </td>
+                <!-- BEGIN row_input -->
+                <td class="scoringMatrixItem">
+                    {INPUT}
+                    <!-- BEGIN input_error -->
+                    <span class="help-block alert alert-danger">{INPUT_ERROR}</span>
+                    <!-- END input_error -->
+                </td>
+                <!-- END row_input -->
+            </tr>
+            <!-- END row -->
+            </tbody>
+        </table>
+        <span>
+            {STORE_AS_DEFAULT_INPUT}
+            <!-- BEGIN store_as_default_input_error -->
+                    <span class="help-block alert alert-danger">{STORE_AS_DEFAULT_INPUT_ERROR}</span>
+            <!-- END store_as_default_input_error -->
+        </span>
+    </div>
+</div>
