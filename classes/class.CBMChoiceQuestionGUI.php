@@ -23,6 +23,8 @@ use ILIAS\FileUpload\Exception\IllegalStateException;
 use ILIAS\FileUpload\Location;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput\ScoringMatrixInput;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\QuestionConfigForm;
+use ILIAS\Plugin\CBMChoiceQuestion\Stakeholder\AnswerImageStakeHolder;
+use ILIAS\ResourceStorage\Services;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -44,12 +46,18 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      * @var Container
      */
     private $dic;
+    /**
+     * @var Services
+     */
+    private $resourceStorage;
 
     public function __construct(?int $id = null)
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         global $DIC;
         $this->dic = $DIC;
+        $this->resourceStorage = $this->dic->resourceStorage();
+
         parent::__construct();
         $this->object = new CBMChoiceQuestion();
         if ($id && $id >= 0) {
@@ -69,22 +77,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $newQuestion = $newQuestionCheckResult->numRows() === 0;
 
         if (!$form) {
-            /*$answersSingle->setValues(array_map(
-                static function (ASS_AnswerBinaryStateImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $parent->object->getAnswersSingle()
-            ));
-            $answersMulti->setValues(array_map(
-                static function (ASS_AnswerMultipleResponseImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $parent->object->getAnswersMulti()
-            ));
-            */
-
             if ($newQuestion) {
                 $sessionStoredScoringMatrix = unserialize(
                     ilSession::get(
@@ -175,6 +167,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             if ($answer["answerImage"] === null) {
                 //Delete Existing File selected
                 $answers[$key]["answerImage"] = "";
+                //ToDo: Probably needs work to delete actual file through resourceStorage as well
                 continue;
             }
             //Check image uploaded for question
@@ -191,21 +184,11 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             }
             $uploadResult = $uploadResults[$answer["answerImage"]];
 
-            $destination = "cbm_choice_question/{$this->object->getId()}/answerImages";
-            $fileName = $key . "." . pathinfo($uploadResult->getName(), PATHINFO_EXTENSION);
-
-            $fullPath = "cbm_choice_question/{$this->object->getId()}/answerImages" . "/" . $fileName;
             if ($uploadResult->isOK()) {
-                $upload->moveOneFileTo(
-                    $uploadResult,
-                    $destination,
-                    Location::STORAGE,
-                    $fileName,
-                    true
-                );
+                //ToDo: probably needs check if already exists and update if it does
+                $identification = $this->resourceStorage->manage()->upload($uploadResult, new AnswerImageStakeHolder());
+                $answers[$key]["answerImage"] = $identification->serialize();
             }
-
-            $answers[$key]["answerImage"] = $fullPath;
         }
 
         $this->object->setAnswers($answers);

@@ -17,20 +17,22 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\CBMChoiceQuestion\Form\Input;
 
 use ilCBMChoiceQuestionPlugin;
-use ilFormPropertyGUI;
-use ILIAS\DI\Container;
-use ilImageFileInputGUI;
 use ilCheckboxInputGUI;
+use ilFormPropertyGUI;
+use ilGlobalTemplateInterface;
+use ilGlyphGUI;
+use ILIAS\DI\Container;
+use ILIAS\ResourceStorage\Services;
+use ilImageFileInputGUI;
+use ilNumberInputGUI;
+use ilSelectInputGUI;
 use ilTemplate;
 use ilTemplateException;
 use ilTextAreaInputGUI;
-use Psr\Http\Message\ServerRequestInterface;
-use ilGlyphGUI;
-use ilSelectInputGUI;
-use ilNumberInputGUI;
-use ilUtil;
-use ilGlobalTemplateInterface;
 use ilTextInputGUI;
+use ilUtil;
+use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
 
 /**
  * Class FieldMappingInput
@@ -63,6 +65,10 @@ class FieldMappingInput extends ilFormPropertyGUI
     private $fieldsData = [];
 
     private $rowData = [];
+    /**
+     * @var Services
+     */
+    private $resourceStorage;
 
     public function __construct(string $title = "", string $postVar = "")
     {
@@ -72,12 +78,14 @@ class FieldMappingInput extends ilFormPropertyGUI
         $this->lng = $DIC->language();
         $this->request = $DIC->http()->request();
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
+        $this->resourceStorage = $this->dic->resourceStorage();
+
         parent::__construct($title, $postVar);
     }
 
     /**
      * @param ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
-     * @param bool                                             $required
+     * @param bool $required
      * @return FieldMappingInput
      */
     public function addField($input, bool $required = true) : self
@@ -123,7 +131,7 @@ class FieldMappingInput extends ilFormPropertyGUI
         $tpl->setVariable("FIELD_ID", $this->getPostVar());
         foreach ($this->fieldsData as $index => $fieldData) {
             /**
-             * @var string                                           $header
+             * @var string $header
              * @var ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
              */
             $header = $fieldData["header"];
@@ -220,8 +228,8 @@ class FieldMappingInput extends ilFormPropertyGUI
     }
 
     /**
-     * @param int                                              $rowNumber
-     * @param mixed                                            $value
+     * @param int $rowNumber
+     * @param mixed $value
      * @param ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $inputTemplate
      * @return ilTextAreaInputGUI|ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI
      */
@@ -232,6 +240,14 @@ class FieldMappingInput extends ilFormPropertyGUI
             $input->setChecked($value === "1" || $value === 1 || $value === true);
         } else {
             $input->setValue($value);
+            if ($input instanceof ilImageFileInputGUI && $value) {
+                try {
+                    $resource = $this->resourceStorage->consume()->src($this->resourceStorage->manage()->find($value));
+                    $input->setImage($resource->getSrc());
+                } catch (Throwable $ex) {
+                    //ignore
+                }
+            }
         }
         $input->setPostVar($this->createPostVar($rowNumber, $input->getPostVar()));
 
@@ -316,8 +332,8 @@ class FieldMappingInput extends ilFormPropertyGUI
 
     /**
      * @param ilFormPropertyGUI $input
-     * @param int               $row
-     * @param string            $basePostVar
+     * @param int $row
+     * @param string $basePostVar
      * @param                   $defaultValue
      * @TODO: Will not work in >= ILIAS 8
      */
@@ -357,8 +373,8 @@ class FieldMappingInput extends ilFormPropertyGUI
 
     /**
      * @param ilFormPropertyGUI $input
-     * @param int               $row
-     * @param string            $basePostVar
+     * @param int $row
+     * @param string $basePostVar
      * @TODO: Will not work in >= ILIAS 8
      */
     private function resetFakeInputPost(ilFormPropertyGUI $input, int $row, string $basePostVar) : void
@@ -379,7 +395,7 @@ class FieldMappingInput extends ilFormPropertyGUI
 
     /**
      * @param ilFormPropertyGUI $input
-     * @param int               $row
+     * @param int $row
      * @return bool
      * @TODO: Will not work in >= ILIAS 8
      */
