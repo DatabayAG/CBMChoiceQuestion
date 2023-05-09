@@ -26,6 +26,7 @@ use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 use ilNumberInputGUI;
 use ilTemplate;
+use ilTemplateException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -68,6 +69,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
      * @var array<string, ilNumberInputGUI>
      */
     private $inputs = [];
+
     public function __construct(string $title = "", string $postVar = "")
     {
         global $DIC;
@@ -98,15 +100,18 @@ class ScoringMatrixInput extends ilFormPropertyGUI
 
         foreach ($this->rowNames as $rowIndex => $rowName) {
             foreach ($this->columnNames as $colIndex => $columnName) {
-                $this->inputs["{$this->getPostVar()}_values_{$rowIndex}_{$colIndex}"] = $this->createNumberInput($rowIndex, $colIndex);
+                $this->inputs["{$this->getPostVar()}_values_{$rowIndex}_$colIndex"] = $this->createNumberInput($rowIndex, $colIndex);
             }
         }
     }
 
-    public function setValueByArray(array $post) : void
+    public function setValueByArray(array $data) : void
     {
+        if (isset($data[$this->getPostVar()])) {
+            $data = $data[$this->getPostVar()];
+        }
         foreach ($this->inputs as $input) {
-            $input->setValueByArray($post);
+            $input->setValueByArray($data);
         }
     }
 
@@ -127,7 +132,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
     {
         $success = true;
 
-        foreach ($this->inputs as $postVar => $input) {
+        foreach ($this->inputs as $input) {
             if ($input instanceof ilNumberInputGUI) {
                 $input->setDecimals(2);
                 $inputSuccess = $input->checkInput();
@@ -146,7 +151,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
     {
         $input = new ilNumberInputGUI(
             "",
-            "{$this->getPostVar()}_values_{$rowIndex}_{$colIndex}"
+            "{$this->getPostVar()}_values_{$rowIndex}_$colIndex"
         );
         $input->setRequired(true);
         $input->allowDecimals(true);
@@ -154,6 +159,10 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         return $input;
     }
 
+    /**
+     * @throws ilTemplateException
+     * @noinspection DisconnectedForeachInstructionInspection
+     */
     public function insert(ilTemplate $a_tpl) : void
     {
         $tpl = new ilTemplate($this->getFolderPath("tpl.scoringMatrix_input.html"), true, true);
@@ -169,7 +178,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         foreach ($this->rowNames as $rowIndex => $rowName) {
             foreach ($this->columnNames as $colIndex => $columnName) {
                 $tpl->setCurrentBlock("row_input");
-                $input = $this->inputs["{$this->getPostVar()}_values_{$rowIndex}_{$colIndex}"];
+                $input = $this->inputs["{$this->getPostVar()}_values_{$rowIndex}_$colIndex"];
                 $tpl->setVariable("INPUT", $input->render());
                 if ($input->getAlert()) {
                     $tpl->setVariable("INPUT_ERROR", $input->getAlert());
