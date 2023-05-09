@@ -37,6 +37,9 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     public const SLOT_ID = "qst";
     /** @var string */
     public const PNAME = "CBMChoiceQuestion";
+
+    public const CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY = "cbm_choice_scoringMatrix_storeAsDefaultForSession";
+
     /**
      * @var ilCtrl
      */

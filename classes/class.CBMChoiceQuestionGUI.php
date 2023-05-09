@@ -18,7 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-use GuzzleHttp\Psr7\UploadedFile;
 use ILIAS\DI\Container;
 use ILIAS\FileUpload\Exception\IllegalStateException;
 use ILIAS\FileUpload\Location;
@@ -62,6 +61,13 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     {
         $this->getQuestionTemplate();
 
+        $newQuestionCheckResult = $this->dic->database()->queryF(
+            "SELECT question_fi FROM cbm_choice_qst_data WHERE question_fi = %s",
+            ["integer"],
+            [$this->object->getId()]
+        );
+        $newQuestion = $newQuestionCheckResult->numRows() === 0;
+
         if (!$form) {
             /*$answersSingle->setValues(array_map(
                 static function (ASS_AnswerBinaryStateImage $value) {
@@ -78,6 +84,16 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $parent->object->getAnswersMulti()
             ));
             */
+
+            if ($newQuestion) {
+                $sessionStoredScoringMatrix = unserialize(
+                    ilSession::get(
+                        ilCBMChoiceQuestionPlugin::CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY
+                    ) ?? "",
+                    ["allowed_classes" => false]
+                ) ?: [];
+                $this->object->setScoringMatrix($sessionStoredScoringMatrix);
+            }
 
             $form = new QuestionConfigForm($this, $this->object->getAnswerType() === 0);
             $form->setValuesByArray([
@@ -121,10 +137,17 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->object->setAnswerType((int) $form->getInput("answerType"));
         $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
         /**
-         * @var ScoringMatrixInput $a
+         * @var ScoringMatrixInput $scoringMatrixInput
          */
         $scoringMatrixInput = $form->getItemByPostVar("scoringMatrix");
         $this->object->setScoringMatrix($scoringMatrixInput->getValue());
+
+        if ($scoringMatrixInput->isStoreAsDefaultForSession()) {
+            ilSession::set(
+                ilCBMChoiceQuestionPlugin::CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY,
+                serialize($this->object->getScoringMatrix())
+            );
+        }
 
         /**
          * @var array $answers
@@ -346,99 +369,12 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      */
     private function renderDynamicQuestionOutput(array $solutions) : ilTemplate
     {
-        $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/data/css/styles.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript(
-            $this->plugin->getDirectory() . '/data/js/main.js'
-        );
+        $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), false, false);
+        $answers = $this->object->getAnswers();
+        $scoringMatrix = $this->object->getScoringMatrix();
 
-        $checkedAnswer = '';
-        $measure = '';
-        $notice = '';
-        $measureDomContainerId = 'measure-container';
 
-        foreach ($solutions as $solutionName => $solutionValue) {
-            if (!is_string($solutionValue)) {
-                continue;
-            }
-
-            switch ($solutionName) {
-                case qualityQuestion::DECISION_PARAMETER_NAME:
-                    $checkedAnswer = $solutionValue;
-                    break;
-
-                case qualityQuestion::MEASURE_PARAMETER_NAME:
-                    $measure = $solutionValue;
-                    break;
-
-                case qualityQuestion::NOTICE_PARAMETER_NAME:
-                    $notice = $solutionValue;
-                    break;
-            }
-        }
-
-        $template = $this->plugin->getTemplate('tpl.il_as_qpl_qualityquestion_output.html');
-
-        $template->setVariable(
-            'QUESTIONTEXT',
-            $this->object->prepareTextareaOutput($this->object->getQuestion(), true)
-        );
-
-        if (0 === strcmp($checkedAnswer, qualityQuestion::DECISION_CORRECTNESS_INDICATOR)) {
-            $template->setCurrentBlock('checked');
-            $template->touchBlock('checked');
-            $template->parseCurrentBlock();
-        }
-        $template->setCurrentBlock('answer_row');
-        $template->setVariable('ANSWER_ID', qualityQuestion::DECISION_CORRECTNESS_INDICATOR);
-        $template->setVariable('ANSWER_TEXT', $this->dic->language()->txt('yes'));
-        $template->setVariable('ANSWER_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::DECISION_PARAMETER_NAME
-        ));
-        $template->parseCurrentBlock();
-
-        if (0 === strcmp($checkedAnswer, qualityQuestion::DECISION_FAILURE_INDICATOR)) {
-            $template->setCurrentBlock('checked');
-            $template->touchBlock('checked');
-            $template->parseCurrentBlock();
-        }
-
-        $template->setCurrentBlock('answer_row');
-        $template->setVariable('ANSWER_ID', qualityQuestion::DECISION_FAILURE_INDICATOR);
-        $template->setVariable('ANSWER_TEXT', $this->dic->language()->txt('no'));
-        $template->setVariable('ANSWER_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::DECISION_PARAMETER_NAME
-        ));
-        $template->parseCurrentBlock();
-
-        $template->setCurrentBlock('qualityExtensionFields');
-        $template->setVariable('MEASURE_CONTAINER_ID', $measureDomContainerId);
-        $template->setVariable('LABEL_MEASURE', $this->plugin->txt('label_measure'));
-        $template->setVariable('MEASURE_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::MEASURE_PARAMETER_NAME
-        ));
-        $template->setVariable('MEASURE', $measure);
-        $template->setVariable('LABEL_NOTICE', $this->plugin->txt('label_notice'));
-        $template->setVariable('NOTICE_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::NOTICE_PARAMETER_NAME
-        ));
-        $template->setVariable('NOTICE', $notice);
-        $template->parseCurrentBlock();
-
-        $isNotChecked = (0 === strcmp($checkedAnswer, qualityQuestion::DECISION_FAILURE_INDICATOR));
-        $decisionParameterName = $this->object->getHttpParameterNameForField(qualityQuestion::DECISION_PARAMETER_NAME);
-        $this->tpl->addOnLoadCode(
-            'il.qualityQuestion.init(' .
-            json_encode([
-                'measure_container_selector' => '#' . $measureDomContainerId,
-                'measure_initially_visible' => !$this->object->isMeasureHidden() && $isNotChecked,
-                'show_measure_on_dependency' => !$this->object->isMeasureHidden(),
-                'show_measure_indicator_field_selector' => 'input[name="' . $decisionParameterName . '"]',
-                'show_measure_indicator_value' => qualityQuestion::DECISION_FAILURE_INDICATOR,
-            ]) .
-            '); il.qualityQuestion.run();'
-        );
-
-        return $template;
+        return $tpl;
     }
 
     /**

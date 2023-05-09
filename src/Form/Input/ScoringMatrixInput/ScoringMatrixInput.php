@@ -115,11 +115,23 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         }
     }
 
-    public function getValue() : array
+    public function isStoreAsDefaultForSession() : bool
+    {
+        /**
+         * @var ilCheckboxInputGUI $storeAsDefaultForSession
+         */
+        $storeAsDefaultForSession = $this->inputs["{$this->getPostVar()}_storeAsDefaultForSession"];
+        return (bool) $storeAsDefaultForSession->getChecked();
+    }
+
+    public function getValue(bool $withStoreAsDefaultForSession = false) : array
     {
         $values = [];
         foreach ($this->inputs as $postVar => $input) {
             if ($input instanceof ilCheckboxInputGUI) {
+                if (!$withStoreAsDefaultForSession) {
+                    continue;
+                }
                 $values[$postVar] = (bool) $input->getChecked();
             } else {
                 $values[$postVar] = (float) $input->getValue();
