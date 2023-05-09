@@ -22,9 +22,9 @@ namespace ILIAS\Plugin\CBMChoiceQuestion\Form;
 use CBMChoiceQuestionGUI;
 use ilCBMChoiceQuestionPlugin;
 use ilCheckboxInputGUI;
-use ilHiddenInputGUI;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\FieldMappingInput;
+use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput\ScoringMatrixInput;
 use ilImageFileInputGUI;
 use ilNumberInputGUI;
 use ilPropertyFormGUI;
@@ -120,6 +120,16 @@ class QuestionConfigForm extends ilPropertyFormGUI
             $answerText->setUseRTE(true);
             $answerText->setRteTagSet('full');
         }
+        $aa = new ScoringMatrixInput("Scoring Matrix", "scoringMatrix");
+        $aa->setup([
+            "certain" => "Certain",
+            "uncertain" => "Uncertain"
+        ], [
+            "correct" => "Correct",
+            "incorrect" => "Incorrect"
+        ]);
+        $this->addItem($aa);
+
         $answers->addField($answerText);
         $answers->addField($imageFile, false);
         $answers->addField(new ilCheckboxInputGUI($this->plugin->txt("question.config.correct"), "answerCorrect"));

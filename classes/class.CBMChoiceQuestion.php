@@ -54,6 +54,11 @@ class CBMChoiceQuestion extends assQuestion
      */
     private $allowMultipleSelection = false;
 
+    /**
+     * @var array<string, string>
+     */
+    private $scoringMatrix = [];
+
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
@@ -211,6 +216,7 @@ class CBMChoiceQuestion extends assQuestion
             $this->setAnswerType((int) $data["answer_type"]);
             $this->setAnswers(unserialize($data["answers"] ?? "", ["allowed_classes" => false]) ?: []);
             $this->setAllowMultipleSelection((bool) $data["allow_multiple_selection"]);
+            $this->setScoringMatrix(unserialize($data["scoring_matrix"] ?? "", ["allowed_classes" => false]) ?: []);
 
             try {
                 $this->setAdditionalContentEditingMode($data['add_cont_edit_mode']);
@@ -269,7 +275,8 @@ class CBMChoiceQuestion extends assQuestion
                 "shuffle" => ["integer", (bool) $this->getShuffle()],
                 "thumb_size" => ["integer", $this->getThumbSize()],
                 "answer_type" => ["integer", $this->getAnswerType()],
-                "allow_multiple_selection" => ["integer", $this->isAllowMultipleSelection()]
+                "allow_multiple_selection" => ["integer", $this->isAllowMultipleSelection()],
+                "scoring_matrix" => ["clob", serialize($this->getScoringMatrix())]
             ]
         );
     }
@@ -353,6 +360,24 @@ class CBMChoiceQuestion extends assQuestion
     public function setAllowMultipleSelection(bool $allowMultipleSelection) : CBMChoiceQuestion
     {
         $this->allowMultipleSelection = $allowMultipleSelection;
+        return $this;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getScoringMatrix() : array
+    {
+        return $this->scoringMatrix;
+    }
+
+    /**
+     * @param string[] $scoringMatrix
+     * @return CBMChoiceQuestion
+     */
+    public function setScoringMatrix(array $scoringMatrix) : CBMChoiceQuestion
+    {
+        $this->scoringMatrix = $scoringMatrix;
         return $this;
     }
 }

@@ -22,6 +22,7 @@ use GuzzleHttp\Psr7\UploadedFile;
 use ILIAS\DI\Container;
 use ILIAS\FileUpload\Exception\IllegalStateException;
 use ILIAS\FileUpload\Location;
+use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput\ScoringMatrixInput;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\QuestionConfigForm;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -85,8 +86,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 "thumbSize" => $this->object->getThumbSize(),
                 "answerType" => $this->object->getAnswerType(),
                 "allowMultipleSelection" => $this->object->isAllowMultipleSelection(),
-                "points" => $this->object->getPoints()
+                "points" => $this->object->getPoints(),
+                "scoringMatrix" => $this->object->getScoringMatrix()
             ], true);
+
             if ($this->object->getAnswers() !== []) {
                 $form->setValuesByArray([
                     "answers" => $this->object->getAnswers()
@@ -117,6 +120,11 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->object->setHideMeasure((bool) $form->getInput("hideMeasure"));
         $this->object->setAnswerType((int) $form->getInput("answerType"));
         $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
+        /**
+         * @var ScoringMatrixInput $a
+         */
+        $scoringMatrixInput = $form->getItemByPostVar("scoringMatrix");
+        $this->object->setScoringMatrix($scoringMatrixInput->getValue());
 
         /**
          * @var array $answers

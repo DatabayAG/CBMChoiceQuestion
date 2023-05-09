@@ -152,3 +152,15 @@ if (
     ]);
 }
 ?>
+<#10>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "scoring_matrix")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "scoring_matrix", [
+        "type" => "clob",
+        "notnull" => true,
+    ]);
+}
+?>
