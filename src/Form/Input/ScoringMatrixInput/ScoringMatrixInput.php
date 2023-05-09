@@ -111,7 +111,13 @@ class ScoringMatrixInput extends ilFormPropertyGUI
             $data = $data[$this->getPostVar()];
         }
         foreach ($this->inputs as $input) {
-            $input->setValueByArray($data);
+            if ($input instanceof ilNumberInputGUI) {
+                $input->setDecimals(2);
+                $input->setValueByArray($data);
+                $input->setDecimals(0);
+            } else {
+                $input->setValueByArray($data);
+            }
         }
     }
 
@@ -178,7 +184,10 @@ class ScoringMatrixInput extends ilFormPropertyGUI
     public function insert(ilTemplate $a_tpl) : void
     {
         $tpl = new ilTemplate($this->getFolderPath("tpl.scoringMatrix_input.html"), true, true);
-
+        $tpl->setVariable(
+            "NUMBER_FORMAT",
+            $this->lng->txt("form_format") . ": ###." . str_repeat("#", 2)
+        );
 
         foreach ($this->columnNames as $columnName) {
             $tpl->setCurrentBlock("table_header");
