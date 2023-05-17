@@ -1,8 +1,8 @@
 <div>
     <div class="cbm-answers">
-        <!-- BEGIN answer -->
+        <!-- BEGIN answer-single -->
         <div class="cbm-answer">
-            <input type="radio" name="answer{Q_ID}" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" checked="{CHECKED}" />
+            <input type="radio" name="answer{Q_ID}" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <!-- BEGIN answer_image -->
                 <img <!-- BEGIN answer_image_thumb_size --> width="{ANSWER_IMAGE_THUMB_SIZE}" height="{ANSWER_IMAGE_THUMB_SIZE}" <!-- END answer_image_thumb_size --> src="{ANSWER_IMAGE_URL}" />
@@ -10,6 +10,14 @@
                 <span>{ANSWER_TEXT}</span>
             </label>
         </div>
-        <!-- END answer -->
+        <!-- END answer-single -->
+        <!-- BEGIN answer-multi -->
+        <div class="cbm-answer">
+            <input type="checkbox" name="answer{Q_ID}" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
+            <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
+                <span>{ANSWER_TEXT}</span>
+            </label>
+        </div>
+        <!-- END answer-multi -->
     </div>
 </div>

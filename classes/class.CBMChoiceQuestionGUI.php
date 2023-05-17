@@ -225,7 +225,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         if ($answersContainImage && $answerType === 1) {
             $answerType = 0;
-            ilUtil::sendInfo($this->lng->txt("info_answer_type_change"));
+            ilUtil::sendInfo($this->lng->txt("info_answer_type_change"), true);
         }
         $this->object->setAnswerType($answerType);
 
@@ -392,20 +392,24 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
         $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
         $answers = $this->object->getAnswers();
+        $answerType = $this->object->getAnswerType();
         $thumbSize = $this->object->getThumbSize();
         foreach ($answers as $index => $answer) {
-            $tpl->setCurrentBlock("answer");
+            $tpl->setCurrentBlock($answerType === 0 ? "answer-single" : "answer-multi");
+
             $tpl->setVariable("Q_ID", $this->object->getId());
             $tpl->setVariable("ANSWER_ID", $index);
-            if ($answer["answerImage"]) {
-                $resource = $this->resourceStorage->consume()->src($this->resourceStorage->manage()->find($answer["answerImage"]));
+            if ($answer->getAnswerImage()) {
+                $resource = $this->resourceStorage->consume()->src(
+                    $this->resourceStorage->manage()->find($answer->getAnswerImage())
+                );
                 if ($thumbSize) {
                     $tpl->setVariable("ANSWER_IMAGE_THUMB_SIZE", $thumbSize);
                 }
                 $tpl->setVariable("ANSWER_IMAGE_URL", $resource->getSrc());
             }
-            $tpl->setVariable("ANSWER_TEXT", $answer["answerText"]);
-            $tpl->parseCurrentBlock("answer");
+            $tpl->setVariable("ANSWER_TEXT", $answer->getAnswerText());
+            $tpl->parseCurrentBlock($answerType === 0 ? "answer-single" : "answer-multi");
         }
 
         $scoringMatrix = $this->object->getScoringMatrix();
