@@ -17,6 +17,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
@@ -37,7 +39,7 @@ class CBMChoiceQuestion extends assQuestion
     private $measureHidden = false;
 
     /**
-     * @var array<int, array{answerText: string, answerCorrect: bool, answerImage: string}>
+     * @var AnswerData[]
      */
     private $answers = [];
     /**
@@ -214,7 +216,7 @@ class CBMChoiceQuestion extends assQuestion
             $this->setShuffle((bool) $data["shuffle"]);
             $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
             $this->setAnswerType((int) $data["answer_type"]);
-            $this->setAnswers(unserialize($data["answers"] ?? "", ["allowed_classes" => false]) ?: []);
+            $this->setAnswers(unserialize($data["answers"] ?? "", ["allowed_classes" => true]) ?: []);
             $this->setAllowMultipleSelection((bool) $data["allow_multiple_selection"]);
             $this->setScoringMatrix(unserialize($data["scoring_matrix"] ?? "", ["allowed_classes" => false]) ?: []);
 
@@ -354,7 +356,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
     /**
-     * @return array[]
+     * @return AnswerData[]
      */
     public function getAnswers() : array
     {
@@ -362,7 +364,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
     /**
-     * @param array[] $answers
+     * @param AnswerData[] $answers
      * @return CBMChoiceQuestion
      */
     public function setAnswers(array $answers) : CBMChoiceQuestion

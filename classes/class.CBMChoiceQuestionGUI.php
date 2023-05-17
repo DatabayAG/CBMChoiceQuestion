@@ -20,9 +20,9 @@ declare(strict_types=1);
 
 use ILIAS\DI\Container;
 use ILIAS\FileUpload\Exception\IllegalStateException;
-use ILIAS\FileUpload\Location;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput\ScoringMatrixInput;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\QuestionConfigForm;
+use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
 use ILIAS\Plugin\CBMChoiceQuestion\Stakeholder\AnswerImageStakeHolder;
 use ILIAS\ResourceStorage\Services;
 
@@ -104,8 +104,13 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             ], true);
 
             if ($this->object->getAnswers() !== []) {
+                $answerData = [];
+                foreach ($this->object->getAnswers() as $row => $answer) {
+                    $answerData[$row] = $answer->jsonSerialize();
+                }
+
                 $form->setValuesByArray([
-                    "answers" => $this->object->getAnswers()
+                    "answers" => $answerData
                 ], true);
             }
         }
@@ -131,7 +136,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize($thumbSize === "" ? null : (int) $thumbSize);
         $this->object->setHideMeasure((bool) $form->getInput("hideMeasure"));
-        $this->object->setAnswerType((int) $form->getInput("answerType"));
         $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
         /**
          * @var ScoringMatrixInput $scoringMatrixInput
@@ -145,11 +149,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 serialize($this->object->getScoringMatrix())
             );
         }
-
-        /**
-         * @var array $answers
-         */
-        $answers = $form->getInput("answers");
 
         $upload = $this->dic->upload();
         $uploadResults = [];
@@ -166,37 +165,70 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             }
         }
 
-        foreach ($answers as $key => $answer) {
-            $answers[$key]["answerCorrect"] = (bool) $answer["answerCorrect"];
+        /**
+         * @var AnswerData[] $answers
+         */
+        $answers = [];
+        /**
+         * @var array<string, string|array> $answerData
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        foreach ($form->getItemByPostVar("answers")->getValue($form) as $rowIndex => $row) {
+            $answerImage = $row["answerImage"];
+            $file = $answerImage["file"];
+            $deleteImage = (bool) $answerImage["delete"];
+            $imageIdentification = "";
 
-            if ($answer["answerImage"] === null) {
-                //Delete Existing File selected
-                $answers[$key]["answerImage"] = "";
-                //ToDo: Probably needs work to delete actual file through resourceStorage as well
-                continue;
-            }
-            //Check image uploaded for question
-            if (!isset($uploadResults[$answer["answerImage"]])) {
-                //If no image uploaded, try to reuse previous value to keep image
-                foreach ($this->object->getAnswers() as $existingKey => $existingAnswer) {
-                    if ($existingAnswer["answerText"] === $answer["answerText"] && $key === $existingKey) {
-                        $answers[$key]["answerImage"] = $existingAnswer["answerImage"];
-                        continue 2;
+            $imageUploaded = false;
+            if (isset($file["tmp_name"]) && $file["tmp_name"]) {
+                $uploadResult = $uploadResults[$file["tmp_name"]];
+                if ($uploadResult && $uploadResult->isOK()) {
+                    //ToDo: probably needs check if already exists and update if it does
+                    $identification = $this->resourceStorage->manage()->upload($uploadResult, new AnswerImageStakeHolder());
+                    try {
+                        $imageIdentification = $identification->serialize();
+                        $imageUploaded = true;
+                    } catch (Throwable $ex) {
+                        //ignore, act as no image uploaded
                     }
                 }
-                $answers[$key]["answerImage"] = "";
-                continue;
             }
-            $uploadResult = $uploadResults[$answer["answerImage"]];
 
-            if ($uploadResult->isOK()) {
-                //ToDo: probably needs check if already exists and update if it does
-                $identification = $this->resourceStorage->manage()->upload($uploadResult, new AnswerImageStakeHolder());
-                $answers[$key]["answerImage"] = $identification->serialize();
+            if (!$imageUploaded && $deleteImage) {
+                $imageIdentification = "";
             }
+
+            if (!$imageUploaded && !$deleteImage) {
+                //If no image is uploaded and image should not be deleted, try to find existing image identification
+                foreach ($this->object->getAnswers() as $existingKey => $existingAnswer) {
+                    if ($existingAnswer->getAnswerText() === $row["answerText"] && $rowIndex === $existingKey) {
+                        $imageIdentification = $existingAnswer->getAnswerImage();
+                        break;
+                    }
+                }
+            }
+
+            $answers[] = new AnswerData($row["answerText"], $imageIdentification, $row["answerCorrect"] === "1");
         }
 
         $this->object->setAnswers($answers);
+
+        $answersContainImage = false;
+        foreach ($answers as $answer) {
+            if ($answer->getAnswerImage()) {
+                $answersContainImage = true;
+                break;
+            }
+        }
+
+        $answerType = (int) $form->getInput("answerType");
+
+        if ($answersContainImage && $answerType === 1) {
+            $answerType = 0;
+            ilUtil::sendInfo($this->lng->txt("info_answer_type_change"));
+        }
+        $this->object->setAnswerType($answerType);
+
 
         return 0;
     }
