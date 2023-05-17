@@ -129,11 +129,11 @@ class QuestionConfigForm extends ilPropertyFormGUI
         }
         $aa = new ScoringMatrixInput("Scoring Matrix", "scoringMatrix");
         $aa->setup([
-            "certain" => "Certain",
-            "uncertain" => "Uncertain"
+            "certain" => $this->plugin->txt("question.cbm.certain"),
+            "uncertain" => $this->plugin->txt("question.cbm.uncertain")
         ], [
-            "correct" => "Correct",
-            "incorrect" => "Incorrect"
+            "correct" => $this->plugin->txt("question.cbm.correct"),
+            "incorrect" => $this->plugin->txt("question.cbm.incorrect")
         ]);
         $this->addItem($aa);
 

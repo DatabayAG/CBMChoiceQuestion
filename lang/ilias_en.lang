@@ -13,4 +13,11 @@ general.plugin.requiredParameterMissing#:#The required parameter '%s' could not 
 question.config.correct#:#Correct
 question.config.answerImage.uploadFailure#:#An error occurred while uploading the image.
 question.config.allowMultipleSelection#:#Allow Multiple Selection
+question.config.cbmAnswerRequired#:#Should the response to the CBM be mandatory?
+question.cbm.howCertain#:#How certain are you about your answer?
+question.cbm.certain#:#Certain
+question.cbm.uncertain#:#Uncertain
+question.cbm.correct#:#Correct
+question.cbm.incorrect#:#Incorrect
+question.cbm.required#:#Required
 scoringMatrix.storeAsDefaultForSession#:#Store Matrix Values in Session as Default

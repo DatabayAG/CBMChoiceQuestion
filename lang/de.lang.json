@@ -23,7 +23,16 @@
       "answerImage": {
         "uploadFailure": "Beim hochladen des Bildes ist eine Fehler aufgetreten."
       },
-      "allowMultipleSelection": "Mehrfachauswahl zulassen"
+      "allowMultipleSelection": "Mehrfachauswahl zulassen",
+      "cbmAnswerRequired": "Soll die beantwortung der CBM Verpflichtend sein?"
+    },
+    "cbm": {
+      "howCertain": "Wie sicher sind Sie sich bei Ihrer Antwort?",
+      "certain": "Sicher",
+      "uncertain": "Unsicher",
+      "correct": "Richtig",
+      "incorrect": "Falsch",
+      "required": "Erforderlich"
     }
   },
   "scoringMatrix": {

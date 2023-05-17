@@ -23,7 +23,16 @@
       "answerImage": {
         "uploadFailure": "An error occurred while uploading the image."
       },
-      "allowMultipleSelection": "Allow Multiple Selection"
+      "allowMultipleSelection": "Allow Multiple Selection",
+      "cbmAnswerRequired": "Should the response to the CBM be mandatory?"
+    },
+    "cbm": {
+      "howCertain": "How certain are you about your answer?",
+      "certain": "Certain",
+      "uncertain": "Uncertain",
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "required": "Required"
     }
   },
   "scoringMatrix": {
