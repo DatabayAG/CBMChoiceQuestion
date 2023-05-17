@@ -50,12 +50,17 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      * @var Services
      */
     private $resourceStorage;
+    /**
+     * @var ilGlobalPageTemplate
+     */
+    private $mainTpl;
 
     public function __construct(?int $id = null)
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         global $DIC;
         $this->dic = $DIC;
+        $this->mainTpl = $this->dic->ui()->mainTemplate();
         $this->resourceStorage = $this->dic->resourceStorage();
 
         parent::__construct();
@@ -352,8 +357,25 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      */
     private function renderDynamicQuestionOutput(array $solutions) : ilTemplate
     {
-        $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), false, false);
+        $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
+        $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
         $answers = $this->object->getAnswers();
+        $thumbSize = $this->object->getThumbSize();
+        foreach ($answers as $index => $answer) {
+            $tpl->setCurrentBlock("answer");
+            $tpl->setVariable("Q_ID", $this->object->getId());
+            $tpl->setVariable("ANSWER_ID", $index);
+            if ($answer["answerImage"]) {
+                $resource = $this->resourceStorage->consume()->src($this->resourceStorage->manage()->find($answer["answerImage"]));
+                if ($thumbSize) {
+                    $tpl->setVariable("ANSWER_IMAGE_THUMB_SIZE", $thumbSize);
+                }
+                $tpl->setVariable("ANSWER_IMAGE_URL", $resource->getSrc());
+            }
+            $tpl->setVariable("ANSWER_TEXT", $answer["answerText"]);
+            $tpl->parseCurrentBlock("answer");
+        }
+
         $scoringMatrix = $this->object->getScoringMatrix();
 
 

@@ -1,0 +1,9 @@
+.cbm-answers {
+    display: flex;
+    flex-direction: column;
+}
+
+.cbm-answer-text {
+    display: flex;
+    flex-direction: column;
+}
