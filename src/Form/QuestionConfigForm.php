@@ -76,7 +76,7 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $shuffle->setRequired(false);
         $this->addItem($shuffle);
 
-        $answerTypes = new ilSelectInputGUI($this->lng->txt("answer_types"), "answer_type");
+        $answerTypes = new ilSelectInputGUI($this->lng->txt("answer_types"), "answerType");
         $answerTypes->setRequired(false);
         $answerTypes->setOptions(
             [
