@@ -392,13 +392,25 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     private function renderDynamicQuestionOutput(array $solutions) : ilTemplate
     {
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
+        $tpl->setVariable("QUESTION_TEXT", $this->object->getQuestion());
+        $tpl->setVariable("CBM_TEXT", $this->plugin->txt("question.cbm.howCertain"));
+        if ($this->object->isCBMAnswerRequired()) {
+            $tpl->setVariable("CBM_REQUIRED_TEXT", $this->plugin->txt("question.cbm.required"));
+        }
         $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
         $answers = $this->object->getAnswers();
         $answerType = $this->object->getAnswerType();
         $thumbSize = $this->object->getThumbSize();
+
+        foreach (["certain", "uncertain"] as $value) {
+            $tpl->setCurrentBlock("scoring-matrix-input");
+            $tpl->setVariable("SCORING_MATRIX_VALUE", $value);
+            $tpl->setVariable("SCORING_MATRIX_TEXT", $this->plugin->txt("question.cbm.{$value}"));
+            $tpl->parseCurrentBlock("scoring-matrix-input");
+        }
+
         foreach ($answers as $index => $answer) {
             $tpl->setCurrentBlock($answerType === 0 ? "answer-single" : "answer-multi");
-
             $tpl->setVariable("Q_ID", $this->object->getId());
             $tpl->setVariable("ANSWER_ID", $index);
             if ($answer->getAnswerImage()) {

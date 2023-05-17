@@ -4,6 +4,16 @@
 }
 
 .cbm-answer-text {
+    #display: flex;
+    #flex-direction: column;
+}
+
+.cbm-scoring-matrix {
     display: flex;
     flex-direction: column;
+}
+
+.cbm-required {
+    color: red;
+    font-weight: bolder;
 }

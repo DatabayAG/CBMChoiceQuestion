@@ -1,23 +1,35 @@
 <div>
+    <div class="ilc_qtitle_Title">{QUESTION_TEXT}</div>
     <div class="cbm-answers">
         <!-- BEGIN answer-single -->
-        <div class="cbm-answer">
-            <input type="radio" name="answer{Q_ID}" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
+        <span>
+            <input type="radio" name="answer[answer]" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <!-- BEGIN answer_image -->
                 <img <!-- BEGIN answer_image_thumb_size --> width="{ANSWER_IMAGE_THUMB_SIZE}" height="{ANSWER_IMAGE_THUMB_SIZE}" <!-- END answer_image_thumb_size --> src="{ANSWER_IMAGE_URL}" />
                 <!-- END answer_image -->
                 <span>{ANSWER_TEXT}</span>
             </label>
-        </div>
+        </span>
         <!-- END answer-single -->
         <!-- BEGIN answer-multi -->
         <div class="cbm-answer">
-            <input type="checkbox" name="answer{Q_ID}" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
+            <input type="checkbox" name="answer[answer]" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <span>{ANSWER_TEXT}</span>
             </label>
         </div>
         <!-- END answer-multi -->
+    </div>
+    <div class="ilc_qtitle_Title">{CBM_TEXT} <!-- BEGIN cbm_required --><span class="cbm-required">{CBM_REQUIRED_TEXT}</span><!-- END cbm_required --> </div>
+    <div class="cbm-scoring-matrix">
+        <!-- BEGIN scoring-matrix-input -->
+        <span>
+            <input type="radio" name="answer[cbm]" id="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" value="{SCORING_MATRIX_VALUE}" />
+            <label for="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" class="cbm-option-text">
+                <span>{SCORING_MATRIX_TEXT}</span>
+            </label>
+        </span>
+        <!-- END scoring-matrix-input -->
     </div>
 </div>
