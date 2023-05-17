@@ -25,12 +25,12 @@ use ILIAS\DI\Container;
 use ILIAS\ResourceStorage\Services;
 use ilImageFileInputGUI;
 use ilNumberInputGUI;
+use ilPropertyFormGUI;
 use ilSelectInputGUI;
 use ilTemplate;
 use ilTemplateException;
 use ilTextAreaInputGUI;
 use ilTextInputGUI;
-use ilUtil;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
@@ -167,6 +167,8 @@ class FieldMappingInput extends ilFormPropertyGUI
         $colsAdded = [];
 
         foreach ($rowData as $postVar => $value) {
+            $tpl->setVariable("HIDDEN_ITEM_POST_VAR", "{$this->getPostVar()}[$rowNumber][]");
+            $tpl->setVariable("HIDDEN_ITEM_VALUE", $postVar);
             $inputTemplate = $this->getInputTemplate($postVar);
 
             if (!$inputTemplate) {
@@ -177,6 +179,15 @@ class FieldMappingInput extends ilFormPropertyGUI
             $input = $this->createTmpInput($rowNumber, $value, $inputTemplate);
 
             $input->insert($tpl);
+
+            //Fix for ilImageFileInputGUI not setting Variable "POST_VAR_D" for "has_value" block
+            if ($input instanceof ilImageFileInputGUI && $tpl->blockExists("prop_generic")) {
+                $tpl->blockdata["prop_generic"] = str_replace(
+                    "name=\"_name\"",
+                    "name=\"{$input->getPostVar()}_name\"",
+                    $tpl->blockdata["prop_generic"]
+                );
+            }
 
             if ($input->getAlert()) {
                 $tpl->setVariable("FIELD_INPUT_ERROR", $input->getAlert());
@@ -264,60 +275,22 @@ class FieldMappingInput extends ilFormPropertyGUI
 
     public function checkInput() : bool
     {
-        $rowData = $this->request->getParsedBody()[$this->getPostVar()];
         $success = true;
-        $basePostVar = $this->getPostVar();
 
-        if (!$rowData || count($rowData) === 0) {
-            ilUtil::sendFailure($this->plugin->txt("updateFailure"));
-            return false;
-        }
+        $rows = $this->request->getParsedBody()[$this->getPostVar()];
 
-        foreach ($this->fieldsData as $fieldData) {
-            $input = $fieldData["input"];
-            foreach ($rowData as $rowKey => $row) {
-                if ($input instanceof ilImageFileInputGUI) {
-                    $currentValue = $row[$input->getPostVar()];
-                    $uploadedFile = $_FILES[$basePostVar]["tmp_name"][$rowKey][$input->getPostVar()];
-
-                    if ($currentValue === "1" && $uploadedFile === "") {
-                        $uploadedFile = null;
-                    }
-
-                    $rowData[$rowKey][$input->getPostVar()] = $uploadedFile;
-                }
-                if ($input instanceof ilCheckboxInputGUI) {
-                    $rowData[$rowKey][$input->getPostVar()] = isset($row[$input->getPostVar()])
-                        ? "1"
-                        : "0";
-                }
+        $colCountSuccess = true;
+        foreach ($rows as $rowIndex => $row) {
+            if (count($row) !== count($this->fieldsData)) {
+                $colCountSuccess = false;
+            }
+            foreach ($row as $colIndex => $inputPostVar) {
+                $input = $this->createTmpInput($rowIndex, "", $this->fieldsData[$colIndex]["input"]);
+                $inputSuccess = $this->inputCheckInput($input, $rowIndex) ? $success : false;
+                $success = $success === true ? $inputSuccess : $success;
             }
         }
-
-        //Maybe possible to replace with a local variable to avoid even more $_... manipulation.
-        $_POST[$this->getPostVar()] = $rowData;
-        //$this->rowData = $rowData;
-
-        foreach ($rowData as $rowNumber => $data) {
-            if (count($data) !== count($this->fieldsData)) {
-                return false;
-            }
-            foreach ($data as $postVar => $value) {
-                $inputTemplate = $this->getInputTemplate($postVar);
-
-                if (!$inputTemplate) {
-                    return false;
-                }
-
-                $input = $this->createTmpInput($rowNumber, $value, $inputTemplate);
-
-                $this->setFakeInputPost($input, $rowNumber, $basePostVar, $input->getValue());
-                $success = $this->inputCheckInput($input, $rowNumber) ? $success : false;
-                $this->resetFakeInputPost($input, $rowNumber, $basePostVar);
-            }
-        }
-
-        return $success;
+        return $colCountSuccess && $success;
     }
 
     private function getFolderPath(string $file = "") : string
@@ -327,84 +300,19 @@ class FieldMappingInput extends ilFormPropertyGUI
 
     private function createPostVar(int $rowNumber, string $var) : string
     {
-        return $this->getPostVar() . "[$rowNumber][$var]";
-    }
-
-    /**
-     * @param ilFormPropertyGUI $input
-     * @param int $row
-     * @param string $basePostVar
-     * @param                   $defaultValue
-     * @TODO: Will not work in >= ILIAS 8
-     */
-    private function setFakeInputPost(ilFormPropertyGUI $input, int $row, string $basePostVar, $defaultValue) : void
-    {
-        $matches = [];
-        preg_match("/$basePostVar\[$row]\[(.+)\]/", $input->getPostVar(), $matches);
-        $realPostVar = $matches[1];
-        $fakedPostVar = "tmp_faked_$realPostVar";
-        $input->setPostVar($fakedPostVar);
-
-        if ($input instanceof ilImageFileInputGUI) {
-            $baseData = [];
-            foreach (["name", "type", "tmp_name", "error", "size"] as $fieldName) {
-                $baseData[$fieldName] = $_FILES[$basePostVar][$fieldName][$row][$realPostVar];
-            }
-        } elseif ($input instanceof ilCheckboxInputGUI) {
-            $baseData = $this->request->getParsedBody()[$basePostVar][$row];
-            $baseData[$realPostVar] = isset($baseData[$realPostVar]) ? "1" : "0";
-        } else {
-            $baseData = $this->request->getParsedBody()[$basePostVar][$row];
-        }
-
-        if ($input instanceof ilImageFileInputGUI) {
-            $data = $baseData ?? [
-                "name" => "",
-                "type" => "",
-                "tmp_name" => "",
-                "error" => 4,
-                "size" => 0
-            ];
-            $_FILES[$fakedPostVar] = $data;
-        } else {
-            $_POST[$fakedPostVar] = $baseData[$realPostVar] ?? $defaultValue;
-        }
-    }
-
-    /**
-     * @param ilFormPropertyGUI $input
-     * @param int $row
-     * @param string $basePostVar
-     * @TODO: Will not work in >= ILIAS 8
-     */
-    private function resetFakeInputPost(ilFormPropertyGUI $input, int $row, string $basePostVar) : void
-    {
-        $fakedPostVar = $input->getPostVar();
-        $realPostVar = str_replace("tmp_faked_", "", $fakedPostVar);
-        if ($input instanceof ilImageFileInputGUI) {
-            foreach ($_FILES[$fakedPostVar] as $fieldName => $value) {
-                $_FILES[$basePostVar][$fieldName][$row][$basePostVar] = $value;
-            }
-
-            unset($_FILES[$fakedPostVar]);
-        } else {
-            $_POST[$basePostVar][$row][$realPostVar] = $_POST[$fakedPostVar];
-            unset($_POST[$fakedPostVar]);
-        }
+        return "{$this->getPostVar()}_{$rowNumber}_$var";
     }
 
     /**
      * @param ilFormPropertyGUI $input
      * @param int $row
      * @return bool
-     * @TODO: Will not work in >= ILIAS 8
      */
     private function inputCheckInput(ilFormPropertyGUI $input, int $row) : bool
     {
-        $realPostVar = str_replace("tmp_faked_", "", $input->getPostVar());
         if (!$input->checkInput()) {
-            $this->errors[$row][$realPostVar]["message"] = $input->getAlert();
-            $this->errors[$row][$realPostVar]["value"] = $_POST[$input->getPostVar()] ?? "";
+            $this->errors[$row][$input->getPostVar()]["message"] = $input->getAlert();
+            $this->errors[$row][$input->getPostVar()]["value"] = $this->dic->http()->request()->getParsedBody()[$input->getPostVar()] ?? "";
             return false;
         }
         return true;
@@ -422,10 +330,33 @@ class FieldMappingInput extends ilFormPropertyGUI
 
     private function getErrorData(ilFormPropertyGUI $input, int $row)
     {
-        $realPostVar = str_replace([
-            $this->getPostVar() . "[$row][",
-            "]"
-        ], "", $input->getPostVar());
-        return $this->errors[$row][$realPostVar] ?? null;
+        return $this->errors[$row][$input->getPostVar()] ?? null;
+    }
+
+    public function getValue(ilPropertyFormGUI $form) : array
+    {
+        $values = [];
+        $rows = $this->request->getParsedBody()[$this->getPostVar()];
+
+        $colCountSuccess = true;
+        foreach ($rows as $rowIndex => $row) {
+            foreach ($row as $colIndex => $inputPostVar) {
+                $postVar = $this->createPostVar($rowIndex, $inputPostVar);
+                $inputTemplate = $this->fieldsData[$colIndex]["input"];
+                if ($inputTemplate instanceof ilImageFileInputGUI) {
+                    $values[$rowIndex][$inputPostVar] = [
+                        "file" => $form->getInput($postVar),
+                        "name" => $form->getInput($postVar . "_name")
+                            ?? isset($form->getInput($postVar)["name"])
+                            ? $form->getInput($postVar)["name"]
+                            : "",
+                        "delete" => $form->getInput($postVar . "_delete") ?? false,
+                    ];
+                    continue;
+                }
+                $values[$rowIndex][$inputPostVar] = $form->getInput($postVar);
+            }
+        }
+        return $values;
     }
 }

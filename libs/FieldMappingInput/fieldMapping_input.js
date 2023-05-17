@@ -48,8 +48,11 @@ document.addEventListener("DOMContentLoaded", function (event) {
       document.querySelectorAll(`#${id} .fieldMapping_row`).forEach((row, index) => {
         let inputs = row.querySelectorAll(`[name^=${id}]`);
         inputs.forEach((input) => {
-          input.name = input.name.replace(/\[\d\]/ig, `[${index}]`);
+          input.name = input.name.replace(/_\d_/ig, `_${index}_`);
           input.id = input.id.replace(/_\d_/ig, `_${index}_`);
+
+          //Only relevant for fake hidden input
+          input.name = input.name.replace(/\[\d\]/ig, `[${index}]`);
         })
       });
     })
