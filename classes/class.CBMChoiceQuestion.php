@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -60,6 +61,11 @@ class CBMChoiceQuestion extends assQuestion
      * @var array<string, string>
      */
     private $scoringMatrix = [];
+
+    /**
+     * @var bool
+     */
+    private $cbmAnswerRequired = false;
 
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
@@ -219,6 +225,7 @@ class CBMChoiceQuestion extends assQuestion
             $this->setAnswers(unserialize($data["answers"] ?? "", ["allowed_classes" => true]) ?: []);
             $this->setAllowMultipleSelection((bool) $data["allow_multiple_selection"]);
             $this->setScoringMatrix(unserialize($data["scoring_matrix"] ?? "", ["allowed_classes" => false]) ?: []);
+            $this->setCBMAnswerRequired((bool) $data["cbm_answer_required"]);
 
             try {
                 $this->setAdditionalContentEditingMode($data['add_cont_edit_mode']);
@@ -278,7 +285,8 @@ class CBMChoiceQuestion extends assQuestion
                 "thumb_size" => ["integer", $this->getThumbSize()],
                 "answer_type" => ["integer", $this->getAnswerType()],
                 "allow_multiple_selection" => ["integer", $this->isAllowMultipleSelection()],
-                "scoring_matrix" => ["clob", serialize($this->getScoringMatrix())]
+                "scoring_matrix" => ["clob", serialize($this->getScoringMatrix())],
+                "cbm_answer_required" => ["integer", $this->isCBMAnswerRequired()],
             ]
         );
     }
@@ -406,6 +414,24 @@ class CBMChoiceQuestion extends assQuestion
     public function setScoringMatrix(array $scoringMatrix) : CBMChoiceQuestion
     {
         $this->scoringMatrix = $scoringMatrix;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCBMAnswerRequired() : bool
+    {
+        return $this->cbmAnswerRequired;
+    }
+
+    /**
+     * @param bool $cbmAnswerRequired
+     * @return CBMChoiceQuestion
+     */
+    public function setCBMAnswerRequired(bool $cbmAnswerRequired) : CBMChoiceQuestion
+    {
+        $this->cbmAnswerRequired = $cbmAnswerRequired;
         return $this;
     }
 }

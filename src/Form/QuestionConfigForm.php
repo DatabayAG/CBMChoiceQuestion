@@ -109,6 +109,13 @@ class QuestionConfigForm extends ilPropertyFormGUI
         );
         $this->addItem($allowMultipleSelection);
 
+        $cbmAnswerRequired = new ilCheckboxInputGUI(
+            $this->plugin->txt("question.config.cbmAnswerRequired"),
+            "cbmAnswerRequired"
+        );
+        $this->addItem($cbmAnswerRequired);
+
+
         $imageFile = new ilImageFileInputGUI($this->lng->txt("answer_image"), "answerImage");
         $answers = new FieldMappingInput($this->lng->txt("answers"), "answers");
 
