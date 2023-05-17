@@ -281,6 +281,32 @@ class CBMChoiceQuestion extends assQuestion
         );
     }
 
+    /**
+     * @param array<int, array<string, mixed>> $solutionRecords
+     * @return array<string, string>
+     */
+    public function getSolutionMapFromSolutionRecords(array $solutionRecords) : array
+    {
+        $solutions = [];
+
+        foreach ($solutionRecords as $solutionRecord) {
+            if (
+                !isset($solutionRecord['value1']) ||
+                !is_string($solutionRecord['value1']) ||
+                0 === strlen($solutionRecord['value1'])
+            ) {
+                continue;
+            }
+
+            $solutions[$solutionRecord['value1']] = '';
+            if (isset($solutionRecord['value2']) && is_string($solutionRecord['value2'])) {
+                $solutions[$solutionRecord['value1']] = $solutionRecord['value2'];
+            }
+        }
+
+        return $solutions;
+    }
+
     public function isMeasureHidden() : bool
     {
         return $this->measureHidden;
