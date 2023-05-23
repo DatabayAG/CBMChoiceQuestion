@@ -253,22 +253,16 @@ class CBMChoiceQuestion extends assQuestion
 
     public function getMaximumPoints() : float
     {
-        $points = $this->getPoints();
-        /*
-        if ($this->getAnswersVariant() === "answers_variant_single") {
-            foreach ($this->getAnswersSingle() as $answer) {
-                if ((float) $answer->getPoints() > $points) {
-                    $points = (float) $answer->getPoints();
-                }
+        $points = (float) $this->getPoints();
+
+        $scoringMatrixPoints = $points;
+        foreach ($this->getScoringMatrix() as $scoringMatrixValue) {
+            $newPoints = $points + (float) $scoringMatrixValue;
+            if ($newPoints > $scoringMatrixPoints) {
+                $scoringMatrixPoints = $newPoints;
             }
         }
-
-        if ($this->getAnswersVariant() === "answers_variant_multi") {
-            foreach ($this->getAnswersMulti() as $answer) {
-                $points += max((float) $answer->getPoints(), (float) $answer->getPointsUnchecked());
-            }
-        }*/
-        return $points;
+        return $scoringMatrixPoints;
     }
 
     public function saveAdditionalQuestionDataToDb() : void

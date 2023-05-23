@@ -407,6 +407,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $answers = $shuffleAnswers ? $this->object->getShuffler()->shuffle($this->object->getAnswers()) : $this->object->getAnswers();
         $isSingleLineAnswer = $this->object->getAnswerType() === 0;
         $thumbSize = $this->object->getThumbSize();
+        $scoringMatrix = $this->object->getScoringMatrix();
 
         foreach (["certain", "uncertain"] as $value) {
             $tpl->setCurrentBlock("scoring-matrix-input");
@@ -439,9 +440,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             );
             $tpl->parseCurrentBlock($isSingleLineAnswer ? "answer-single" : "answer-multi");
         }
-
-        $scoringMatrix = $this->object->getScoringMatrix();
-
 
         return $tpl;
     }
