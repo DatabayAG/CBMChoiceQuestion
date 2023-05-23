@@ -138,14 +138,21 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $this->addItem($aa);
 
         $answers->addField($answerText);
-        $answers->addField($imageFile, false);
+        if ($singleLineAnswer) {
+            $answers->addField($imageFile, false);
+        }
         $answers->addField(new ilCheckboxInputGUI($this->plugin->txt("question.config.correct"), "answerCorrect"));
         $answers->setRequired(true);
-        $answers->setRowData([[
+
+        $defaultData = [
             "answerText" => "",
-            "answerImage" => "",
             "answerCorrect" => false
-        ]]);
+        ];
+        if ($singleLineAnswer) {
+            $defaultData["answerImage"] = "";
+        }
+
+        $answers->setRowData([$defaultData]);
 
         $this->addItem($answers);
         $parent->addQuestionFormCommandButtons($this);
