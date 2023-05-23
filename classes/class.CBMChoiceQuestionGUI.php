@@ -107,6 +107,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             if ($this->object->getAnswers() !== []) {
                 $answerData = [];
                 foreach ($this->object->getAnswers() as $row => $answer) {
+                    //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
+                    if ($this->object->getAnswerType() === 1) {
+                        $answer->setAnswerText(str_replace("< ", "<", $answer->getAnswerText()));
+                    }
                     $answerData[$row] = $answer->jsonSerialize();
                 }
 
@@ -399,7 +403,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
         $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
         $answers = $this->object->getAnswers();
-        $answerType = $this->object->getAnswerType();
+        $isSingleLineAnswer = $this->object->getAnswerType() === 0;
         $thumbSize = $this->object->getThumbSize();
 
         foreach (["certain", "uncertain"] as $value) {
@@ -410,10 +414,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
 
         foreach ($answers as $index => $answer) {
-            $tpl->setCurrentBlock($answerType === 0 ? "answer-single" : "answer-multi");
+            $tpl->setCurrentBlock($isSingleLineAnswer ? "answer-single" : "answer-multi");
             $tpl->setVariable("Q_ID", $this->object->getId());
             $tpl->setVariable("ANSWER_ID", $index);
-            if ($answer->getAnswerImage()) {
+            if (!$isSingleLineAnswer && $answer->getAnswerImage()) {
                 $resource = $this->resourceStorage->consume()->src(
                     $this->resourceStorage->manage()->find($answer->getAnswerImage())
                 );
@@ -422,8 +426,16 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 }
                 $tpl->setVariable("ANSWER_IMAGE_URL", $resource->getSrc());
             }
-            $tpl->setVariable("ANSWER_TEXT", $answer->getAnswerText());
-            $tpl->parseCurrentBlock($answerType === 0 ? "answer-single" : "answer-multi");
+
+
+            //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
+            $tpl->setVariable(
+                "ANSWER_TEXT",
+                $isSingleLineAnswer
+                    ? $answer->getAnswerText()
+                    : str_replace("< ", "<", $answer->getAnswerText())
+            );
+            $tpl->parseCurrentBlock($isSingleLineAnswer ? "answer-single" : "answer-multi");
         }
 
         $scoringMatrix = $this->object->getScoringMatrix();
