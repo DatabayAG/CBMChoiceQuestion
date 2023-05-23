@@ -390,11 +390,16 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     }
 
     /**
-     * @param array<string, string> $solutions
+     * @param array<string, string> $solution
      * @return ilTemplate
      */
-    private function renderDynamicQuestionOutput(array $solutions) : ilTemplate
+    private function renderDynamicQuestionOutput(array $solution = []) : ilTemplate
     {
+        if ($solution !== []) {
+            if (isset($solution["answer"]) && $solution["answer"] !== null) {
+                $solution["answer"] = (int) $solution["answer"];
+            }
+        }
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
         $tpl->setVariable("QUESTION_TEXT", $this->object->getQuestion());
         $tpl->setVariable("CBM_TEXT", $this->plugin->txt("question.cbm.howCertain"));
@@ -407,19 +412,24 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $answers = $shuffleAnswers ? $this->object->getShuffler()->shuffle($this->object->getAnswers()) : $this->object->getAnswers();
         $isSingleLineAnswer = $this->object->getAnswerType() === 0;
         $thumbSize = $this->object->getThumbSize();
-        $scoringMatrix = $this->object->getScoringMatrix();
 
         foreach (["certain", "uncertain"] as $value) {
             $tpl->setCurrentBlock("scoring-matrix-input");
             $tpl->setVariable("SCORING_MATRIX_VALUE", $value);
-            $tpl->setVariable("SCORING_MATRIX_TEXT", $this->plugin->txt("question.cbm.{$value}"));
+            $tpl->setVariable("SCORING_MATRIX_TEXT", $this->plugin->txt("question.cbm.$value"));
+            if ($solution["cbm"] === $value) {
+                $tpl->setVariable("CHECKED", "checked");
+            }
             $tpl->parseCurrentBlock("scoring-matrix-input");
         }
 
-        foreach ($answers as $index => $answer) {
+        foreach ($answers as $answer) {
             $tpl->setCurrentBlock($isSingleLineAnswer ? "answer-single" : "answer-multi");
             $tpl->setVariable("Q_ID", $this->object->getId());
-            $tpl->setVariable("ANSWER_ID", $index);
+            $tpl->setVariable("ANSWER_ID", $answer->getId());
+            if ($solution["answer"] === $answer->getId()) {
+                $tpl->setVariable("CHECKED", "checked");
+            }
             if (!$isSingleLineAnswer && $answer->getAnswerImage()) {
                 $resource = $this->resourceStorage->consume()->src(
                     $this->resourceStorage->manage()->find($answer->getAnswerImage())

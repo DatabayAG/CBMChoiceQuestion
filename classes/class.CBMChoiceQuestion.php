@@ -85,6 +85,32 @@ class CBMChoiceQuestion extends assQuestion
         return 'question-' . $this->getId() . '-' . $field;
     }
 
+    public function isAnswered($active_id, $pass = null) : bool
+    {
+        return assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId()) >= 1;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function getSolutionSubmit() : array
+    {
+        $post = $this->dic->http()->request()->getParsedBody()["answer"];
+
+        $answerId = null;
+        foreach ($this->getAnswers() as $existingAnswer) {
+            if (isset($post["answer"][$existingAnswer->getId()])) {
+                $answerId = $existingAnswer->getId();
+            }
+        }
+        $cbmChoice = isset($post["cbm"]) ? $post["cbm"] : null;
+
+        return [
+            "answer" => $answerId,
+            "cbm" => $cbmChoice,
+        ];
+    }
+
     public function saveWorkingData($active_id, $pass = null, $authorized = true)
     {
         if ($pass === null) {
@@ -92,12 +118,13 @@ class CBMChoiceQuestion extends assQuestion
         }
 
         $numEnteredValues = 0;
-
+        $cbmSelected = false;
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (
             &$numEnteredValues,
             $active_id,
             $pass,
-            $authorized
+            $authorized,
+            &$cbmSelected
         ) {
             $this->removeCurrentSolution($active_id, $pass, $authorized);
 
@@ -111,7 +138,10 @@ class CBMChoiceQuestion extends assQuestion
                     $authorized
                 );
 
-                if (is_string($solutionValue) && strlen($solutionValue) > 0) {
+                if ($solutionValue !== null) {
+                    if ($solutionName === "cbm") {
+                        $cbmSelected = true;
+                    }
                     $numEnteredValues++;
                 }
             }
@@ -137,6 +167,10 @@ class CBMChoiceQuestion extends assQuestion
                 $active_id,
                 $this->getId()
             );
+        }
+
+        if ($this->isCBMAnswerRequired()) {
+            return $cbmSelected;
         }
 
         return true;

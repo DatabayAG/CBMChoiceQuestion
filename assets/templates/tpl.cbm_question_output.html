@@ -3,7 +3,7 @@
     <div class="cbm-answers">
         <!-- BEGIN answer-single -->
         <span>
-            <input type="radio" name="answer[answer]" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
+            <input type="radio" name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <!-- BEGIN answer_image -->
                 <img <!-- BEGIN answer_image_thumb_size --> width="{ANSWER_IMAGE_THUMB_SIZE}" height="{ANSWER_IMAGE_THUMB_SIZE}" <!-- END answer_image_thumb_size --> src="{ANSWER_IMAGE_URL}" />
@@ -14,7 +14,7 @@
         <!-- END answer-single -->
         <!-- BEGIN answer-multi -->
         <div class="cbm-answer">
-            <input type="checkbox" name="answer[answer]" id="answer_{ANSWER_ID}" value="{ANSWER_ID}" {CHECKED} />
+            <input type="checkbox" name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <span>{ANSWER_TEXT}</span>
             </label>
@@ -25,7 +25,7 @@
     <div class="cbm-scoring-matrix">
         <!-- BEGIN scoring-matrix-input -->
         <span>
-            <input type="radio" name="answer[cbm]" id="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" value="{SCORING_MATRIX_VALUE}" />
+            <input type="radio" name="answer[cbm]" id="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" value="{SCORING_MATRIX_VALUE}" {CHECKED} />
             <label for="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" class="cbm-option-text">
                 <span>{SCORING_MATRIX_TEXT}</span>
             </label>
