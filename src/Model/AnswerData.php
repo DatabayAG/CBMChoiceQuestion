@@ -19,39 +19,55 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\CBMChoiceQuestion\Model;
 
-use JsonSerializable;
 use ReflectionClass;
+use Throwable;
 
 /**
  * Class AnswerData
  * @package ILIAS\Plugin\CBMChoiceQuestion\Model
  * @author Marvin Beym <mbeym@databay.de>
  */
-class AnswerData implements JsonSerializable
+class AnswerData
 {
     /**
-     * @var string
+     * @var int
      */
-    private $answerText = "";
+    private $id;
+
     /**
      * @var string
      */
-    private $answerImage = "";
+    private $answerText;
+
+    /**
+     * @var string
+     */
+    private $answerImage;
+
     /**
      * @var bool
      */
-    private $answerCorrect = false;
+    private $answerCorrect;
 
     /**
      * @param string $answerText
      * @param string $answerImage
      * @param bool $answerCorrect
      */
-    public function __construct(string $answerText, string $answerImage, bool $answerCorrect)
+    public function __construct(int $id, string $answerText, string $answerImage, bool $answerCorrect)
     {
+        $this->id = $id;
         $this->answerText = $answerText;
         $this->answerImage = $answerImage;
         $this->answerCorrect = $answerCorrect;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId() : int
+    {
+        return $this->id;
     }
 
     /**
@@ -108,11 +124,18 @@ class AnswerData implements JsonSerializable
         return $this;
     }
 
-    public function jsonSerialize() : array
+    /**
+     * @param string[] $propertyBlacklist
+     * @return array<string, mixed>
+     */
+    public function toArray(array $propertyBlacklist = []) : array
     {
         $values = [];
         $refClass = new ReflectionClass($this);
         foreach ($refClass->getProperties() as $property) {
+            if (in_array($property->getName(), $propertyBlacklist, true)) {
+                continue;
+            }
             $property->setAccessible(true);
             $values[$property->getName()] = $property->getValue($this);
         }

@@ -111,7 +111,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     if ($this->object->getAnswerType() === 1) {
                         $answer->setAnswerText(str_replace("< ", "<", $answer->getAnswerText()));
                     }
-                    $answerData[$row] = $answer->jsonSerialize();
+                    $answerData[$row] = $answer->toArray(["checked"]);
                 }
 
                 $form->setValuesByArray([
@@ -214,7 +214,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 }
             }
 
-            $answers[] = new AnswerData($row["answerText"], $imageIdentification, $row["answerCorrect"] === "1");
+            $answers[] = new AnswerData($rowIndex, $row["answerText"], $imageIdentification, $row["answerCorrect"] === "1");
         }
 
         $this->object->setAnswers($answers);

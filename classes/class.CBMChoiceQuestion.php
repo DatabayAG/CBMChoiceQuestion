@@ -87,7 +87,7 @@ class CBMChoiceQuestion extends assQuestion
 
     public function saveWorkingData($active_id, $pass = null, $authorized = true)
     {
-        if (null === $pass) {
+        if ($pass === null) {
             $pass = ilObjTest::_getPass($active_id);
         }
 
@@ -213,6 +213,16 @@ class CBMChoiceQuestion extends assQuestion
         $res = $this->db->queryF($this->buildQuestionDataQuery(), ['integer'], [$questionId]);
 
         while ($data = $this->db->fetchAssoc($res)) {
+            $answers = [];
+            foreach (unserialize($data["answers"] ?? "", ["allowed_classes" => true]) ?: [] as $answerData) {
+                $answers[$answerData["id"]] = new AnswerData(
+                    $answerData["id"],
+                    $answerData["answerText"],
+                    $answerData["answerImage"],
+                    $answerData["answerCorrect"]
+                );
+            }
+
             $this->setId($questionId);
             $this->setOriginalId($data['original_id']);
             $this->setObjId($data['obj_fi']);
@@ -229,7 +239,7 @@ class CBMChoiceQuestion extends assQuestion
             $this->setShuffle((bool) $data["shuffle"]);
             $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
             $this->setAnswerType((int) $data["answer_type"]);
-            $this->setAnswers(unserialize($data["answers"] ?? "", ["allowed_classes" => true]) ?: []);
+            $this->setAnswers($answers);
             $this->setAllowMultipleSelection((bool) $data["allow_multiple_selection"]);
             $this->setScoringMatrix(unserialize($data["scoring_matrix"] ?? "", ["allowed_classes" => false]) ?: []);
             $this->setCBMAnswerRequired((bool) $data["cbm_answer_required"]);
@@ -274,6 +284,11 @@ class CBMChoiceQuestion extends assQuestion
 
     public function saveAdditionalQuestionDataToDb() : void
     {
+        $answers = [];
+        foreach ($this->getAnswers() as $answerData) {
+            $answers[$answerData->getId()] = $answerData->toArray(["checked"]);
+        }
+
         $this->db->replace(
             $this->getAdditionalTableName(),
             [
@@ -281,7 +296,7 @@ class CBMChoiceQuestion extends assQuestion
             ],
             [
                 "hide_measure" => ["integer", (int) $this->isMeasureHidden()],
-                "answers" => ["clob", serialize($this->getAnswers())],
+                "answers" => ["clob", serialize($answers)],
                 "shuffle" => ["integer", (bool) $this->getShuffle()],
                 "thumb_size" => ["integer", $this->getThumbSize()],
                 "answer_type" => ["integer", $this->getAnswerType()],
