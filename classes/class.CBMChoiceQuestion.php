@@ -286,7 +286,7 @@ class CBMChoiceQuestion extends assQuestion
     {
         $answers = [];
         foreach ($this->getAnswers() as $answerData) {
-            $answers[$answerData->getId()] = $answerData->toArray(["checked"]);
+            $answers[$answerData->getId()] = $answerData->toArray();
         }
 
         $this->db->replace(

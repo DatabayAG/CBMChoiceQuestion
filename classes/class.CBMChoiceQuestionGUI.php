@@ -111,7 +111,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     if ($this->object->getAnswerType() === 1) {
                         $answer->setAnswerText(str_replace("< ", "<", $answer->getAnswerText()));
                     }
-                    $answerData[$row] = $answer->toArray(["checked"]);
+                    $answerData[$row] = $answer->toArray();
                 }
 
                 $form->setValuesByArray([
