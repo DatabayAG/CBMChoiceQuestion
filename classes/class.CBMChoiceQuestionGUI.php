@@ -402,7 +402,9 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             $tpl->setVariable("CBM_REQUIRED_TEXT", $this->plugin->txt("question.cbm.required"));
         }
         $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
-        $answers = $this->object->getAnswers();
+        $shuffleAnswers = $this->object->getShuffle();
+
+        $answers = $shuffleAnswers ? $this->object->getShuffler()->shuffle($this->object->getAnswers()) : $this->object->getAnswers();
         $isSingleLineAnswer = $this->object->getAnswerType() === 0;
         $thumbSize = $this->object->getThumbSize();
 
