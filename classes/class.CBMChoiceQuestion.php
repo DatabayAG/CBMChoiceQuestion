@@ -18,6 +18,7 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+use ILIAS\DI\Container;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -66,10 +67,16 @@ class CBMChoiceQuestion extends assQuestion
      * @var bool
      */
     private $cbmAnswerRequired = false;
+    /**
+     * @var Container
+     */
+    private $dic;
 
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
+        global $DIC;
+        $this->dic = $DIC;
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
