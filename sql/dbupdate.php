@@ -164,7 +164,7 @@ if (
     ]);
 }
 ?>
-<#11>cbmAnswerRequired
+<#11>
 <?php
 if (
     $ilDB->tableExists("cbm_choice_qst_data")
@@ -175,6 +175,19 @@ if (
         "length" => 1,
         "notnull" => true,
         "default" => false,
+    ]);
+}
+?>
+<#12>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "points_for_question")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "points_for_question", [
+        "type" => "float",
+        "notnull" => true,
+        "default" => 0.0,
     ]);
 }
 ?>

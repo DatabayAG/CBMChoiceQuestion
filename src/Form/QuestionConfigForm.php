@@ -63,8 +63,9 @@ class QuestionConfigForm extends ilPropertyFormGUI
 
         $parent->addBasicQuestionFormProperties($this);
 
-        $points = new ilNumberInputGUI($this->lng->txt("points"), "points");
+        $points = new ilNumberInputGUI($this->lng->txt("points"), "pointsForQuestion");
         $points->allowDecimals(true);
+        $points->setDecimals(2);
         $points->setRequired(true);
         $points->setSize(3);
         $points->setMinValue(0.0);
