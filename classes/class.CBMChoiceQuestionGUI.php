@@ -349,12 +349,12 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      */
     public function getPreview($show_question_only = false, $showInlineFeedback = false)
     {
-        $solutions = [];
+        $solution = null;
         if (is_object($this->getPreviewSession())) {
-            $solutions = (array) $this->getPreviewSession()->getParticipantsSolution();
+            $solution = (array)$this->getPreviewSession()->getParticipantsSolution();
         }
 
-        $template = $this->renderDynamicQuestionOutput($solutions);
+        $template = $this->renderDynamicQuestionOutput($solution);
 
         $content = $template->get();
         if (!$show_question_only) {
@@ -374,35 +374,34 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $is_question_postponed,
         $user_post_solutions,
         $show_specific_inline_feedback
-    ) {
-        $solutions = [];
+    )
+    {
+        $solution = new Solution([], "");
         if ($active_id) {
-            $solutions = $this->object->getSolutionMapFromSolutionRecords(
-                (array) $this->object->getTestOutputSolutions($active_id, $pass)
-            );
+            $solution = $this->object->mapSolution((array)$this->object->getTestOutputSolutions($active_id, $pass));
         }
 
         return $this->outQuestionPage(
             '',
             $is_question_postponed,
             $active_id,
-            $this->renderDynamicQuestionOutput($solutions)->get()
+            $this->renderDynamicQuestionOutput($solution)->get()
         );
     }
 
     /**
-     * @param array<string, string> $solution
+     * @param Solution $solution
+     * @param bool $asSolutionOutput
      * @return ilTemplate
+     * @throws ilTemplateException
      */
-    private function renderDynamicQuestionOutput(array $solution = []) : ilTemplate
+    private function renderDynamicQuestionOutput(Solution $solution, bool $asSolutionOutput = false, bool $showQuestionText = true): ilTemplate
     {
-        if ($solution !== []) {
-            if (isset($solution["answer"]) && $solution["answer"] !== null) {
-                $solution["answer"] = (int) $solution["answer"];
-            }
-        }
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
-        $tpl->setVariable("QUESTION_TEXT", $this->object->getQuestion());
+
+        if ($showQuestionText) {
+            $tpl->setVariable("QUESTION_TEXT", $this->object->getQuestion());
+        }
         $tpl->setVariable("CBM_TEXT", $this->plugin->txt("question.cbm.howCertain"));
         if ($this->object->isCBMAnswerRequired()) {
             $tpl->setVariable("CBM_REQUIRED_TEXT", $this->plugin->txt("question.cbm.required"));
@@ -416,9 +415,12 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         foreach (["certain", "uncertain"] as $value) {
             $tpl->setCurrentBlock("scoring-matrix-input");
+            if ($asSolutionOutput) {
+                $tpl->setVariable("DISABLED", "disabled");
+            }
             $tpl->setVariable("SCORING_MATRIX_VALUE", $value);
             $tpl->setVariable("SCORING_MATRIX_TEXT", $this->plugin->txt("question.cbm.$value"));
-            if ($solution["cbm"] === $value) {
+            if ($solution->getCbmChoice() === $value) {
                 $tpl->setVariable("CHECKED", "checked");
             }
             $tpl->parseCurrentBlock("scoring-matrix-input");

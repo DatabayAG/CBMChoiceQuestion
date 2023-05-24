@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
+use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -102,18 +103,15 @@ class CBMChoiceQuestion extends assQuestion
     {
         $post = $this->dic->http()->request()->getParsedBody()["answer"];
 
-        $answerId = null;
+        $solution = [];
         foreach ($this->getAnswers() as $existingAnswer) {
             if (isset($post["answer"][$existingAnswer->getId()])) {
-                $answerId = $existingAnswer->getId();
+                $solution["answer_{$existingAnswer->getId()}"] = $existingAnswer->getId();
             }
         }
-        $cbmChoice = isset($post["cbm"]) ? $post["cbm"] : null;
+        $solution["cbm"] = $post["cbm"] ?? null;
 
-        return [
-            "answer" => $answerId,
-            "cbm" => $cbmChoice,
-        ];
+        return $solution;
     }
 
     public function saveWorkingData($active_id, $pass = null, $authorized = true)
@@ -181,17 +179,49 @@ class CBMChoiceQuestion extends assQuestion
         return true;
     }
 
+    /**
+     * @throws ilTestException
+     */
     public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false)
     {
-        $a = "";
+        if ($returndetails) {
+            throw new ilTestException('Return details not implemented for ' . __METHOD__);
+        }
 
-        // TODO: Implement calculateReachedPoints() method.
+        if (is_null($pass)) {
+            $pass = $this->getSolutionMaxPass($active_id);
+        }
+
+
+        $solution = $this->mapSolution($this->getSolutionValues($active_id, $pass));
+        if ($solution->getAnswers() === [] || $solution->getCbmChoice() === "") {
+            return 0;
+        }
+        $cbmChoice = $solution->getCbmChoice();
+
+        $points = (float) $this->getPointsForQuestion();
+        $allCorrect = true;
+        foreach ($solution->getAnswers() as $answer) {
+            if (!$answer->isAnswerCorrect()) {
+                $allCorrect = false;
+                break;
+            }
+        }
+
+        $scoringMatrix = $this->getScoringMatrix();
+        if ($allCorrect) {
+            $scoringMatrixValue = $scoringMatrix["scoringMatrix_values_incorrect_$cbmChoice"];
+        } else {
+            $points = 0;
+            $scoringMatrixValue = $scoringMatrix["scoringMatrix_values_correct_$cbmChoice"];
+        }
+
+        return $points + (float) $scoringMatrixValue;
     }
 
     public function getQuestionType()
     {
         return "CBMChoiceQuestion";
-        // TODO: Implement getQuestionType() method.
     }
 
     public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null)
@@ -309,7 +339,7 @@ class CBMChoiceQuestion extends assQuestion
 
     public function getMaximumPoints() : float
     {
-        $points = (float)$this->getPointsForQuestion();
+        $points = (float) $this->getPointsForQuestion();
 
         $scoringMatrixPoints = $points;
         foreach ($this->getScoringMatrix() as $scoringMatrixValue) {
@@ -349,28 +379,32 @@ class CBMChoiceQuestion extends assQuestion
 
     /**
      * @param array<int, array<string, mixed>> $solutionRecords
-     * @return array<string, string>
+     * @return Solution
      */
-    public function getSolutionMapFromSolutionRecords(array $solutionRecords) : array
+    public function mapSolution(array $solutionRecords) : Solution
     {
-        $solutions = [];
+        $answers = [];
+        $cbmChoice = "";
 
         foreach ($solutionRecords as $solutionRecord) {
-            if (
-                !isset($solutionRecord['value1']) ||
-                !is_string($solutionRecord['value1']) ||
-                0 === strlen($solutionRecord['value1'])
-            ) {
-                continue;
+            if (strncmp($solutionRecord["value1"], "answer_", strlen("answer_")) === 0) {
+                foreach ($this->getAnswers() as $existingAnswer) {
+                    if (
+                        isset($solutionRecord['value2'])
+                        && $existingAnswer->getId() === (int) $solutionRecord['value2']
+                    ) {
+                        $answers[] = $existingAnswer;
+                        break;
+                    }
+                }
             }
 
-            $solutions[$solutionRecord['value1']] = '';
-            if (isset($solutionRecord['value2']) && is_string($solutionRecord['value2'])) {
-                $solutions[$solutionRecord['value1']] = $solutionRecord['value2'];
+            if ($solutionRecord["value1"] === "cbm") {
+                $cbmChoice = $solutionRecord['value2'] ?? "";
             }
         }
 
-        return $solutions;
+        return new Solution($answers, $cbmChoice);
     }
 
     public function isMeasureHidden() : bool
@@ -494,7 +528,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return float
      */
-    public function getPointsForQuestion(): float
+    public function getPointsForQuestion() : float
     {
         return $this->pointsForQuestion;
     }
@@ -503,7 +537,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param float $pointsForQuestion
      * @return CBMChoiceQuestion
      */
-    public function setPointsForQuestion(float $pointsForQuestion): CBMChoiceQuestion
+    public function setPointsForQuestion(float $pointsForQuestion) : CBMChoiceQuestion
     {
         $this->pointsForQuestion = $pointsForQuestion;
         return $this;
