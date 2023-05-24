@@ -378,7 +378,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $thumbSize = $this->object->getThumbSize();
 
         foreach (["certain", "uncertain"] as $value) {
-            $tpl->setCurrentBlock("scoring-matrix-input");
+            $tpl->setCurrentBlock("scoring_matrix_input");
             if ($asSolutionOutput) {
                 $tpl->setVariable("DISABLED", "disabled");
             }
@@ -387,11 +387,11 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             if ($solution->getCbmChoice() === $value) {
                 $tpl->setVariable("CHECKED", "checked");
             }
-            $tpl->parseCurrentBlock("scoring-matrix-input");
+            $tpl->parseCurrentBlock("scoring_matrix_input");
         }
 
         foreach ($answers as $answer) {
-            $tpl->setCurrentBlock($isSingleLineAnswer ? "answer-single" : "answer-multi");
+            $tpl->setCurrentBlock($isSingleLineAnswer ? "answer_single" : "answer_multi");
             if ($asSolutionOutput) {
                 $tpl->setVariable("DISABLED", "disabled");
                 foreach ($solution->getAnswers() as $solutionAnswer) {
@@ -451,7 +451,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     ? $answer->getAnswerText()
                     : str_replace("< ", "<", $answer->getAnswerText())
             );
-            $tpl->parseCurrentBlock($isSingleLineAnswer ? "answer-single" : "answer-multi");
+            $tpl->parseCurrentBlock($isSingleLineAnswer ? "answer_single" : "answer_multi");
         }
 
         return $tpl;

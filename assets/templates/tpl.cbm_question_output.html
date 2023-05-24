@@ -1,7 +1,7 @@
 <div>
     <div class="ilc_qtitle_Title">{QUESTION_TEXT}</div>
     <div class="cbm-answers">
-        <!-- BEGIN answer-single -->
+        <!-- BEGIN answer_single -->
         <span>
             <input type="radio" {DISABLED} name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
             <!-- BEGIN answer_single_solution_icon -->
@@ -14,8 +14,8 @@
                 {ANSWER_TEXT}
             </label>
         </span>
-        <!-- END answer-single -->
-        <!-- BEGIN answer-multi -->
+        <!-- END answer_single -->
+        <!-- BEGIN answer_multi -->
         <div class="cbm-answer">
             <input type="checkbox" {DISABLED} name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
             <!-- BEGIN answer_multi_solution_icon -->
@@ -25,17 +25,17 @@
                 {ANSWER_TEXT}
             </label>
         </div>
-        <!-- END answer-multi -->
+        <!-- END answer_multi -->
     </div>
     <div class="ilc_qtitle_Title">{CBM_TEXT} <!-- BEGIN cbm_required --><span class="cbm-required">{CBM_REQUIRED_TEXT}</span><!-- END cbm_required --> </div>
     <div class="cbm-scoring-matrix">
-        <!-- BEGIN scoring-matrix-input -->
+        <!-- BEGIN scoring_matrix_input -->
         <span>
             <input type="radio" {DISABLED} name="answer[cbm]" id="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" value="{SCORING_MATRIX_VALUE}" {CHECKED} />
             <label for="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" class="cbm-option-text">
                 <span>{SCORING_MATRIX_TEXT}</span>
             </label>
         </span>
-        <!-- END scoring-matrix-input -->
+        <!-- END scoring_matrix_input -->
     </div>
 </div>
