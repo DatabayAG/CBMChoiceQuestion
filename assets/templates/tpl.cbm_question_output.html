@@ -3,20 +3,26 @@
     <div class="cbm-answers">
         <!-- BEGIN answer-single -->
         <span>
-            <input type="radio" name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
+            <input type="radio" {DISABLED} name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
+            <!-- BEGIN answer_single_solution_icon -->
+                <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_}" />
+            <!-- END answer_single_solution_icon -->
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <!-- BEGIN answer_image -->
                 <img <!-- BEGIN answer_image_thumb_size --> width="{ANSWER_IMAGE_THUMB_SIZE}" height="{ANSWER_IMAGE_THUMB_SIZE}" <!-- END answer_image_thumb_size --> src="{ANSWER_IMAGE_URL}" />
                 <!-- END answer_image -->
-                <span>{ANSWER_TEXT}</span>
+                {ANSWER_TEXT}
             </label>
         </span>
         <!-- END answer-single -->
         <!-- BEGIN answer-multi -->
         <div class="cbm-answer">
-            <input type="checkbox" name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
+            <input type="checkbox" {DISABLED} name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
+            <!-- BEGIN answer_multi_solution_icon -->
+            <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_}" />
+            <!-- END answer_multi_solution_icon -->
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
-                <span>{ANSWER_TEXT}</span>
+                {ANSWER_TEXT}
             </label>
         </div>
         <!-- END answer-multi -->
@@ -25,7 +31,7 @@
     <div class="cbm-scoring-matrix">
         <!-- BEGIN scoring-matrix-input -->
         <span>
-            <input type="radio" name="answer[cbm]" id="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" value="{SCORING_MATRIX_VALUE}" {CHECKED} />
+            <input type="radio" {DISABLED} name="answer[cbm]" id="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" value="{SCORING_MATRIX_VALUE}" {CHECKED} />
             <label for="cbm_{SCORING_MATRIX_VALUE}_{ANSWER_ID}" class="cbm-option-text">
                 <span>{SCORING_MATRIX_TEXT}</span>
             </label>

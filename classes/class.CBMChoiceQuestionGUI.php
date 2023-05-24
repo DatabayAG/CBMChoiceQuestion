@@ -23,6 +23,7 @@ use ILIAS\FileUpload\Exception\IllegalStateException;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput\ScoringMatrixInput;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\QuestionConfigForm;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
+use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 use ILIAS\Plugin\CBMChoiceQuestion\Stakeholder\AnswerImageStakeHolder;
 use ILIAS\ResourceStorage\Services;
 
@@ -255,87 +256,51 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $show_manual_scoring = false,
         $show_question_text = true
     ) {
-        $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/data/css/styles.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript(
-            $this->plugin->getDirectory() . '/data/js/main.js'
-        );
-
-        $measure = '';
-        $notice = '';
+        $solution = new Solution([], "");
         if (($active_id > 0) && (!$show_correct_solution)) {
-            $solutions = $this->object->getSolutionMapFromSolutionRecords(
-                (array) $this->object->getSolutionValues($active_id, $pass)
-            );
-
-            $checkedAnswer = $solutions[qualityQuestion::DECISION_PARAMETER_NAME] ?? '';
-            $measure = $solutions[qualityQuestion::MEASURE_PARAMETER_NAME] ?? '';
-            $notice = $solutions[qualityQuestion::NOTICE_PARAMETER_NAME] ?? '';
-        } else {
-            $checkedAnswer = $this->dic->language()->txt('yes');
+            $solution = $this->object->mapSolution($this->object->getSolutionValues($active_id, $pass));
         }
 
-        $template = $this->plugin->getTemplate('tpl.il_as_qpl_qualityquestion_output_solution.html');
+        $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output_solution.html"), true, true);
 
         if (($active_id > 0) && (!$show_correct_solution)) {
             if ($graphicalOutput) {
                 $reachedPoints = $this->object->getReachedPoints($active_id, $pass);
-                if ($reachedPoints == $this->object->getMaximumPoints()) {
-                    $template->setCurrentBlock('icon_ok');
-                    $template->setVariable('ICON_OK', ilUtil::getImagePath('icon_ok.svg'));
-                    $template->setVariable('TEXT_OK', $this->lng->txt('answer_is_right'));
+                if ($reachedPoints === $this->object->getMaximumPoints()) {
+                    $tpl->setCurrentBlock('icon_ok');
+                    $tpl->setVariable('ICON_OK', ilUtil::getImagePath('icon_ok.svg'));
+                    $tpl->setVariable('TEXT_OK', $this->lng->txt('answer_is_right'));
                 } else {
-                    $template->setCurrentBlock('icon_ok');
+                    $tpl->setCurrentBlock('icon_ok');
                     if ($reachedPoints > 0) {
-                        $template->setVariable('ICON_NOT_OK', ilUtil::getImagePath('icon_mostly_ok.svg'));
-                        $template->setVariable('TEXT_NOT_OK', $this->lng->txt('answer_is_not_correct_but_positive'));
+                        $tpl->setVariable('ICON_NOT_OK', ilUtil::getImagePath('icon_mostly_ok.svg'));
+                        $tpl->setVariable('TEXT_NOT_OK', $this->lng->txt('answer_is_not_correct_but_positive'));
                     } else {
-                        $template->setVariable('ICON_NOT_OK', ilUtil::getImagePath('icon_not_ok.svg'));
-                        $template->setVariable('TEXT_NOT_OK', $this->lng->txt('answer_is_wrong'));
+                        $tpl->setVariable('ICON_NOT_OK', ilUtil::getImagePath('icon_not_ok.svg'));
+                        $tpl->setVariable('TEXT_NOT_OK', $this->lng->txt('answer_is_wrong'));
                     }
                 }
-                $template->parseCurrentBlock();
+                $tpl->parseCurrentBlock();
             }
         }
 
-        $checkedAnswer = $this->object->getHtmlUserSolutionPurifier()->purify($checkedAnswer);
-        $measure = $this->object->getHtmlUserSolutionPurifier()->purify($measure);
-        $notice = $this->object->getHtmlUserSolutionPurifier()->purify($notice);
         if ($this->renderPurposeSupportsFormHtml()) {
-            $template->setCurrentBlock('answer_div');
-            $template->setVariable('DIV_ANSWER', $this->object->prepareTextareaOutput($checkedAnswer, true));
-        } else {
-            $template->setCurrentBlock('answer_textarea');
-            $template->setVariable('TA_ANSWER', $this->object->prepareTextareaOutput($checkedAnswer, true, true));
-        }
-        $template->parseCurrentBlock();
-
-        if (strlen($measure) > 0) {
-            if (
-                !$this->object->isMeasureHidden() &&
-                0 === strcmp($checkedAnswer, qualityQuestion::DECISION_FAILURE_INDICATOR)
-            ) {
-                $template->setVariable('MEASURE', $this->object->prepareTextareaOutput($measure, true, true));
-            }
-        }
-
-        if (strlen($notice) > 0) {
-            $template->setVariable(
-                'NOTICE',
-                $this->object->prepareTextareaOutput($notice, true, !$this->renderPurposeSupportsFormHtml())
-            );
-        }
-
-        if ($show_question_text) {
-            $template->setVariable(
-                'QUESTIONTEXT',
+            $tpl->setCurrentBlock('answer_div');
+            $tpl->setVariable(
+                'DIV_ANSWER',
                 $this->object->prepareTextareaOutput(
-                    $this->object->getQuestion(),
-                    !$this->renderPurposeSupportsFormHtml()
+                    $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
+                    true
                 )
             );
+        } else {
+            $tpl->setCurrentBlock('answer_textarea');
+            //ToDo: check why required and implement if needed
+            $tpl->setVariable('TA_ANSWER', $this->object->prepareTextareaOutput("Y", true, true));
         }
+        $tpl->parseCurrentBlock();
 
-        $content = $template->get();
+        $content = $tpl->get();
         if (!$show_question_only) {
             $content = $this->getILIASPage($content);
         }
@@ -351,7 +316,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     {
         $solution = null;
         if (is_object($this->getPreviewSession())) {
-            $solution = (array)$this->getPreviewSession()->getParticipantsSolution();
+            $solution = (array) $this->getPreviewSession()->getParticipantsSolution();
         }
 
         $template = $this->renderDynamicQuestionOutput($solution);
@@ -374,11 +339,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $is_question_postponed,
         $user_post_solutions,
         $show_specific_inline_feedback
-    )
-    {
+    ) {
         $solution = new Solution([], "");
         if ($active_id) {
-            $solution = $this->object->mapSolution((array)$this->object->getTestOutputSolutions($active_id, $pass));
+            $solution = $this->object->mapSolution((array) $this->object->getTestOutputSolutions($active_id, $pass));
         }
 
         return $this->outQuestionPage(
@@ -395,7 +359,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      * @return ilTemplate
      * @throws ilTemplateException
      */
-    private function renderDynamicQuestionOutput(Solution $solution, bool $asSolutionOutput = false, bool $showQuestionText = true): ilTemplate
+    private function renderDynamicQuestionOutput(Solution $solution, bool $asSolutionOutput = false, bool $showQuestionText = true) : ilTemplate
     {
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
 
@@ -428,10 +392,46 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         foreach ($answers as $answer) {
             $tpl->setCurrentBlock($isSingleLineAnswer ? "answer-single" : "answer-multi");
+            if ($asSolutionOutput) {
+                $tpl->setVariable("DISABLED", "disabled");
+                foreach ($solution->getAnswers() as $solutionAnswer) {
+                    if ($answer->getId() === $solutionAnswer->getId()) {
+                        $tpl->setCurrentBlock(
+                            $isSingleLineAnswer
+                            ? 'answer_single_solution_icon'
+                            : "answer_multi_solution_icon"
+                        );
+                        $tpl->setVariable(
+                            'SOLUTION_ICON_SRC',
+                            ilUtil::getImagePath(
+                                $answer->isAnswerCorrect()
+                                    ? 'icon_ok.svg'
+                                    : "icon_not_ok.svg"
+                            )
+                        );
+                        $tpl->setVariable(
+                            'SOLUTION_ICON_TEXT',
+                            $this->lng->txt(
+                                $answer->isAnswerCorrect()
+                                    ? "answer_is_right"
+                                    : "answer_is_wrong"
+                            )
+                        );
+                        $tpl->parseCurrentBlock(
+                            $isSingleLineAnswer
+                            ? 'answer_single_solution_icon'
+                            : "answer_multi_solution_icon"
+                        );
+                    }
+                }
+            }
             $tpl->setVariable("Q_ID", $this->object->getId());
             $tpl->setVariable("ANSWER_ID", $answer->getId());
-            if ($solution["answer"] === $answer->getId()) {
-                $tpl->setVariable("CHECKED", "checked");
+            foreach ($solution->getAnswers() as $solutionAnswer) {
+                if ($answer->getId() === $solutionAnswer->getId()) {
+                    $tpl->setVariable("CHECKED", "checked");
+                    break;
+                }
             }
             if (!$isSingleLineAnswer && $answer->getAnswerImage()) {
                 $resource = $this->resourceStorage->consume()->src(
