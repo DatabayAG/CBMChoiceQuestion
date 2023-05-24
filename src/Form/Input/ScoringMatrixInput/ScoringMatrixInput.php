@@ -221,8 +221,8 @@ class ScoringMatrixInput extends ilFormPropertyGUI
             $tpl->setVariable("STORE_AS_DEFAULT_INPUT_ERROR", $storeAsDefaultInput->getAlert());
         }
 
-        $a_tpl->setCurrentBlock('prop_generic');
-        $a_tpl->setVariable('PROP_GENERIC', $tpl->get());
+        $a_tpl->setCurrentBlock("prop_generic");
+        $a_tpl->setVariable("PROP_GENERIC", $tpl->get());
         $a_tpl->parseCurrentBlock();
         $this->mainTpl->addCSS($this->getFolderPath("style.css"));
     }

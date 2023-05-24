@@ -53,13 +53,13 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         global $DIC;
         $this->dic = $DIC;
-        $this->setId('cbmChoiceQuestion');
+        $this->setId("cbmChoiceQuestion");
         parent::__construct();
 
         $this->setFormAction($this->ctrl->getFormAction($parent));
         $this->setTitle($parent->outQuestionType());
         $this->setMultipart(true);
-        $this->setTableWidth('100%');
+        $this->setTableWidth("100%");
 
         $parent->addBasicQuestionFormProperties($this);
 
@@ -81,8 +81,8 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $answerTypes->setRequired(false);
         $answerTypes->setOptions(
             [
-                $this->lng->txt('answers_singleline'),
-                $this->lng->txt('answers_multiline')
+                $this->lng->txt("answers_singleline"),
+                $this->lng->txt("answers_multiline")
             ]
         );
         $this->addItem($answerTypes);
@@ -94,14 +94,14 @@ class QuestionConfigForm extends ilPropertyFormGUI
             $thumbSize->setMinValue(20);
             $thumbSize->setDecimals(0);
             $thumbSize->setSize(6);
-            $thumbSize->setInfo($this->lng->txt('thumb_size_info'));
+            $thumbSize->setInfo($this->lng->txt("thumb_size_info"));
             $thumbSize->setRequired(false);
             $this->addItem($thumbSize);
         }
 
-        $measure = new ilCheckboxInputGUI($this->plugin->txt('field_hide_measure'), 'hideMeasure');
-        $measure->setInfo($this->plugin->txt('field_hide_measure_info'));
-        $measure->setValue('1');
+        $measure = new ilCheckboxInputGUI($this->plugin->txt("field_hide_measure"), "hideMeasure");
+        $measure->setInfo($this->plugin->txt("field_hide_measure_info"));
+        $measure->setValue("1");
         $this->addItem($measure);
 
         $allowMultipleSelection = new ilCheckboxInputGUI(
@@ -126,7 +126,7 @@ class QuestionConfigForm extends ilPropertyFormGUI
             $answerText = new ilTextAreaInputGUI($this->lng->txt("answer_text"), "answerText");
             $answerText->setUseRte(true);
             $answerText->setUseRTE(true);
-            $answerText->setRteTagSet('full');
+            $answerText->setRteTagSet("full");
         }
         $aa = new ScoringMatrixInput("Scoring Matrix", "scoringMatrix");
         $aa->setup([

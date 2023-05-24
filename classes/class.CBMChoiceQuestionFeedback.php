@@ -28,7 +28,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -57,7 +57,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -65,7 +65,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getAllSpecificAnswerFeedbackContents($questionId)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -109,7 +109,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getSpecificAnswerFeedbackExportPresentation($questionId, $questionIndex, $answerIndex)
     {
-        return '';
+        return "";
     }
 
     /**

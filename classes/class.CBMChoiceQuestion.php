@@ -22,7 +22,7 @@ use ILIAS\DI\Container;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilCBMChoiceQuestion
@@ -88,7 +88,7 @@ class CBMChoiceQuestion extends assQuestion
 
     public function getHttpParameterNameForField(string $field) : string
     {
-        return 'question-' . $this->getId() . '-' . $field;
+        return "question-" . $this->getId() . "-" . $field;
     }
 
     public function isAnswered($active_id, $pass = null) : bool
@@ -153,8 +153,8 @@ class CBMChoiceQuestion extends assQuestion
         if ($numEnteredValues && ilObjAssessmentFolder::_enabledAssessmentLogging()) {
             assQuestion::logAction(
                 $this->lng->txtlng(
-                    'assessment',
-                    'log_user_entered_values',
+                    "assessment",
+                    "log_user_entered_values",
                     ilObjAssessmentFolder::_getLogLanguage()
                 ),
                 $active_id,
@@ -163,8 +163,8 @@ class CBMChoiceQuestion extends assQuestion
         } elseif (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
             assQuestion::logAction(
                 $this->lng->txtlng(
-                    'assessment',
-                    'log_user_not_entered_values',
+                    "assessment",
+                    "log_user_not_entered_values",
                     ilObjAssessmentFolder::_getLogLanguage()
                 ),
                 $active_id,
@@ -185,7 +185,7 @@ class CBMChoiceQuestion extends assQuestion
     public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false)
     {
         if ($returndetails) {
-            throw new ilTestException('Return details not implemented for ' . __METHOD__);
+            throw new ilTestException("Return details not implemented for " . __METHOD__);
         }
 
         if (is_null($pass)) {
@@ -252,7 +252,7 @@ class CBMChoiceQuestion extends assQuestion
         if ($for_test) {
             $clone->saveToDb($originalId);
         } else {
-            $clone->saveToDb('');
+            $clone->saveToDb("");
         }
 
         $clone->copyPageOfQuestion($this->getId());
@@ -263,7 +263,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
 
-    public function saveToDb($originalId = '')
+    public function saveToDb($originalId = "")
     {
         $this->saveQuestionDataToDb($originalId);
         $this->saveAdditionalQuestionDataToDb();
@@ -279,7 +279,7 @@ class CBMChoiceQuestion extends assQuestion
 
     public function loadFromDb($questionId)
     {
-        $res = $this->db->queryF($this->buildQuestionDataQuery(), ['integer'], [$questionId]);
+        $res = $this->db->queryF($this->buildQuestionDataQuery(), ["integer"], [$questionId]);
 
         while ($data = $this->db->fetchAssoc($res)) {
             $answers = [];
@@ -293,18 +293,18 @@ class CBMChoiceQuestion extends assQuestion
             }
 
             $this->setId($questionId);
-            $this->setOriginalId($data['original_id']);
-            $this->setObjId($data['obj_fi']);
-            $this->setTitle($data['title']);
-            $this->setNrOfTries($data['nr_of_tries']);
-            $this->setComment($data['description']);
-            $this->setAuthor($data['author']);
-            $this->setPointsForQuestion((float) $data['points_for_question']);
-            $this->setOwner($data['owner']);
-            $this->setEstimatedWorkingTimeFromDurationString($data['working_time']);
-            $this->setLastChange($data['tstamp']);
-            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data['question_text'], 1));
-            $this->setHideMeasure((bool) $data['hide_measure']);
+            $this->setOriginalId($data["original_id"]);
+            $this->setObjId($data["obj_fi"]);
+            $this->setTitle($data["title"]);
+            $this->setNrOfTries($data["nr_of_tries"]);
+            $this->setComment($data["description"]);
+            $this->setAuthor($data["author"]);
+            $this->setPointsForQuestion((float) $data["points_for_question"]);
+            $this->setOwner($data["owner"]);
+            $this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
+            $this->setLastChange($data["tstamp"]);
+            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
+            $this->setHideMeasure((bool) $data["hide_measure"]);
             $this->setShuffle((bool) $data["shuffle"]);
             $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
             $this->setAnswerType((int) $data["answer_type"]);
@@ -314,7 +314,7 @@ class CBMChoiceQuestion extends assQuestion
             $this->setCBMAnswerRequired((bool) $data["cbm_answer_required"]);
 
             try {
-                $this->setAdditionalContentEditingMode($data['add_cont_edit_mode']);
+                $this->setAdditionalContentEditingMode($data["add_cont_edit_mode"]);
             } catch (ilTestQuestionPoolException $e) {
             }
         }
@@ -390,8 +390,8 @@ class CBMChoiceQuestion extends assQuestion
             if (strncmp($solutionRecord["value1"], "answer_", strlen("answer_")) === 0) {
                 foreach ($this->getAnswers() as $existingAnswer) {
                     if (
-                        isset($solutionRecord['value2'])
-                        && $existingAnswer->getId() === (int) $solutionRecord['value2']
+                        isset($solutionRecord["value2"])
+                        && $existingAnswer->getId() === (int) $solutionRecord["value2"]
                     ) {
                         $answers[] = $existingAnswer;
                         break;
@@ -400,7 +400,7 @@ class CBMChoiceQuestion extends assQuestion
             }
 
             if ($solutionRecord["value1"] === "cbm") {
-                $cbmChoice = $solutionRecord['value2'] ?? "";
+                $cbmChoice = $solutionRecord["value2"] ?? "";
             }
         }
 

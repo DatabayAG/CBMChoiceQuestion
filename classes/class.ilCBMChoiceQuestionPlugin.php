@@ -20,7 +20,7 @@ declare(strict_types=1);
 use ILIAS\DI\Container;
 use ILIAS\Plugin\MatrixChatClient\Libs\JsonTranslationLoader\JsonTranslationLoader;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilassCBMChoiceQuestion
