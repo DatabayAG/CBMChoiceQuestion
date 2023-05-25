@@ -219,9 +219,9 @@ class CBMChoiceQuestion extends assQuestion
         return "CBMChoiceQuestion";
     }
 
-    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null)
+    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null) : ?int
     {
-        if ($this->getId() <= 0) {
+        if ((int) $this->getId() <= 0) {
             return null;
         }
 
@@ -230,31 +230,18 @@ class CBMChoiceQuestion extends assQuestion
         $originalId = assQuestion::_getOriginalId($this->getId());
         $clone->setId(-1);
 
-        if ((int) $testObjId > 0) {
-            $clone->setObjId($testObjId);
-        }
+        $clone->setObjId((int) $testObjId > 0 ? $testObjId : $clone->getObjId());
+        $clone->setTitle($title ?: $clone->getTitle());
+        $clone->setAuthor($author ?: $clone->getAuthor());
+        $clone->setOwner($owner ?: $clone->getOwner());
 
-        if ($title) {
-            $clone->setTitle($title);
-        }
-        if ($author) {
-            $clone->setAuthor($author);
-        }
-        if ($owner) {
-            $clone->setOwner($owner);
-        }
-
-        if ($for_test) {
-            $clone->saveToDb($originalId);
-        } else {
-            $clone->saveToDb("");
-        }
+        $clone->saveToDb($for_test ? $originalId : "");
 
         $clone->copyPageOfQuestion($this->getId());
         $clone->copyXHTMLMediaObjectsOfQuestion($this->getId());
         $clone->onDuplicate($this->getObjId(), $this->getId(), $clone->getObjId(), $clone->getId());
 
-        return $clone->getId();
+        return (int) $clone->getId();
     }
 
 
