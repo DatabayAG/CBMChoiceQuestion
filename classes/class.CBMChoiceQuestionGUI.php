@@ -71,7 +71,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
     }
 
-    public function editQuestion(?QuestionConfigForm $form = null)
+    public function editQuestion(?QuestionConfigForm $form = null) : void
     {
         $this->getQuestionTemplate();
 
@@ -255,7 +255,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $show_correct_solution = false,
         $show_manual_scoring = false,
         $show_question_text = true
-    ) {
+    ) : string {
         $solution = new Solution([], "");
         if (($active_id > 0) && (!$show_correct_solution)) {
             $solution = $this->object->mapSolution($this->object->getSolutionValues($active_id, $pass));
@@ -309,10 +309,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     }
 
     /**
-     * @inheritDoc
+     *
      * @throws ilTemplateException
      */
-    public function getPreview($show_question_only = false, $showInlineFeedback = false)
+    public function getPreview($show_question_only = false, $showInlineFeedback = false) : string
     {
         $solution = null;
         if (is_object($this->getPreviewSession())) {
@@ -339,7 +339,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $is_question_postponed,
         $user_post_solutions,
         $show_specific_inline_feedback
-    ) {
+    ) : string {
         $solution = new Solution([], "");
         if ($active_id) {
             $solution = $this->object->mapSolution((array) $this->object->getTestOutputSolutions($active_id, $pass));
@@ -356,6 +356,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     /**
      * @param Solution $solution
      * @param bool $asSolutionOutput
+     * @param bool $showQuestionText
      * @return ilTemplate
      * @throws ilTemplateException
      */

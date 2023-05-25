@@ -86,11 +86,6 @@ class CBMChoiceQuestion extends assQuestion
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
-    public function getHttpParameterNameForField(string $field) : string
-    {
-        return "question-" . $this->getId() . "-" . $field;
-    }
-
     public function isAnswered($active_id, $pass = null) : bool
     {
         return assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId()) >= 1;
@@ -114,7 +109,7 @@ class CBMChoiceQuestion extends assQuestion
         return $solution;
     }
 
-    public function saveWorkingData($active_id, $pass = null, $authorized = true)
+    public function saveWorkingData($active_id, $pass = null, $authorized = true) : bool
     {
         if ($pass === null) {
             $pass = ilObjTest::_getPass($active_id);
@@ -182,7 +177,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @throws ilTestException
      */
-    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false)
+    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false) : float
     {
         if ($returndetails) {
             throw new ilTestException("Return details not implemented for " . __METHOD__);
@@ -219,7 +214,7 @@ class CBMChoiceQuestion extends assQuestion
         return $points + (float) $scoringMatrixValue;
     }
 
-    public function getQuestionType()
+    public function getQuestionType() : string
     {
         return "CBMChoiceQuestion";
     }
@@ -263,7 +258,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
 
-    public function saveToDb($originalId = "")
+    public function saveToDb($originalId = "") : void
     {
         $this->saveQuestionDataToDb($originalId);
         $this->saveAdditionalQuestionDataToDb();
@@ -272,13 +267,18 @@ class CBMChoiceQuestion extends assQuestion
     }
 
 
-    public function getAdditionalTableName()
+    public function getAdditionalTableName() : string
     {
         return "cbm_choice_qst_data";
     }
 
-    public function loadFromDb($questionId)
+    /**
+     * @param string $questionId
+     * @return void
+     */
+    public function loadFromDb($questionId) : void
     {
+        //ToDo: Replace with Repository class/object
         $res = $this->db->queryF($this->buildQuestionDataQuery(), ["integer"], [$questionId]);
 
         while ($data = $this->db->fetchAssoc($res)) {
@@ -353,6 +353,7 @@ class CBMChoiceQuestion extends assQuestion
 
     public function saveAdditionalQuestionDataToDb() : void
     {
+        //ToDo: Replace with repository class/object
         $answers = [];
         foreach ($this->getAnswers() as $answerData) {
             $answers[$answerData->getId()] = $answerData->toArray();
@@ -383,6 +384,7 @@ class CBMChoiceQuestion extends assQuestion
      */
     public function mapSolution(array $solutionRecords) : Solution
     {
+        //ToDo: replace with method located in Solution class/object?
         $answers = [];
         $cbmChoice = "";
 
