@@ -294,9 +294,13 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 )
             );
         } else {
+            //ToDo: not rendering correctly
             $tpl->setCurrentBlock("answer_textarea");
-            //ToDo: check why required and implement if needed
-            $tpl->setVariable("TA_ANSWER", $this->object->prepareTextareaOutput("Y", true, true));
+            $tpl->setVariable("TA_ANSWER", $this->object->prepareTextareaOutput(
+                $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
+                true,
+                true
+            ));
         }
         $tpl->parseCurrentBlock();
 
