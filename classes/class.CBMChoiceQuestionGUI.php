@@ -137,11 +137,11 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
-        $thumbSize = $form->getInput("thumbSize");
+        $thumbSize = (string) $form->getInput("thumbSize");
         $this->object->setPointsForQuestion((float) $form->getInput("pointsForQuestion"));
         $this->object->setPoints($this->object->getPointsForQuestion());
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
-        $this->object->setThumbSize($thumbSize === "" ? null : (int) $thumbSize);
+        $this->object->setThumbSize($thumbSize ? ((int) $thumbSize) : null);
         $this->object->setHideMeasure((bool) $form->getInput("hideMeasure"));
         $this->object->setCBMAnswerRequired((bool) $form->getInput("cbmAnswerRequired"));
         $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
@@ -314,9 +314,9 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      */
     public function getPreview($show_question_only = false, $showInlineFeedback = false) : string
     {
-        $solution = null;
+        $solution = new Solution([], "");
         if (is_object($this->getPreviewSession())) {
-            $solution = (array) $this->getPreviewSession()->getParticipantsSolution();
+            $solution = $this->object->mapSolution((array) $this->getPreviewSession()->getParticipantsSolution());
         }
 
         $template = $this->renderDynamicQuestionOutput($solution);
