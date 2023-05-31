@@ -39,6 +39,8 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     public const PNAME = "CBMChoiceQuestion";
 
     public const CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY = "cbm_choice_scoringMatrix_storeAsDefaultForSession";
+    public const ANSWER_TYPE_SINGLE_LINE = 0;
+    public const ANSWER_TYPE_MULTI_LINE = 1;
 
     /**
      * @var ilCtrl

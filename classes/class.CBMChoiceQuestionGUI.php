@@ -93,7 +93,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $this->object->setScoringMatrix($sessionStoredScoringMatrix);
             }
 
-            $form = new QuestionConfigForm($this, $this->object->getAnswerType() === 0);
+            $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
             $form->setValuesByArray([
                 "hideMeasure" => $this->object->isMeasureHidden(),
                 "shuffle" => $this->object->getShuffle(),
@@ -109,7 +109,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $answerData = [];
                 foreach ($this->object->getAnswers() as $row => $answer) {
                     //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
-                    if ($this->object->getAnswerType() === 1) {
+                    if ($this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE) {
                         $answer->setAnswerText(str_replace("< ", "<", $answer->getAnswerText()));
                     }
                     $answerData[$row] = $answer->toArray();
@@ -129,7 +129,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      */
     public function writePostData($always = false) : int
     {
-        $form = new QuestionConfigForm($this, $this->object->getAnswerType() === 0);
+        $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
         if (!$form->checkInput()) {
             $form->setValuesByPost();
             $this->editQuestion($form);
@@ -379,7 +379,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $shuffleAnswers = $this->object->getShuffle();
 
         $answers = $shuffleAnswers ? $this->object->getShuffler()->shuffle($this->object->getAnswers()) : $this->object->getAnswers();
-        $isSingleLineAnswer = $this->object->getAnswerType() === 0;
+        $isSingleLineAnswer = $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE;
         $thumbSize = $this->object->getThumbSize();
 
         foreach (["certain", "uncertain"] as $value) {
