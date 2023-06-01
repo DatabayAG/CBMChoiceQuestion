@@ -17,7 +17,8 @@
     "classmap": ["./src", "./libs"]
   },
   "require": {
-    "php": ">=7.3"
+    "php": ">=7.3",
+    "mbeym/field-mapping-input": "1.0.0"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",
@@ -26,5 +27,11 @@
   },
   "config": {
     "classmap-authoritative": true
-  }
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://public-deploy:glpat-AbnLnprUEf22-_QER47C@gitlab.databay.de/mbeym/FieldMappingInput"
+    }
+  ]
 }

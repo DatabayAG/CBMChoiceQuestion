@@ -4,8 +4,35 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3fdd3d7dce9e6ead0c4b747b4c852f66",
-    "packages": [],
+    "content-hash": "d4f20b02851e59e36511905ddf258c21",
+    "packages": [
+        {
+            "name": "mbeym/field-mapping-input",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://public-deploy:glpat-AbnLnprUEf22-_QER47C@gitlab.databay.de/mbeym/FieldMappingInput",
+                "reference": "592dfbdf6e80e46842d6e44a6cb8cbc993c4e516"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ILIAS\\Plugin\\Libraries\\FieldMappingInput\\": "src/"
+                }
+            },
+            "license": [
+                "GPL"
+            ],
+            "authors": [
+                {
+                    "name": "Marvin Beym",
+                    "email": "mBeym@databay.de"
+                }
+            ],
+            "description": "An ILIAS InputGUI for mapping rows with different kinds of inputs as columns",
+            "time": "2023-06-01T09:58:41+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "captainhook/captainhook",
@@ -3034,5 +3061,5 @@
         "php": ">=7.3"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.3.0"
 }
