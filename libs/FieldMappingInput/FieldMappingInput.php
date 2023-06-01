@@ -18,6 +18,7 @@ namespace ILIAS\Plugin\CBMChoiceQuestion\Form\Input;
 
 use ilCBMChoiceQuestionPlugin;
 use ilCheckboxInputGUI;
+use ilColorPickerInputGUI;
 use ilFormPropertyGUI;
 use ilGlobalTemplateInterface;
 use ilGlyphGUI;
@@ -84,7 +85,7 @@ class FieldMappingInput extends ilFormPropertyGUI
     }
 
     /**
-     * @param ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+     * @param ilColorPickerInputGUI|ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
      * @param bool $required
      * @return FieldMappingInput
      */
@@ -105,13 +106,17 @@ class FieldMappingInput extends ilFormPropertyGUI
         $sortedRowsData = [];
 
         foreach ($this->fieldsData as $fieldData) {
-            foreach ($rowsData as $row => $rowData) {
-                /**
-                 * @var ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
-                 */
-                $input = $fieldData["input"];
-                $postVar = $input->getPostVar();
-                $sortedRowsData[$row][$postVar] = $rowData[$postVar];
+            try {
+                foreach ($rowsData as $row => $rowData) {
+                    /**
+                     * @var ilColorPickerInputGUI|ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+                     */
+                    $input = $fieldData["input"];
+                    $postVar = $input->getPostVar();
+                    $sortedRowsData[$row][$postVar] = $rowData[$postVar];
+                }
+            } catch (Throwable $ex) {
+                $sortedRowsData[$row][$postVar] = "";
             }
         }
         return $sortedRowsData;
@@ -132,7 +137,7 @@ class FieldMappingInput extends ilFormPropertyGUI
         foreach ($this->fieldsData as $index => $fieldData) {
             /**
              * @var string $header
-             * @var ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+             * @var ilColorPickerInputGUI|ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
              */
             $header = $fieldData["header"];
             $input = $fieldData["input"];
@@ -222,13 +227,13 @@ class FieldMappingInput extends ilFormPropertyGUI
     }
 
     /**
-     * @return ilTextAreaInputGUI|ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI|null
+     * @return ilColorPickerInputGUI|ilTextAreaInputGUI|ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI|null
      */
     private function getInputTemplate(string $postVar) : ?ilFormPropertyGUI
     {
         foreach ($this->fieldsData as $fieldData) {
             /**
-             * @var ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
+             * @var ilColorPickerInputGUI|ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $input
              */
             $input = $fieldData["input"];
             if ($input->getPostVar() === $postVar) {
@@ -241,8 +246,8 @@ class FieldMappingInput extends ilFormPropertyGUI
     /**
      * @param int $rowNumber
      * @param mixed $value
-     * @param ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $inputTemplate
-     * @return ilTextAreaInputGUI|ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI
+     * @param ilColorPickerInputGUI|ilTextAreaInputGUI|ilSelectInputGUI|ilNumberInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI $inputTemplate
+     * @return ilColorPickerInputGUI|ilTextAreaInputGUI|ilNumberInputGUI|ilSelectInputGUI|ilTextInputGUI|ilImageFileInputGUI|ilCheckboxInputGUI
      */
     private function createTmpInput(int $rowNumber, $value, $inputTemplate) : ilFormPropertyGUI
     {
@@ -270,7 +275,27 @@ class FieldMappingInput extends ilFormPropertyGUI
 
     public function setValueByArray(array $post) : void
     {
-        $this->setRowData($post[$this->getPostVar()] ?? $this->rowData);
+        if (isset($post[$this->getPostVar()]) && is_array($post[$this->getPostVar()]) && $post[$this->getPostVar()] !== []) {
+            $rowData = [];
+            foreach ($post[$this->getPostVar()] as $rowIndex => $colKeys) {
+                foreach ($colKeys as $colKey => $colValue) {
+                    if (!is_int($colKey)) {
+                        //Skip as likely already in expected format.
+                        $rowData[$rowIndex][$colKey] = $colValue;
+                        continue;
+                    }
+                    $postVar = $this->createPostVar($rowIndex, $colValue);
+                    if (isset($post[$postVar])) {
+                        $rowData[$rowIndex][$colValue] = $post[$postVar];
+                    }
+                }
+            }
+
+            $this->setRowData($rowData);
+            return;
+        }
+
+        $this->setRowData($this->rowData);
     }
 
     public function checkInput() : bool
