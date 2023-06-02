@@ -1,8 +1,8 @@
 <div>
     <div class="ilc_qtitle_Title">{QUESTION_TEXT}</div>
-    <div class="cbm-answers">
+    <span class="cbm-answers">
         <!-- BEGIN answer_single -->
-        <span>
+        <span class="cbm-answer-wrapper">
             <input type="radio" {DISABLED} name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
             <!-- BEGIN answer_single_solution_icon -->
                 <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_}" />
@@ -11,20 +11,20 @@
                 <!-- BEGIN answer_image -->
                 <img <!-- BEGIN answer_image_thumb_size --> width="{ANSWER_IMAGE_THUMB_SIZE}" height="auto" <!-- END answer_image_thumb_size --> src="{ANSWER_IMAGE_URL}" />
                 <!-- END answer_image -->
-                {ANSWER_TEXT}
+                <span>{ANSWER_TEXT}</span>
             </label>
         </span>
         <!-- END answer_single -->
         <!-- BEGIN answer_multi -->
-        <div class="cbm-answer">
+        <span class="cbm-answer-wrapper">
             <input type="checkbox" {DISABLED} name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
             <!-- BEGIN answer_multi_solution_icon -->
             <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_}" />
             <!-- END answer_multi_solution_icon -->
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
-                {ANSWER_TEXT}
+                <span>{ANSWER_TEXT}</span>
             </label>
-        </div>
+        </span>
         <!-- END answer_multi -->
     </div>
     <div class="ilc_qtitle_Title">{CBM_TEXT} <!-- BEGIN cbm_required --><span class="cbm-required">{CBM_REQUIRED_TEXT}</span><!-- END cbm_required --> </div>
