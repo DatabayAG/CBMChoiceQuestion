@@ -227,6 +227,42 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         $this->mainTpl->addCSS($this->getFolderPath("style.css"));
     }
 
+    /**
+     * @param array<string, float> $scoringMatrix
+     * @return array<string, array<string, float>>
+     */
+    public function mapValuesToArray(array $scoringMatrix) : array
+    {
+        $map = [];
+        foreach ($this->rowNames as $rowKey => $rowText) {
+            foreach ($this->columnNames as $colKey => $colText) {
+                $map[$rowKey][$colKey] = $scoringMatrix["scoringMatrix_values_{$rowKey}_$colKey"];
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * @param array<string, array<string, float>> $map
+     * @return array<string, float> $scoringMatrix
+     */
+    public function unMapValuesFromArray(array $map) : array
+    {
+        $scoringMatrix = [];
+        foreach ($map as $rowName => $data) {
+            if (!in_array($rowName, $this->rowNames, true)) {
+                continue;
+            }
+            foreach ($data as $colName => $value) {
+                if (!in_array($colName, $this->columnNames, true)) {
+                    continue;
+                }
+                $scoringMatrix["scoringMatrix_values_{$rowName}_$colName"] = $value;
+            }
+        }
+        return $scoringMatrix;
+    }
+
     private function getFolderPath(string $file = "") : string
     {
         return strstr(realpath(__DIR__), "Customizing") . "/$file";
