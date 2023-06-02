@@ -257,8 +257,40 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $show_question_text = true
     ) : string {
         $solution = new Solution([], "");
-        if (($active_id > 0) && (!$show_correct_solution)) {
+        if ($active_id && !$show_correct_solution) {
             $solution = $this->object->mapSolution($this->object->getSolutionValues($active_id, $pass));
+        } elseif ($show_correct_solution) {
+            $correctAnswers = [];
+            //Get correct answers
+            foreach ($this->object->getAnswers() as $answer) {
+                if ($answer->isAnswerCorrect()) {
+                    $correctAnswers[$answer->getId()] = $answer;
+                }
+            }
+
+            //Get best cbm answer
+            $scoringMatrixInput = new ScoringMatrixInput("Scoring Matrix", "scoringMatrix");
+            $scoringMatrixInput->setup([
+                "certain" => $this->plugin->txt("question.cbm.certain"),
+                "uncertain" => $this->plugin->txt("question.cbm.uncertain")
+            ], [
+                "correct" => $this->plugin->txt("question.cbm.correct"),
+                "incorrect" => $this->plugin->txt("question.cbm.incorrect")
+            ]);
+            $scoringMatrixMap = $scoringMatrixInput->mapValuesToArray($this->object->getScoringMatrix());
+
+            $highestPoints = 0;
+            $highestColKey = "certain";
+            foreach ($scoringMatrixMap as $rowKey => $data) {
+                foreach ($data as $colKey => $value) {
+                    if ($value > $highestPoints) {
+                        $highestPoints = $value;
+                        $highestColKey = $colKey;
+                    }
+                }
+            }
+
+            $solution = new Solution($correctAnswers, $highestColKey);
         }
 
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output_solution.html"), true, true);
