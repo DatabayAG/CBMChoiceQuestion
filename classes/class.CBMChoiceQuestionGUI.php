@@ -108,9 +108,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $answerData = [];
                 foreach ($this->object->getAnswers() as $row => $answer) {
                     //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
-                    if ($this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE) {
-                        $answer->setAnswerText(str_replace("< ", "<", $answer->getAnswerText()));
-                    }
+                    $answer->setAnswerText($this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE
+                        ? htmlspecialchars_decode($answer->getAnswerText())
+                        : htmlspecialchars($answer->getAnswerText())
+                    );
                     $answerData[$row] = $answer->toArray();
                 }
 
@@ -451,8 +452,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             $tpl->setVariable(
                 "ANSWER_TEXT",
                 $isSingleLineAnswer
-                    ? $answer->getAnswerText()
-                    : str_replace("< ", "<", $answer->getAnswerText())
+                    ? htmlspecialchars($answer->getAnswerText())
+                    : htmlspecialchars_decode($answer->getAnswerText())
             );
             $tpl->parseCurrentBlock($isSingleLineAnswer ? "answer_single" : "answer_multi");
         }
