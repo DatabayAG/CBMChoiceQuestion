@@ -286,12 +286,17 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         if ($this->renderPurposeSupportsFormHtml()) {
             $tpl->setCurrentBlock("answer_div");
+            $questionContent = $this->object->prepareTextareaOutput(
+                $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
+                true
+            );
+
+            //Remove name attribute from inputs to avoid having them act as inputs
+            $questionContent = preg_replace('/name=["\'](.+?)["\']/', "", $questionContent);
+
             $tpl->setVariable(
                 "DIV_ANSWER",
-                $this->object->prepareTextareaOutput(
-                    $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
-                    true
-                )
+                $questionContent
             );
         } else {
             //ToDo: not rendering correctly
@@ -397,15 +402,13 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         foreach ($answers as $answer) {
             $tpl->setCurrentBlock($isSingleLineAnswer ? "answer_single" : "answer_multi");
+            $tpl->setVariable("Q_ID", $this->object->getId());
+            $tpl->setVariable("ANSWER_ID", $answer->getId());
+
             if ($asSolutionOutput) {
                 $tpl->setVariable("DISABLED", "disabled");
                 foreach ($solution->getAnswers() as $solutionAnswer) {
                     if ($answer->getId() === $solutionAnswer->getId()) {
-                        $tpl->setCurrentBlock(
-                            $isSingleLineAnswer
-                            ? "answer_single_solution_icon"
-                            : "answer_multi_solution_icon"
-                        );
                         $tpl->setVariable(
                             "SOLUTION_ICON_SRC",
                             ilUtil::getImagePath(
@@ -422,16 +425,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                                     : "answer_is_wrong"
                             )
                         );
-                        $tpl->parseCurrentBlock(
-                            $isSingleLineAnswer
-                            ? "answer_single_solution_icon"
-                            : "answer_multi_solution_icon"
-                        );
                     }
                 }
             }
-            $tpl->setVariable("Q_ID", $this->object->getId());
-            $tpl->setVariable("ANSWER_ID", $answer->getId());
+
             foreach ($solution->getAnswers() as $solutionAnswer) {
                 if ($answer->getId() === $solutionAnswer->getId()) {
                     $tpl->setVariable("CHECKED", "checked");
