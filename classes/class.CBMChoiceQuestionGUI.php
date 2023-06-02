@@ -108,7 +108,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $answerData = [];
                 foreach ($this->object->getAnswers() as $row => $answer) {
                     //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
-                    $answer->setAnswerText($this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE
+                    $answer->setAnswerText(
+                        $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE
                         ? htmlspecialchars_decode($answer->getAnswerText())
                         : htmlspecialchars($answer->getAnswerText())
                     );
