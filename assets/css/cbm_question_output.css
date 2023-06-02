@@ -18,7 +18,7 @@
 
 .cbm-answer-wrapper {
     display: grid;
-    grid-template-columns: min-content max-content;
+    grid-template-columns: min-content max-content min-content;
     gap: 2rem;
 }
 

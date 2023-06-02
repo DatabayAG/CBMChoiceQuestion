@@ -4,26 +4,26 @@
         <!-- BEGIN answer_single -->
         <span class="cbm-answer-wrapper">
             <input type="radio" {DISABLED} name="answer[answer][0]" id="answer_{ANSWER_ID}" {CHECKED} />
-            <!-- BEGIN answer_single_solution_icon -->
-                <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_TEXT}" />
-            <!-- END answer_single_solution_icon -->
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <!-- BEGIN answer_image -->
                 <img <!-- BEGIN answer_image_thumb_size --> width="{ANSWER_IMAGE_THUMB_SIZE}" height="auto" <!-- END answer_image_thumb_size --> src="{ANSWER_IMAGE_URL}" />
                 <!-- END answer_image -->
                 <span>{ANSWER_TEXT}</span>
             </label>
+            <!-- BEGIN answer_single_solution_icon -->
+            <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_TEXT}" />
+            <!-- END answer_single_solution_icon -->
         </span>
         <!-- END answer_single -->
         <!-- BEGIN answer_multi -->
         <span class="cbm-answer-wrapper">
             <input type="checkbox" {DISABLED} name="answer[answer][{ANSWER_ID}]" id="answer_{ANSWER_ID}" {CHECKED} />
-            <!-- BEGIN answer_multi_solution_icon -->
-            <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_TEXT}" />
-            <!-- END answer_multi_solution_icon -->
             <label for="answer_{ANSWER_ID}" class="cbm-answer-text">
                 <span>{ANSWER_TEXT}</span>
             </label>
+            <!-- BEGIN answer_multi_solution_icon -->
+            <img src="{SOLUTION_ICON_SRC}" alt="{SOLUTION_ICON_TEXT}" title="{SOLUTION_ICON_TEXT}" />
+            <!-- END answer_multi_solution_icon -->
         </span>
         <!-- END answer_multi -->
     </div>
