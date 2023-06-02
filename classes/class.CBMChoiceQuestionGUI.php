@@ -436,7 +436,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     break;
                 }
             }
-            if (!$isSingleLineAnswer && $answer->getAnswerImage()) {
+            if ($isSingleLineAnswer && $answer->getAnswerImage()) {
                 $resource = $this->resourceStorage->consume()->src(
                     $this->resourceStorage->manage()->find($answer->getAnswerImage())
                 );
