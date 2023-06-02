@@ -99,11 +99,6 @@ class QuestionConfigForm extends ilPropertyFormGUI
             $this->addItem($thumbSize);
         }
 
-        $measure = new ilCheckboxInputGUI($this->plugin->txt("field_hide_measure"), "hideMeasure");
-        $measure->setInfo($this->plugin->txt("field_hide_measure_info"));
-        $measure->setValue("1");
-        $this->addItem($measure);
-
         $allowMultipleSelection = new ilCheckboxInputGUI(
             $this->plugin->txt("question.config.allowMultipleSelection"),
             "allowMultipleSelection"

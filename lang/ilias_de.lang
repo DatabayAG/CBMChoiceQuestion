@@ -1,7 +1,5 @@
 /* This file was automatically generated from the de.lang.json file. DO NOT EDIT! */
 
-field_hide_measure#:#Hide Measure Field
-field_hide_measure_info#:#If enabled, the measure field will by hidden for learners.
 CBMChoiceQuestion#:#Gewissheitsbegründete Bewertung Frage
 general.cmd.undefined#:#Kein Kommando wurde gefunden
 general.cmd.notFound#:#Kommando '%s' wurde nicht gefunden

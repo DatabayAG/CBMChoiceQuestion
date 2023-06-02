@@ -1,6 +1,4 @@
 {
-  "field_hide_measure":  "Hide Measure Field",
-  "field_hide_measure_info": "If enabled, the measure field will by hidden for learners.",
   "CBMChoiceQuestion": "Gewissheitsbegründete Bewertung Frage",
   "general": {
     "cmd": {

@@ -95,7 +95,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
             $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
             $form->setValuesByArray([
-                "hideMeasure" => $this->object->isMeasureHidden(),
                 "shuffle" => $this->object->getShuffle(),
                 "thumbSize" => $this->object->getThumbSize(),
                 "answerType" => $this->object->getAnswerType(),
@@ -142,7 +141,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->object->setPoints($this->object->getPointsForQuestion());
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize($thumbSize ? ((int) $thumbSize) : null);
-        $this->object->setHideMeasure((bool) $form->getInput("hideMeasure"));
         $this->object->setCBMAnswerRequired((bool) $form->getInput("cbmAnswerRequired"));
         $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
         /**

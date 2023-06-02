@@ -191,3 +191,11 @@ if (
     ]);
 }
 ?>
+<#13>
+<?php
+if ($ilDB->tableExists("cbm_choice_qst_data")) {
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "hide_measure")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "hide_measure");
+    }
+}
+?>

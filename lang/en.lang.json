@@ -1,6 +1,4 @@
 {
-  "field_hide_measure":  "Maßnahmenfeld verstecken",
-  "field_hide_measure_info": "Falls aktiviert, wird das Maßnahmenfeld während der Bearbeitung durch einen Lernenden versteckt.",
   "CBMChoiceQuestion": "Certainty based marking Question",
   "general": {
     "cmd": {

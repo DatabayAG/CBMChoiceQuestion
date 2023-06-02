@@ -37,11 +37,6 @@ class CBMChoiceQuestion extends assQuestion
     private $plugin;
 
     /**
-     * @var bool
-     */
-    private $measureHidden = false;
-
-    /**
      * @var AnswerData[]
      */
     private $answers = [];
@@ -291,7 +286,6 @@ class CBMChoiceQuestion extends assQuestion
             $this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
             $this->setLastChange($data["tstamp"]);
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
-            $this->setHideMeasure((bool) $data["hide_measure"]);
             $this->setShuffle((bool) $data["shuffle"]);
             $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
             $this->setAnswerType((int) $data["answer_type"]);
@@ -352,7 +346,6 @@ class CBMChoiceQuestion extends assQuestion
                 "question_fi" => ["integer", $this->getId()],
             ],
             [
-                "hide_measure" => ["integer", (int) $this->isMeasureHidden()],
                 "answers" => ["clob", serialize($answers)],
                 "shuffle" => ["integer", (bool) $this->getShuffle()],
                 "thumb_size" => ["integer", $this->getThumbSize()],
@@ -394,16 +387,6 @@ class CBMChoiceQuestion extends assQuestion
         }
 
         return new Solution($answers, $cbmChoice);
-    }
-
-    public function isMeasureHidden() : bool
-    {
-        return $this->measureHidden;
-    }
-
-    public function setHideMeasure(bool $status) : void
-    {
-        $this->measureHidden = $status;
     }
 
     /**
