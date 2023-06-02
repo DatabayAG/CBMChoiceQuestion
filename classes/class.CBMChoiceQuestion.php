@@ -278,6 +278,11 @@ class CBMChoiceQuestion extends assQuestion
             $this->setOriginalId($data["original_id"]);
             $this->setObjId($data["obj_fi"]);
             $this->setTitle($data["title"]);
+            try {
+                $this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
+            } catch (ilTestQuestionPoolInvalidArgumentException $e) {
+                $this->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
+            }
             $this->setNrOfTries($data["nr_of_tries"]);
             $this->setComment($data["description"]);
             $this->setAuthor($data["author"]);
