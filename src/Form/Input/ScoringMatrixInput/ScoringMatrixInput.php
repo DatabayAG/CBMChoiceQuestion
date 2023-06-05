@@ -250,11 +250,11 @@ class ScoringMatrixInput extends ilFormPropertyGUI
     {
         $scoringMatrix = [];
         foreach ($map as $rowName => $data) {
-            if (!in_array($rowName, $this->rowNames, true)) {
+            if (!in_array($rowName, array_keys($this->rowNames), true)) {
                 continue;
             }
             foreach ($data as $colName => $value) {
-                if (!in_array($colName, $this->columnNames, true)) {
+                if (!in_array($colName, array_keys($this->columnNames), true)) {
                     continue;
                 }
                 $scoringMatrix["scoringMatrix_values_{$rowName}_$colName"] = $value;
