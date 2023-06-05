@@ -83,6 +83,7 @@ class CBMChoiceQuestion extends assQuestion
 
     public function isAnswered($active_id, $pass = null) : bool
     {
+        //ToDo test if possible to manipulate if cbm is required.
         return assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId()) >= 1;
     }
 
