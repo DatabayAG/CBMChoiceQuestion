@@ -94,13 +94,18 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             }
 
             $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
+            /**
+             * @var ScoringMatrixInput $scoringMatrixInput
+             */
+            $scoringMatrixInput = $form->getItemByPostVar("scoringMatrix");
+
             $form->setValuesByArray([
                 "shuffle" => $this->object->getShuffle(),
                 "thumbSize" => $this->object->getThumbSize(),
                 "answerType" => $this->object->getAnswerType(),
                 "allowMultipleSelection" => $this->object->isAllowMultipleSelection(),
                 "pointsForQuestion" => $this->object->getPointsForQuestion(),
-                "scoringMatrix" => $this->object->getScoringMatrix(),
+                "scoringMatrix" => $scoringMatrixInput->unMapValuesFromArray($this->object->getScoringMatrix()),
                 "cbmAnswerRequired" => $this->object->isCBMAnswerRequired()
             ], true);
 
@@ -149,7 +154,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
          * @var ScoringMatrixInput $scoringMatrixInput
          */
         $scoringMatrixInput = $form->getItemByPostVar("scoringMatrix");
-        $this->object->setScoringMatrix($scoringMatrixInput->getValue());
+        $this->object->setScoringMatrix($scoringMatrixInput->mapValuesToArray($scoringMatrixInput->getValue()));
 
         if ($scoringMatrixInput->isStoreAsDefaultForSession()) {
             ilSession::set(
@@ -268,20 +273,9 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 }
             }
 
-            //Get best cbm answer
-            $scoringMatrixInput = new ScoringMatrixInput("Scoring Matrix", "scoringMatrix");
-            $scoringMatrixInput->setup([
-                "certain" => $this->plugin->txt("question.cbm.certain"),
-                "uncertain" => $this->plugin->txt("question.cbm.uncertain")
-            ], [
-                "correct" => $this->plugin->txt("question.cbm.correct"),
-                "incorrect" => $this->plugin->txt("question.cbm.incorrect")
-            ]);
-            $scoringMatrixMap = $scoringMatrixInput->mapValuesToArray($this->object->getScoringMatrix());
-
             $highestPoints = 0;
             $highestColKey = "certain";
-            foreach ($scoringMatrixMap as $rowKey => $data) {
+            foreach ($this->object->getScoringMatrix() as $rowKey => $data) {
                 foreach ($data as $colKey => $value) {
                     if ($value > $highestPoints) {
                         $highestPoints = $value;

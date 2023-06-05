@@ -55,7 +55,7 @@ class CBMChoiceQuestion extends assQuestion
     private $allowMultipleSelection = false;
 
     /**
-     * @var array<string, string>
+     * @var array<string, array<string, float>>
      */
     private $scoringMatrix = [];
 
@@ -200,10 +200,10 @@ class CBMChoiceQuestion extends assQuestion
 
         $scoringMatrix = $this->getScoringMatrix();
         if ($allCorrect) {
-            $scoringMatrixValue = $scoringMatrix["scoringMatrix_values_incorrect_$cbmChoice"];
+            $scoringMatrixValue = $scoringMatrix["correct"][$cbmChoice];
         } else {
             $points = 0;
-            $scoringMatrixValue = $scoringMatrix["scoringMatrix_values_correct_$cbmChoice"];
+            $scoringMatrixValue = $scoringMatrix["incorrect"][$cbmChoice];
         }
 
         return $points + (float) $scoringMatrixValue;
@@ -328,10 +328,12 @@ class CBMChoiceQuestion extends assQuestion
         $points = (float) $this->getPointsForQuestion();
 
         $scoringMatrixPoints = $points;
-        foreach ($this->getScoringMatrix() as $scoringMatrixValue) {
-            $newPoints = $points + (float) $scoringMatrixValue;
-            if ($newPoints > $scoringMatrixPoints) {
-                $scoringMatrixPoints = $newPoints;
+        foreach ($this->getScoringMatrix() as $rowIndex => $data) {
+            foreach ($data as $value) {
+                $newPoints = $points + $value;
+                if ($newPoints > $scoringMatrixPoints) {
+                    $scoringMatrixPoints = $newPoints;
+                }
             }
         }
         return $scoringMatrixPoints;
@@ -467,7 +469,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
     /**
-     * @return string[]
+     * @return array<string, array<string, float>>
      */
     public function getScoringMatrix() : array
     {
@@ -475,7 +477,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
     /**
-     * @param string[] $scoringMatrix
+     * @param array<string, array<string, float>> $scoringMatrix
      * @return CBMChoiceQuestion
      */
     public function setScoringMatrix(array $scoringMatrix) : CBMChoiceQuestion
