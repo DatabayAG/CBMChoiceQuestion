@@ -268,7 +268,6 @@ class CBMChoiceQuestion extends assQuestion
      */
     public function loadFromDb($questionId) : void
     {
-        //ToDo: Replace with Repository class/object
         $res = $this->db->queryF($this->buildQuestionDataQuery(), ["integer"], [$questionId]);
 
         while ($data = $this->db->fetchAssoc($res)) {
@@ -349,7 +348,6 @@ class CBMChoiceQuestion extends assQuestion
 
     public function saveAdditionalQuestionDataToDb() : void
     {
-        //ToDo: Replace with repository class/object
         $answers = [];
         foreach ($this->getAnswers() as $answerData) {
             $answers[$answerData->getId()] = $answerData->toArray();
@@ -379,7 +377,6 @@ class CBMChoiceQuestion extends assQuestion
      */
     public function mapSolution(array $solutionRecords) : Solution
     {
-        //ToDo: replace with method located in Solution class/object?
         $answers = [];
         $cbmChoice = "";
 

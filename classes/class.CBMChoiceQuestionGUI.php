@@ -117,7 +117,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             if ($this->object->getAnswers() !== []) {
                 $answerData = [];
                 foreach ($this->object->getAnswers() as $row => $answer) {
-                    //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
                     $answer->setAnswerText(
                         $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE
                         ? $this->answerTextSanitizer->desanitize($answer->getAnswerText())
@@ -201,7 +200,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             if (isset($file["tmp_name"]) && $file["tmp_name"]) {
                 $uploadResult = $uploadResults[$file["tmp_name"]];
                 if ($uploadResult && $uploadResult->isOK()) {
-                    //ToDo: probably needs check if already exists and update if it does
                     $identification = $this->resourceStorage->manage()->upload($uploadResult, new AnswerImageStakeHolder());
                     try {
                         $imageIdentification = $identification->serialize();
@@ -477,7 +475,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             }
 
 
-            //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
             $tpl->setVariable(
                 "ANSWER_TEXT",
                 $isSingleLineAnswer
