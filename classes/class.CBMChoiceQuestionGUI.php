@@ -25,6 +25,7 @@ use ILIAS\Plugin\CBMChoiceQuestion\Form\QuestionConfigForm;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 use ILIAS\Plugin\CBMChoiceQuestion\Stakeholder\AnswerImageStakeHolder;
+use ILIAS\Plugin\CBMChoiceQuestion\Utils\AnswerTextSanitizer;
 use ILIAS\ResourceStorage\Services;
 
 require_once __DIR__ . "/../vendor/autoload.php";
@@ -55,6 +56,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      * @var ilGlobalPageTemplate
      */
     private $mainTpl;
+    /**
+     * @var AnswerTextSanitizer
+     */
+    private $answerTextSanitizer;
 
     public function __construct(?int $id = null)
     {
@@ -63,7 +68,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->dic = $DIC;
         $this->mainTpl = $this->dic->ui()->mainTemplate();
         $this->resourceStorage = $this->dic->resourceStorage();
-
+        $this->answerTextSanitizer = new AnswerTextSanitizer();
         parent::__construct();
         $this->object = new CBMChoiceQuestion();
         if ($id && $id >= 0) {
@@ -115,8 +120,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     //ToDo: "Fix" to display html, maybe find better way like saving as html in the first place?
                     $answer->setAnswerText(
                         $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE
-                        ? htmlspecialchars_decode($answer->getAnswerText())
-                        : htmlspecialchars($answer->getAnswerText())
+                        ? $this->answerTextSanitizer->desanitize($answer->getAnswerText())
+                        : $this->answerTextSanitizer->sanitize($answer->getAnswerText())
                     );
                     $answerData[$row] = $answer->toArray();
                 }
@@ -476,8 +481,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             $tpl->setVariable(
                 "ANSWER_TEXT",
                 $isSingleLineAnswer
-                    ? htmlspecialchars($answer->getAnswerText())
-                    : htmlspecialchars_decode($answer->getAnswerText())
+                    ? $this->answerTextSanitizer->sanitize($answer->getAnswerText())
+                    : $this->answerTextSanitizer->desanitize($answer->getAnswerText())
             );
             $tpl->parseCurrentBlock($isSingleLineAnswer ? "answer_single" : "answer_multi");
         }
