@@ -94,8 +94,15 @@ class CBMChoiceQuestion extends assQuestion
         $post = $this->dic->http()->request()->getParsedBody()["answer"];
 
         $solution = [];
+        $answerIds = [];
+
+        foreach ($post["answer"] as $answerIdSelected) {
+            $answerIds[] = (int) $answerIdSelected;
+        }
+
+        //Verify valid solution answer
         foreach ($this->getAnswers() as $existingAnswer) {
-            if (isset($post["answer"][$existingAnswer->getId()])) {
+            if (in_array($existingAnswer->getId(), $answerIds, true)) {
                 $solution["answer_{$existingAnswer->getId()}"] = $existingAnswer->getId();
             }
         }
