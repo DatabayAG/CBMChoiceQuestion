@@ -18,7 +18,7 @@
   },
   "require": {
     "php": ">=7.3",
-    "mbeym/field-mapping-input": "1.0.2"
+    "mbeym/field-mapping-input": "7.*"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",

@@ -4,15 +4,15 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a66fb0e11ee066baef2bb2cc91259d1",
+    "content-hash": "fbf69316a1365230a6f654b98ca4843a",
     "packages": [
         {
             "name": "mbeym/field-mapping-input",
-            "version": "1.0.2",
+            "version": "7.0.1",
             "source": {
                 "type": "git",
                 "url": "https://public-deploy:glpat-AbnLnprUEf22-_QER47C@gitlab.databay.de/mbeym/FieldMappingInput",
-                "reference": "9ab57dfe5b3c7a762c4868cc1a2da45186d4475f"
+                "reference": "6036751dc4c58a9339e96eac61c2176871ccc5c5"
             },
             "type": "library",
             "autoload": {
@@ -30,7 +30,7 @@
                 }
             ],
             "description": "An ILIAS InputGUI for mapping rows with different kinds of inputs as columns",
-            "time": "2023-06-01T12:06:28+00:00"
+            "time": "2023-06-06T11:13:21+00:00"
         }
     ],
     "packages-dev": [
