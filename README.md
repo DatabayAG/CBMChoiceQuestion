@@ -2,10 +2,11 @@
 
 ## Requirements
 
-| Component | Min                                              | Max                                              | Link                      |
-|-----------|--------------------------------------------------|--------------------------------------------------|---------------------------|
-| PHP       | ![](https://img.shields.io/badge/7.3-blue.svg)   | ![](https://img.shields.io/badge/7.4-blue.svg)   | [PHP](https://php.net)    |
-| ILIAS     | ![](https://img.shields.io/badge/7.x-orange.svg) | ![](https://img.shields.io/badge/7.x-orange.svg) | [ILIAS](https://ilias.de) |
+| Component               | Min                                              | Max                                                                       | Link                      |
+|-------------------------|--------------------------------------------------|---------------------------------------------------------------------------|---------------------------|
+| PHP                     | ![](https://img.shields.io/badge/7.3-blue.svg)   | ![](https://img.shields.io/badge/7.4-blue.svg)                            | [PHP](https://php.net)    |
+| ILIAS                   | ![](https://img.shields.io/badge/7.x-orange.svg) | ![](https://img.shields.io/badge/7.x-orange.svg)                          | [ILIAS](https://ilias.de) |
+| CBMChoiceQuestionExport | ![](https://img.shields.io/badge/r7-blue.svg)    | [GitLab](https://gitlab.databay.de/Ilias-Plugins/CBMChoiceQuestionExport) |
 
 ---
 ## Table of contents
@@ -15,6 +16,7 @@
   * [Requirements](#requirements)
   * [Table of contents](#table-of-contents)
   * [Concept document](#concept-document)
+  * [Information](#information)
   * [Installation](#installation)
   * [Usage](#usage)
 <!-- TOC -->
@@ -24,6 +26,10 @@
 ## Concept document
 
 [Concept document](docs/Konzept%20CBM-Fragetyp-Plugin.pdf)
+
+## Information
+
+The **CBMChoiceQuestionExport** plugin can optionally be used to export CBM Question Solutions into an Excel table format.
 
 ## Installation
 
