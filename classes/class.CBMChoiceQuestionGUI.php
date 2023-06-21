@@ -430,7 +430,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
 
         foreach ($answers as $answer) {
-            $tpl->setCurrentBlock($isSingleLineAnswer ? "answer_single" : "answer_multi");
+            $tpl->setCurrentBlock($this->object->isAllowMultipleSelection() ? "answer_multi" : "answer_single");
             $tpl->setVariable("Q_ID", $this->object->getId());
             $tpl->setVariable("ANSWER_ID", $answer->getId());
 
@@ -481,7 +481,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     ? $this->answerTextSanitizer->sanitize($answer->getAnswerText())
                     : $this->answerTextSanitizer->desanitize($answer->getAnswerText())
             );
-            $tpl->parseCurrentBlock($isSingleLineAnswer ? "answer_single" : "answer_multi");
+            $tpl->parseCurrentBlock($this->object->isAllowMultipleSelection() ? "answer_multi" : "answer_single");
         }
 
         return $tpl;
