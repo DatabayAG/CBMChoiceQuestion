@@ -8,11 +8,11 @@
     "packages": [
         {
             "name": "mbeym/field-mapping-input",
-            "version": "7.1.1",
+            "version": "7.2.0",
             "source": {
                 "type": "git",
                 "url": "https://public-deploy:ex3nbfSFJMzrppxrnyjc@gitlab.databay.de/mbeym/FieldMappingInput",
-                "reference": "2f48d4caada1c93b20e2e6c02ab279d7de1e9f88"
+                "reference": "dbde1953608aac8b8ab6a7666307239b03e95e48"
             },
             "type": "library",
             "autoload": {
@@ -30,7 +30,7 @@
                 }
             ],
             "description": "An ILIAS InputGUI for mapping rows with different kinds of inputs as columns",
-            "time": "2023-06-20T11:45:08+00:00"
+            "time": "2023-06-22T06:59:26+00:00"
         }
     ],
     "packages-dev": [
