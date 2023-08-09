@@ -64,7 +64,7 @@ class AnswerData
     /**
      * @return int
      */
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
@@ -72,7 +72,7 @@ class AnswerData
     /**
      * @return string
      */
-    public function getAnswerText() : string
+    public function getAnswerText(): string
     {
         return $this->answerText;
     }
@@ -81,7 +81,7 @@ class AnswerData
      * @param string $answerText
      * @return AnswerData
      */
-    public function setAnswerText(string $answerText) : AnswerData
+    public function setAnswerText(string $answerText): AnswerData
     {
         $this->answerText = $answerText;
         return $this;
@@ -90,7 +90,7 @@ class AnswerData
     /**
      * @return string
      */
-    public function getAnswerImage() : string
+    public function getAnswerImage(): string
     {
         return $this->answerImage;
     }
@@ -99,7 +99,7 @@ class AnswerData
      * @param string $answerImage
      * @return AnswerData
      */
-    public function setAnswerImage(string $answerImage) : AnswerData
+    public function setAnswerImage(string $answerImage): AnswerData
     {
         $this->answerImage = $answerImage;
         return $this;
@@ -108,7 +108,7 @@ class AnswerData
     /**
      * @return bool
      */
-    public function isAnswerCorrect() : bool
+    public function isAnswerCorrect(): bool
     {
         return $this->answerCorrect;
     }
@@ -117,7 +117,7 @@ class AnswerData
      * @param bool $answerCorrect
      * @return AnswerData
      */
-    public function setAnswerCorrect(bool $answerCorrect) : AnswerData
+    public function setAnswerCorrect(bool $answerCorrect): AnswerData
     {
         $this->answerCorrect = $answerCorrect;
         return $this;
@@ -127,7 +127,7 @@ class AnswerData
      * @param string[] $propertyBlacklist
      * @return array<string, mixed>
      */
-    public function toArray(array $propertyBlacklist = []) : array
+    public function toArray(array $propertyBlacklist = []): array
     {
         $values = [];
         $refClass = new ReflectionClass($this);

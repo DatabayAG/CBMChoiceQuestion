@@ -28,12 +28,12 @@ use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
  */
 class AnswerImageStakeHolder extends AbstractResourceStakeholder
 {
-    public function getId() : string
+    public function getId(): string
     {
         return "cbmChoice";
     }
 
-    public function getOwnerOfNewResources() : int
+    public function getOwnerOfNewResources(): int
     {
         return 6;
     }

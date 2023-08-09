@@ -76,7 +76,7 @@ class CBMChoiceQuestion extends assQuestion
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
-    public function isAnswered($active_id, $pass = null) : bool
+    public function isAnswered($active_id, $pass = null): bool
     {
         //ToDo test if possible to manipulate if cbm is required.
         return assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId()) >= 1;
@@ -85,7 +85,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return array<string, string>
      */
-    protected function getSolutionSubmit() : array
+    protected function getSolutionSubmit(): array
     {
         $post = $this->dic->http()->request()->getParsedBody()["answer"];
 
@@ -107,7 +107,7 @@ class CBMChoiceQuestion extends assQuestion
         return $solution;
     }
 
-    public function saveWorkingData($active_id, $pass = null, $authorized = true) : bool
+    public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
     {
         if ($pass === null) {
             $pass = ilObjTest::_getPass($active_id);
@@ -175,7 +175,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @throws ilTestException
      */
-    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false) : float
+    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false): float
     {
         if ($returndetails) {
             throw new ilTestException("Return details not implemented for " . __METHOD__);
@@ -210,12 +210,12 @@ class CBMChoiceQuestion extends assQuestion
         return (float) $scoringMatrixValue;
     }
 
-    public function getQuestionType() : string
+    public function getQuestionType(): string
     {
         return "CBMChoiceQuestion";
     }
 
-    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null) : ?int
+    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null): ?int
     {
         if ((int) $this->getId() <= 0) {
             return null;
@@ -241,7 +241,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
 
-    public function saveToDb($originalId = "") : void
+    public function saveToDb($originalId = ""): void
     {
         $this->saveQuestionDataToDb($originalId);
         $this->saveAdditionalQuestionDataToDb();
@@ -250,7 +250,7 @@ class CBMChoiceQuestion extends assQuestion
     }
 
 
-    public function getAdditionalTableName() : string
+    public function getAdditionalTableName(): string
     {
         return "cbm_choice_qst_data";
     }
@@ -259,7 +259,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param string $questionId
      * @return void
      */
-    public function loadFromDb($questionId) : void
+    public function loadFromDb($questionId): void
     {
         $res = $this->db->queryF($this->buildQuestionDataQuery(), ["integer"], [$questionId]);
 
@@ -307,7 +307,7 @@ class CBMChoiceQuestion extends assQuestion
         parent::loadFromDb($questionId);
     }
 
-    public function isComplete() : bool
+    public function isComplete(): bool
     {
         foreach ([$this->title, $this->author, $this->question] as $text) {
             if (!is_string($text) || $text === "") {
@@ -322,7 +322,7 @@ class CBMChoiceQuestion extends assQuestion
         return $this->getMaximumPoints() > 0;
     }
 
-    public function getMaximumPoints() : float
+    public function getMaximumPoints(): float
     {
         $scoringMatrixPoints = 0;
         foreach ($this->getScoringMatrix() as $rowIndex => $data) {
@@ -335,7 +335,7 @@ class CBMChoiceQuestion extends assQuestion
         return $scoringMatrixPoints;
     }
 
-    public function saveAdditionalQuestionDataToDb() : void
+    public function saveAdditionalQuestionDataToDb(): void
     {
         $answers = [];
         foreach ($this->getAnswers() as $answerData) {
@@ -363,7 +363,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param array<int, array<string, mixed>> $solutionRecords
      * @return Solution
      */
-    public function mapSolution(array $solutionRecords) : Solution
+    public function mapSolution(array $solutionRecords): Solution
     {
         $answers = [];
         $cbmChoice = "";
@@ -392,7 +392,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return int|null
      */
-    public function getThumbSize() : ?int
+    public function getThumbSize(): ?int
     {
         return $this->thumbSize;
     }
@@ -401,7 +401,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param int|null $thumbSize
      * @return CBMChoiceQuestion
      */
-    public function setThumbSize(?int $thumbSize) : CBMChoiceQuestion
+    public function setThumbSize(?int $thumbSize): CBMChoiceQuestion
     {
         $this->thumbSize = $thumbSize;
         return $this;
@@ -410,7 +410,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return int
      */
-    public function getAnswerType() : int
+    public function getAnswerType(): int
     {
         return $this->answerType;
     }
@@ -419,7 +419,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param int $answerType
      * @return CBMChoiceQuestion
      */
-    public function setAnswerType(int $answerType) : CBMChoiceQuestion
+    public function setAnswerType(int $answerType): CBMChoiceQuestion
     {
         $this->answerType = $answerType;
         return $this;
@@ -428,7 +428,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return AnswerData[]
      */
-    public function getAnswers() : array
+    public function getAnswers(): array
     {
         return $this->answers;
     }
@@ -437,7 +437,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param AnswerData[] $answers
      * @return CBMChoiceQuestion
      */
-    public function setAnswers(array $answers) : CBMChoiceQuestion
+    public function setAnswers(array $answers): CBMChoiceQuestion
     {
         $this->answers = $answers;
         return $this;
@@ -446,7 +446,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return bool
      */
-    public function isAllowMultipleSelection() : bool
+    public function isAllowMultipleSelection(): bool
     {
         return $this->allowMultipleSelection;
     }
@@ -455,7 +455,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param bool $allowMultipleSelection
      * @return CBMChoiceQuestion
      */
-    public function setAllowMultipleSelection(bool $allowMultipleSelection) : CBMChoiceQuestion
+    public function setAllowMultipleSelection(bool $allowMultipleSelection): CBMChoiceQuestion
     {
         $this->allowMultipleSelection = $allowMultipleSelection;
         return $this;
@@ -464,7 +464,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return array<string, array<string, float>>
      */
-    public function getScoringMatrix() : array
+    public function getScoringMatrix(): array
     {
         return $this->scoringMatrix;
     }
@@ -473,7 +473,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param array<string, array<string, float>> $scoringMatrix
      * @return CBMChoiceQuestion
      */
-    public function setScoringMatrix(array $scoringMatrix) : CBMChoiceQuestion
+    public function setScoringMatrix(array $scoringMatrix): CBMChoiceQuestion
     {
         $this->scoringMatrix = $scoringMatrix;
         return $this;
@@ -482,7 +482,7 @@ class CBMChoiceQuestion extends assQuestion
     /**
      * @return bool
      */
-    public function isCBMAnswerRequired() : bool
+    public function isCBMAnswerRequired(): bool
     {
         return $this->cbmAnswerRequired;
     }
@@ -491,7 +491,7 @@ class CBMChoiceQuestion extends assQuestion
      * @param bool $cbmAnswerRequired
      * @return CBMChoiceQuestion
      */
-    public function setCBMAnswerRequired(bool $cbmAnswerRequired) : CBMChoiceQuestion
+    public function setCBMAnswerRequired(bool $cbmAnswerRequired): CBMChoiceQuestion
     {
         $this->cbmAnswerRequired = $cbmAnswerRequired;
         return $this;

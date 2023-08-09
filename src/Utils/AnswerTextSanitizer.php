@@ -38,12 +38,12 @@ class AnswerTextSanitizer
         $this->formInput = new ilFormPropertyGUI("", "");
     }
 
-    public function sanitize(string $string) : string
+    public function sanitize(string $string): string
     {
         return $this->formInput->stripSlashesAddSpaceFallback($string);
     }
 
-    public function desanitize(string $sanitizedString) : string
+    public function desanitize(string $sanitizedString): string
     {
         return str_replace(["< ", "<  "], "<", $sanitizedString);
     }

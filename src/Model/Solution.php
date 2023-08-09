@@ -48,7 +48,7 @@ class Solution
     /**
      * @return AnswerData[]
      */
-    public function getAnswers() : array
+    public function getAnswers(): array
     {
         return $this->answers;
     }
@@ -57,7 +57,7 @@ class Solution
      * @param AnswerData[] $answers
      * @return Solution
      */
-    public function setAnswers(array $answers) : Solution
+    public function setAnswers(array $answers): Solution
     {
         $this->answers = $answers;
         return $this;
@@ -66,7 +66,7 @@ class Solution
     /**
      * @return string
      */
-    public function getCbmChoice() : string
+    public function getCbmChoice(): string
     {
         return $this->cbmChoice;
     }
@@ -75,7 +75,7 @@ class Solution
      * @param string $cbmChoice
      * @return Solution
      */
-    public function setCbmChoice(string $cbmChoice) : Solution
+    public function setCbmChoice(string $cbmChoice): Solution
     {
         $this->cbmChoice = $cbmChoice;
         return $this;

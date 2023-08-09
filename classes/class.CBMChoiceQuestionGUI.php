@@ -76,7 +76,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
     }
 
-    public function editQuestion(?QuestionConfigForm $form = null) : void
+    public function editQuestion(?QuestionConfigForm $form = null): void
     {
         $this->getQuestionTemplate();
 
@@ -136,7 +136,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     /**
      * @inheritDoc
      */
-    public function writePostData($always = false) : int
+    public function writePostData($always = false): int
     {
         $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
         if (!$form->checkInput()) {
@@ -261,7 +261,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $show_correct_solution = false,
         $show_manual_scoring = false,
         $show_question_text = true
-    ) : string {
+    ): string {
         $solution = new Solution([], "");
         if ($active_id && !$show_correct_solution) {
             $solution = $this->object->mapSolution($this->object->getSolutionValues($active_id, $pass));
@@ -348,7 +348,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      *
      * @throws ilTemplateException
      */
-    public function getPreview($show_question_only = false, $showInlineFeedback = false) : string
+    public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
         $solution = new Solution([], "");
         if (is_object($this->getPreviewSession())) {
@@ -375,7 +375,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $is_question_postponed,
         $user_post_solutions,
         $show_specific_inline_feedback
-    ) : string {
+    ): string {
         $solution = new Solution([], "");
         if ($active_id) {
             $solution = $this->object->mapSolution((array) $this->object->getTestOutputSolutions($active_id, $pass));
@@ -396,7 +396,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      * @return ilTemplate
      * @throws ilTemplateException
      */
-    private function renderDynamicQuestionOutput(Solution $solution, bool $asSolutionOutput = false, bool $showQuestionText = true) : ilTemplate
+    private function renderDynamicQuestionOutput(Solution $solution, bool $asSolutionOutput = false, bool $showQuestionText = true): ilTemplate
     {
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
 

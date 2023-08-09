@@ -86,7 +86,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
      * @param string[] $rowNames
      * @return void
      */
-    public function setup(array $columnNames, array $rowNames) : void
+    public function setup(array $columnNames, array $rowNames): void
     {
         $this->columnNames = $columnNames;
         $this->rowNames = $rowNames;
@@ -105,7 +105,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         }
     }
 
-    public function setValueByArray(array $data) : void
+    public function setValueByArray(array $data): void
     {
         if (isset($data[$this->getPostVar()])) {
             $data = $data[$this->getPostVar()];
@@ -121,7 +121,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         }
     }
 
-    public function isStoreAsDefaultForSession() : bool
+    public function isStoreAsDefaultForSession(): bool
     {
         /**
          * @var ilCheckboxInputGUI $storeAsDefaultForSession
@@ -130,7 +130,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         return (bool) $storeAsDefaultForSession->getChecked();
     }
 
-    public function getValue(bool $withStoreAsDefaultForSession = false) : array
+    public function getValue(bool $withStoreAsDefaultForSession = false): array
     {
         $values = [];
         foreach ($this->inputs as $postVar => $input) {
@@ -165,7 +165,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         return $success;
     }
 
-    private function createNumberInput(string $rowIndex, string $colIndex) : ilNumberInputGUI
+    private function createNumberInput(string $rowIndex, string $colIndex): ilNumberInputGUI
     {
         $input = new ilNumberInputGUI(
             "",
@@ -181,7 +181,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
      * @throws ilTemplateException
      * @noinspection DisconnectedForeachInstructionInspection
      */
-    public function insert(ilTemplate $a_tpl) : void
+    public function insert(ilTemplate $a_tpl): void
     {
         $tpl = new ilTemplate($this->getFolderPath("tpl.scoringMatrix_input.html"), true, true);
         $tpl->setVariable(
@@ -231,7 +231,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
      * @param array<string, float> $scoringMatrix
      * @return array<string, array<string, float>>
      */
-    public function mapValuesToArray(array $scoringMatrix) : array
+    public function mapValuesToArray(array $scoringMatrix): array
     {
         $map = [];
         foreach ($this->rowNames as $rowKey => $rowText) {
@@ -246,7 +246,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
      * @param array<string, array<string, float>> $map
      * @return array<string, float> $scoringMatrix
      */
-    public function unMapValuesFromArray(array $map) : array
+    public function unMapValuesFromArray(array $map): array
     {
         $scoringMatrix = [];
         foreach ($map as $rowName => $data) {
@@ -263,7 +263,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         return $scoringMatrix;
     }
 
-    private function getFolderPath(string $file = "") : string
+    private function getFolderPath(string $file = ""): string
     {
         return strstr(realpath(__DIR__), "Customizing") . "/$file";
     }
