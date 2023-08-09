@@ -63,15 +63,6 @@ class QuestionConfigForm extends ilPropertyFormGUI
 
         $parent->addBasicQuestionFormProperties($this);
 
-        $points = new ilNumberInputGUI($this->lng->txt("points"), "pointsForQuestion");
-        $points->allowDecimals(true);
-        $points->setDecimals(2);
-        $points->setRequired(true);
-        $points->setSize(3);
-        $points->setMinValue(0.0);
-        $points->setMinvalueShouldBeGreater(true);
-        $this->addItem($points);
-
         $shuffle = new ilCheckboxInputGUI($this->lng->txt("shuffle_answers"), "shuffle");
         $shuffle->setValue(true);
         $shuffle->setRequired(false);
@@ -110,7 +101,6 @@ class QuestionConfigForm extends ilPropertyFormGUI
             "cbmAnswerRequired"
         );
         $this->addItem($cbmAnswerRequired);
-
 
         $imageFile = new ilImageFileInputGUI($this->lng->txt("answer_image"), "answerImage");
         $answers = new FieldMappingInput($this->lng->txt("answers"), "answers");

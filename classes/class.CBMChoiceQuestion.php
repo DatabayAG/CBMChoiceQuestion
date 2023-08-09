@@ -68,11 +68,6 @@ class CBMChoiceQuestion extends assQuestion
      */
     private $dic;
 
-    /**
-     * @var float
-     */
-    private $pointsForQuestion = 0.0;
-
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
@@ -197,7 +192,6 @@ class CBMChoiceQuestion extends assQuestion
         }
         $cbmChoice = $solution->getCbmChoice();
 
-        $points = (float) $this->getPointsForQuestion();
         $allCorrect = true;
         foreach ($solution->getAnswers() as $answer) {
             if (!$answer->isAnswerCorrect()) {
@@ -210,11 +204,10 @@ class CBMChoiceQuestion extends assQuestion
         if ($allCorrect) {
             $scoringMatrixValue = $scoringMatrix["correct"][$cbmChoice];
         } else {
-            $points = 0;
             $scoringMatrixValue = $scoringMatrix["incorrect"][$cbmChoice];
         }
 
-        return $points + (float) $scoringMatrixValue;
+        return (float) $scoringMatrixValue;
     }
 
     public function getQuestionType() : string
@@ -293,7 +286,6 @@ class CBMChoiceQuestion extends assQuestion
             $this->setNrOfTries($data["nr_of_tries"]);
             $this->setComment($data["description"]);
             $this->setAuthor($data["author"]);
-            $this->setPointsForQuestion((float) $data["points_for_question"]);
             $this->setOwner($data["owner"]);
             $this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
             $this->setLastChange($data["tstamp"]);
@@ -332,14 +324,11 @@ class CBMChoiceQuestion extends assQuestion
 
     public function getMaximumPoints() : float
     {
-        $points = (float) $this->getPointsForQuestion();
-
-        $scoringMatrixPoints = $points;
+        $scoringMatrixPoints = 0;
         foreach ($this->getScoringMatrix() as $rowIndex => $data) {
             foreach ($data as $value) {
-                $newPoints = $points + $value;
-                if ($newPoints > $scoringMatrixPoints) {
-                    $scoringMatrixPoints = $newPoints;
+                if ($value > $scoringMatrixPoints) {
+                    $scoringMatrixPoints = $value;
                 }
             }
         }
@@ -363,7 +352,6 @@ class CBMChoiceQuestion extends assQuestion
                 "shuffle" => ["integer", (bool) $this->getShuffle()],
                 "thumb_size" => ["integer", $this->getThumbSize()],
                 "answer_type" => ["integer", $this->getAnswerType()],
-                "points_for_question" => ["float", $this->getPointsForQuestion()],
                 "allow_multiple_selection" => ["integer", $this->isAllowMultipleSelection()],
                 "scoring_matrix" => ["clob", serialize($this->getScoringMatrix())],
                 "cbm_answer_required" => ["integer", $this->isCBMAnswerRequired()],
@@ -506,24 +494,6 @@ class CBMChoiceQuestion extends assQuestion
     public function setCBMAnswerRequired(bool $cbmAnswerRequired) : CBMChoiceQuestion
     {
         $this->cbmAnswerRequired = $cbmAnswerRequired;
-        return $this;
-    }
-
-    /**
-     * @return float
-     */
-    public function getPointsForQuestion() : float
-    {
-        return $this->pointsForQuestion;
-    }
-
-    /**
-     * @param float $pointsForQuestion
-     * @return CBMChoiceQuestion
-     */
-    public function setPointsForQuestion(float $pointsForQuestion) : CBMChoiceQuestion
-    {
-        $this->pointsForQuestion = $pointsForQuestion;
         return $this;
     }
 }

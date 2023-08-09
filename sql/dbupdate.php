@@ -199,3 +199,12 @@ if ($ilDB->tableExists("cbm_choice_qst_data")) {
     }
 }
 ?>
+<#14>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && $ilDB->tableColumnExists("cbm_choice_qst_data", "points_for_question")
+) {
+    $ilDB->dropTableColumn("cbm_choice_qst_data", "points_for_question");
+}
+?>

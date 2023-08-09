@@ -109,7 +109,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 "thumbSize" => $this->object->getThumbSize(),
                 "answerType" => $this->object->getAnswerType(),
                 "allowMultipleSelection" => $this->object->isAllowMultipleSelection(),
-                "pointsForQuestion" => $this->object->getPointsForQuestion(),
                 "scoringMatrix" => $scoringMatrixInput->unMapValuesFromArray($this->object->getScoringMatrix()),
                 "cbmAnswerRequired" => $this->object->isCBMAnswerRequired()
             ], true);
@@ -148,8 +147,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
         $thumbSize = (string) $form->getInput("thumbSize");
-        $this->object->setPointsForQuestion((float) $form->getInput("pointsForQuestion"));
-        $this->object->setPoints($this->object->getPointsForQuestion());
+        //$this->object->setPoints($this->object->getPointsForQuestion());
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize($thumbSize ? ((int) $thumbSize) : null);
         $this->object->setCBMAnswerRequired((bool) $form->getInput("cbmAnswerRequired"));
