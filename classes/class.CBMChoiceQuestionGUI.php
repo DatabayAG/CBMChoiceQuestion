@@ -118,8 +118,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 foreach ($this->object->getAnswers() as $row => $answer) {
                     $answer->setAnswerText(
                         $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE
-                        ? $this->answerTextSanitizer->desanitize($answer->getAnswerText())
-                        : $this->answerTextSanitizer->sanitize($answer->getAnswerText())
+                            ? $this->answerTextSanitizer->desanitize($answer->getAnswerText())
+                            : $this->answerTextSanitizer->sanitize($answer->getAnswerText())
                     );
                     $answerData[$row] = $answer->toArray();
                 }

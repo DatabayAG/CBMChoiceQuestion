@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\CBMChoiceQuestion\Model;
 
 use ReflectionClass;
-use Throwable;
 
 /**
  * Class AnswerData
