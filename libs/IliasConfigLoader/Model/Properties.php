@@ -35,7 +35,7 @@ class Properties
     /**
      * @return LoadableProperty[]
      */
-    public function getLoadable() : array
+    public function getLoadable(): array
     {
         return $this->loadable;
     }
@@ -43,7 +43,7 @@ class Properties
     /**
      * @param LoadableProperty[] $loadable
      */
-    public function setLoadable(array $loadable) : void
+    public function setLoadable(array $loadable): void
     {
         $this->loadable = $loadable;
     }
@@ -51,7 +51,7 @@ class Properties
     /**
      * @return UnloadableProperty[]
      */
-    public function getUnloadable() : array
+    public function getUnloadable(): array
     {
         return $this->unloadable;
     }
@@ -59,27 +59,27 @@ class Properties
     /**
      * @param UnloadableProperty[] $unloadable
      */
-    public function setUnloadable(array $unloadable) : void
+    public function setUnloadable(array $unloadable): void
     {
         $this->unloadable = $unloadable;
     }
 
-    public function addLoadable(LoadableProperty $loadable) : void
+    public function addLoadable(LoadableProperty $loadable): void
     {
         $this->loadable[] = $loadable;
     }
 
-    public function addUnloadable(UnloadableProperty $unloadable) : void
+    public function addUnloadable(UnloadableProperty $unloadable): void
     {
         $this->unloadable[] = $unloadable;
     }
 
-    public function hasLoadable() : bool
+    public function hasLoadable(): bool
     {
         return $this->loadable !== [];
     }
 
-    public function hasUnloadable() : bool
+    public function hasUnloadable(): bool
     {
         return $this->unloadable !== [];
     }

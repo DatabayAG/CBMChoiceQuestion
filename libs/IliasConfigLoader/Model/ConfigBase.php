@@ -43,7 +43,7 @@ abstract class ConfigBase
         $this->settingsPrefix = $settingsPrefix;
     }
 
-    public function toArray($blacklist = []) : array
+    public function toArray($blacklist = []): array
     {
         $data = [];
         foreach ($this->getProperties(new ReflectionClass($this))->getLoadable() as $loadableProperty) {
@@ -61,7 +61,7 @@ abstract class ConfigBase
      * @return array<string, mixed>
      * @throws ReflectionException
      */
-    protected function getDefaultValues() : array
+    protected function getDefaultValues(): array
     {
         $defaultValues = [];
         $tmpConfigObject = new ReflectionClass($this);
@@ -77,7 +77,7 @@ abstract class ConfigBase
         return $defaultValues;
     }
 
-    protected function checkPropertyType(string $type, array $typesToCheck) : ?string
+    protected function checkPropertyType(string $type, array $typesToCheck): ?string
     {
         //convert
 
@@ -94,7 +94,7 @@ abstract class ConfigBase
         return null;
     }
 
-    protected function getSupportedPrimitivePropertyTypes() : array
+    protected function getSupportedPrimitivePropertyTypes(): array
     {
         return [
             "string",
@@ -114,7 +114,7 @@ abstract class ConfigBase
      * @throws ReflectionException
      * @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection
      */
-    protected function getProperties(ReflectionClass $refClass) : Properties
+    protected function getProperties(ReflectionClass $refClass): Properties
     {
         $properties = new Properties();
         $defaultProperties = $this->getDefaultValues();
@@ -192,22 +192,22 @@ abstract class ConfigBase
      * @param mixed  $value
      * @return void
      */
-    abstract protected function saveSingleValue(string $key, $value) : void;
+    abstract protected function saveSingleValue(string $key, $value): void;
 
-    abstract protected function loadSingleValue(string $key, ?string $defaultValue) : ?string;
+    abstract protected function loadSingleValue(string $key, ?string $defaultValue): ?string;
 
-    abstract protected function cleanSingleValue(string $key) : bool;
+    abstract protected function cleanSingleValue(string $key): bool;
 
     /**
      * @return string[]
      */
-    abstract protected function getIgnoredPropertyNames() : array;
+    abstract protected function getIgnoredPropertyNames(): array;
 
     /**
      * @throws ConfigLoadException
      * @throws ReflectionException
      */
-    public function load() : self
+    public function load(): self
     {
         $properties = $this->getProperties(new ReflectionClass($this));
 
@@ -273,7 +273,7 @@ abstract class ConfigBase
         return $this;
     }
 
-    public function cleanValue(string $key) : bool
+    public function cleanValue(string $key): bool
     {
         return $this->cleanSingleValue($this->settingsPrefix . $key);
     }
@@ -281,7 +281,7 @@ abstract class ConfigBase
     /**
      * @throws ConfigLoadException
      */
-    public function save() : void
+    public function save(): void
     {
         $properties = $this->getProperties(new ReflectionClass($this));
         foreach ($properties->getLoadable() as $loadable) {

@@ -40,25 +40,25 @@ class UserPrefConfig extends ConfigBase
         parent::__construct($settingsPrefix);
     }
 
-    protected function saveSingleValue(string $key, $value) : void
+    protected function saveSingleValue(string $key, $value): void
     {
         $this->user->writePref($key, $value);
     }
 
-    protected function loadSingleValue(string $key, ?string $defaultValue) : ?string
+    protected function loadSingleValue(string $key, ?string $defaultValue): ?string
     {
         $pref = $this->user->getPref($key);
 
         return $pref ?: $defaultValue;
     }
 
-    protected function cleanSingleValue(string $key) : bool
+    protected function cleanSingleValue(string $key): bool
     {
         $this->user->deletePref($key);
         return true;
     }
 
-    protected function getIgnoredPropertyNames() : array
+    protected function getIgnoredPropertyNames(): array
     {
         return [
             "user"

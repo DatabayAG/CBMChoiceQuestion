@@ -34,12 +34,12 @@ class LoadableProperty
      */
     private $types;
 
-    public function getProperty() : ReflectionProperty
+    public function getProperty(): ReflectionProperty
     {
         return $this->property;
     }
 
-    public function setProperty(ReflectionProperty $property) : self
+    public function setProperty(ReflectionProperty $property): self
     {
         $this->property = $property;
         return $this;
@@ -48,7 +48,7 @@ class LoadableProperty
     /**
      * @return string[]
      */
-    public function getTypes() : array
+    public function getTypes(): array
     {
         return $this->types;
     }
@@ -57,7 +57,7 @@ class LoadableProperty
      * @param string[] $types
      * @return $this
      */
-    public function setTypes(array $types) : self
+    public function setTypes(array $types): self
     {
         $this->types = $types;
         return $this;

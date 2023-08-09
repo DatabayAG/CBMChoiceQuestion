@@ -44,7 +44,7 @@ class JsonTranslationLoader extends ilPluginLanguage
         $this->baseDir = $this->getLanguageDirectory();
     }
 
-    public function updateLanguages($a_lang_keys = null) : void
+    public function updateLanguages($a_lang_keys = null): void
     {
         try {
             $this->load();
@@ -56,7 +56,7 @@ class JsonTranslationLoader extends ilPluginLanguage
     /**
      * @throws Exception
      */
-    public function load(?array $langKeys = null) : void
+    public function load(?array $langKeys = null): void
     {
         if (!@is_dir($this->baseDir)) {
             throw new Exception("Directory $this->baseDir does not exist");
@@ -73,7 +73,7 @@ class JsonTranslationLoader extends ilPluginLanguage
          */
         $languageFiles = array_filter(
             $this->findJsonFiles($this->baseDir),
-            static function (string $key) use ($langKeys) : bool {
+            static function (string $key) use ($langKeys): bool {
                 return !is_array($langKeys) || in_array($key, $langKeys, true);
             },
             ARRAY_FILTER_USE_KEY
@@ -115,7 +115,7 @@ class JsonTranslationLoader extends ilPluginLanguage
         }
     }
 
-    private function findJsonFiles(string $startingDir) : array
+    private function findJsonFiles(string $startingDir): array
     {
         $jsonFiles = [];
 

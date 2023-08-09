@@ -40,12 +40,12 @@ class SettingsConfig extends ConfigBase
         parent::__construct($settingsPrefix);
     }
 
-    protected function saveSingleValue(string $key, $value) : void
+    protected function saveSingleValue(string $key, $value): void
     {
         $this->settings->set($key, $value);
     }
 
-    protected function loadSingleValue(string $key, ?string $defaultValue) : ?string
+    protected function loadSingleValue(string $key, ?string $defaultValue): ?string
     {
         return $this->settings->get(
             $key,
@@ -53,12 +53,12 @@ class SettingsConfig extends ConfigBase
         );
     }
 
-    protected function cleanSingleValue(string $key) : bool
+    protected function cleanSingleValue(string $key): bool
     {
         return (bool) $this->settings->delete($key);
     }
 
-    protected function getIgnoredPropertyNames() : array
+    protected function getIgnoredPropertyNames(): array
     {
         return [
             "settings"

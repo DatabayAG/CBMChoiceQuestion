@@ -40,7 +40,7 @@ class ConfigLoadException extends Exception
     /**
      * @return UnloadableProperty[]
      */
-    public function getUnloadableProperties() : array
+    public function getUnloadableProperties(): array
     {
         return $this->unloadableProperties;
     }

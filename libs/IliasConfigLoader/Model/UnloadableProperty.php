@@ -39,12 +39,12 @@ class UnloadableProperty
      */
     private $exception;
 
-    public function getProperty() : ReflectionProperty
+    public function getProperty(): ReflectionProperty
     {
         return $this->property;
     }
 
-    public function setProperty(ReflectionProperty $property) : self
+    public function setProperty(ReflectionProperty $property): self
     {
         $this->property = $property;
         return $this;
@@ -53,7 +53,7 @@ class UnloadableProperty
     /**
      * @return string[]
      */
-    public function getTypes() : array
+    public function getTypes(): array
     {
         return $this->types;
     }
@@ -62,18 +62,18 @@ class UnloadableProperty
      * @param string[] $types
      * @return $this
      */
-    public function setTypes(array $types) : self
+    public function setTypes(array $types): self
     {
         $this->types = $types;
         return $this;
     }
 
-    public function getException() : Exception
+    public function getException(): Exception
     {
         return $this->exception;
     }
 
-    public function setException(Exception $exception) : self
+    public function setException(Exception $exception): self
     {
         $this->exception = $exception;
         return $this;
