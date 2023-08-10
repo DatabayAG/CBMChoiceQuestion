@@ -307,6 +307,17 @@ class CBMChoiceQuestion extends assQuestion
         parent::loadFromDb($questionId);
     }
 
+    public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
+    {
+        //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
+        return "";
+    }
+
+    public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping, array $solutionhints = []): void
+    {
+        //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
+    }
+
     public function isComplete(): bool
     {
         foreach ([$this->title, $this->author, $this->question] as $text) {
