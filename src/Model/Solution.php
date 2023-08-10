@@ -45,6 +45,20 @@ class Solution
         $this->cbmChoice = $cbmChoice;
     }
 
+    public function getCorrectAnswerCount(): int
+    {
+        $count = 0;
+        foreach ($this->getAnswers() as $answer) {
+            $count += $answer->isAnswerCorrect();
+        }
+        return $count;
+    }
+
+    public function isCertain(): bool
+    {
+        return $this->getCbmChoice() === "certain";
+    }
+
     /**
      * @return AnswerData[]
      */

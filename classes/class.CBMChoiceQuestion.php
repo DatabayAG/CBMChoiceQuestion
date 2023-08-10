@@ -359,6 +359,14 @@ class CBMChoiceQuestion extends assQuestion
         );
     }
 
+    public function getCorrectAnswerCount(): int
+    {
+        $count = 0;
+        foreach ($this->getAnswers() as $answer) {
+            $count += $answer->isAnswerCorrect();
+        }
+        return $count;
+    }
     /**
      * @param array<int, array<string, mixed>> $solutionRecords
      * @return Solution
