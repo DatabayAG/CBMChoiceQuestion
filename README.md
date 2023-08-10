@@ -49,4 +49,17 @@ The **CBMChoiceQuestionExport** plugin can optionally be used to export CBM Ques
 
 ## Usage
 
-ToDo
+1. Create a Test Object somewhere in ILIAS
+2. Open the **Questions** tab and click on **Create Question**
+3. Select ``Certainty based marking Question`` as the Question Type.
+4. Configure the question like a normal test.
+   - If ``Editor for Answers`` is set you can use a rich text editor for the question text (after saving once)
+   - ``Thumbnail Size`` changes the width & height of images uploaded in the `Single Line Answers` mode.
+   - ``Allow Multiple Selection`` changes the question into a Multi select question (multiple answers can be ticked).
+   - If ``Should the response to the CBM be mandatory`` is enabled, not filling out the certainty below the question will result in 0 points given.
+   - The ``Scoring Matrix`` defines how many points the participant receives for the chosen answer/certainty.
+   - The ``Store Matrix Values in Session as Default`` checkbox stores the choosen ``Scoring Matrix`` in the session. If you create another question, the values will be automatically filled.
+   ![CBM Choice Question Configuration](docs/images/cbm_choice_question_configuration.png)
+
+5. Start the test and answer the question
+![Answering the CBM Choice Question](docs/images/answering cbm_choice_question.png)
