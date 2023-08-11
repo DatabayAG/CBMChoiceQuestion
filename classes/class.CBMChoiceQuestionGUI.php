@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 /**
  * This file is part of ILIAS, a powerful learning management system
@@ -9,7 +11,7 @@
  * You should have received a copy of said license along with the
  * source code, too.
  *
- * If this is not the case or you just want to try ILIAS, you'll find
+ * If this is not the case or you just want to try ILIAS, you"ll find
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
@@ -17,9 +19,16 @@
  *********************************************************************/
 
 use ILIAS\DI\Container;
+use ILIAS\FileUpload\Exception\IllegalStateException;
+use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput\ScoringMatrixInput;
 use ILIAS\Plugin\CBMChoiceQuestion\Form\QuestionConfigForm;
+use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
+use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
+use ILIAS\Plugin\CBMChoiceQuestion\Stakeholder\AnswerImageStakeHolder;
+use ILIAS\Plugin\CBMChoiceQuestion\Utils\AnswerTextSanitizer;
+use ILIAS\ResourceStorage\Services;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilCBMChoiceQuestionGUI
@@ -39,80 +48,89 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      * @var Container
      */
     private $dic;
+    /**
+     * @var Services
+     */
+    private $resourceStorage;
+    /**
+     * @var ilGlobalPageTemplate
+     */
+    private $mainTpl;
+    /**
+     * @var AnswerTextSanitizer
+     */
+    private $answerTextSanitizer;
 
     public function __construct(?int $id = null)
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         global $DIC;
         $this->dic = $DIC;
+        $this->mainTpl = $this->dic->ui()->mainTemplate();
+        $this->resourceStorage = $this->dic->resourceStorage();
+        $this->answerTextSanitizer = new AnswerTextSanitizer();
         parent::__construct();
         $this->object = new CBMChoiceQuestion();
         if ($id && $id >= 0) {
             $this->object->loadFromDb($id);
         }
-
     }
 
-    /**
-     * @param bool $checkonly
-     */
-    public function editQuestion(?QuestionConfigForm $form = null)
+    public function editQuestion(?QuestionConfigForm $form = null): void
     {
         $this->getQuestionTemplate();
 
-        if (!$form) {
-            /*$answersSingle->setValues(array_map(
-                static function (ASS_AnswerBinaryStateImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $parent->object->getAnswersSingle()
-            ));
-            $answersMulti->setValues(array_map(
-                static function (ASS_AnswerMultipleResponseImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $parent->object->getAnswersMulti()
-            ));
-            */
+        $newQuestionCheckResult = $this->dic->database()->queryF(
+            "SELECT question_fi FROM cbm_choice_qst_data WHERE question_fi = %s",
+            ["integer"],
+            [$this->object->getId()]
+        );
+        $newQuestion = $newQuestionCheckResult->numRows() === 0;
 
-            $form = new QuestionConfigForm($this);
+        if (!$form) {
+            if ($newQuestion) {
+                $sessionStoredScoringMatrix = unserialize(
+                    ilSession::get(
+                        ilCBMChoiceQuestionPlugin::CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY
+                    ) ?? "",
+                    ["allowed_classes" => false]
+                ) ?: [];
+                $this->object->setScoringMatrix($sessionStoredScoringMatrix);
+            }
+
+            $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
+            /**
+             * @var ScoringMatrixInput $scoringMatrixInput
+             */
+            $scoringMatrixInput = $form->getItemByPostVar("scoringMatrix");
+
             $form->setValuesByArray([
-                "hide_measure" => $this->object->isMeasureHidden(),
-                "answers_variant" => $this->object->getAnswersVariant(),
+                "shuffle" => $this->object->getShuffle(),
+                "thumbSize" => $this->object->getThumbSize(),
+                "answerType" => $this->object->getAnswerType(),
+                "allowMultipleSelection" => $this->object->isAllowMultipleSelection(),
+                "scoringMatrix" => $scoringMatrixInput->unMapValuesFromArray($this->object->getScoringMatrix()),
+                "cbmAnswerRequired" => $this->object->isCBMAnswerRequired()
             ], true);
 
+            if ($this->object->getAnswers() !== []) {
+                $answerData = [];
+                foreach ($this->object->getAnswers() as $row => $answer) {
+                    $answer->setAnswerText(
+                        $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_MULTI_LINE
+                            ? $this->answerTextSanitizer->desanitize($answer->getAnswerText())
+                            : $this->answerTextSanitizer->sanitize($answer->getAnswerText())
+                    );
+                    $answerData[$row] = $answer->toArray();
+                }
+
+                $form->setValuesByArray([
+                    "answers" => $answerData
+                ], true);
+            }
         }
 
-        /**
-         * @var ilSingleChoiceWizardInputGUI $answersSingle
-         * @var ilMultipleChoiceWizardInputGUI $answersMulti
-         */
-        $answersSingle = $form->getItemByPostVar("answers_single");
-        $answersMulti = $form->getItemByPostVar("answers_multi");
-
-        if ($answersSingle->getValues() === []) {
-            $answersSingle->setValues(array_map(
-                static function (ASS_AnswerBinaryStateImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $this->object->getAnswersSingle()
-            ));
-        }
-        if ($answersMulti->getValues() === []) {
-            $answersMulti->setValues(array_map(
-                static function (ASS_AnswerMultipleResponseImage $value) {
-                    $value->setAnswerText(html_entity_decode($value->getAnswerText()));
-                    return $value;
-                },
-                $this->object->getAnswersMulti()
-            ));
-        }
-
-
-        $this->tpl->setVariable('QUESTION_DATA', $form->getHTML());
+        $this->tpl->setVariable("QUESTION_DATA", $form->getHTML());
     }
 
     /**
@@ -120,7 +138,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      */
     public function writePostData($always = false): int
     {
-        $form = new QuestionConfigForm($this);
+        $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
         if (!$form->checkInput()) {
             $form->setValuesByPost();
             $this->editQuestion($form);
@@ -128,12 +146,103 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
-        $a = $form->getInput("answers_variant");
-        $this->object->setPoints((int)$form->getInput("points"));
-        $this->object->setHideMeasure((bool)$form->getInput("hide_measure"));
-        $this->object->setAnswersVariant($form->getInput("answers_variant"));
-        $this->object->setAnswersSingle($form->getItemByPostVar("answers_single")->getValues());
-        $this->object->setAnswersMulti($form->getItemByPostVar("answers_multi")->getValues());
+        $thumbSize = (string) $form->getInput("thumbSize");
+        //$this->object->setPoints($this->object->getPointsForQuestion());
+        $this->object->setShuffle((bool) $form->getInput("shuffle"));
+        $this->object->setThumbSize($thumbSize ? ((int) $thumbSize) : null);
+        $this->object->setCBMAnswerRequired((bool) $form->getInput("cbmAnswerRequired"));
+        $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
+        /**
+         * @var ScoringMatrixInput $scoringMatrixInput
+         */
+        $scoringMatrixInput = $form->getItemByPostVar("scoringMatrix");
+        $this->object->setScoringMatrix($scoringMatrixInput->mapValuesToArray($scoringMatrixInput->getValue()));
+
+        if ($scoringMatrixInput->isStoreAsDefaultForSession()) {
+            ilSession::set(
+                ilCBMChoiceQuestionPlugin::CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY,
+                serialize($this->object->getScoringMatrix())
+            );
+        }
+
+        $upload = $this->dic->upload();
+        $uploadResults = [];
+        if ($upload->hasUploads()) {
+            try {
+                if (!$upload->hasBeenProcessed()) {
+                    $upload->process();
+                }
+                $uploadResults = $upload->getResults();
+            } catch (IllegalStateException $e) {
+                ilUtil::sendFailure($this->plugin->txt("question.config.answerImage.uploadFailure"), true);
+                $this->editQuestion($form);
+                return 1;
+            }
+        }
+
+        /**
+         * @var AnswerData[] $answers
+         */
+        $answers = [];
+        /**
+         * @var array<string, string|array> $answerData
+         * @noinspection PhpUndefinedMethodInspection
+         */
+        foreach ($form->getItemByPostVar("answers")->getValue($form) as $rowIndex => $row) {
+            $answerImage = $row["answerImage"];
+            $file = $answerImage["file"];
+            $deleteImage = (bool) $answerImage["delete"];
+            $imageIdentification = "";
+
+            $imageUploaded = false;
+            if (isset($file["tmp_name"]) && $file["tmp_name"]) {
+                $uploadResult = $uploadResults[$file["tmp_name"]];
+                if ($uploadResult && $uploadResult->isOK()) {
+                    $identification = $this->resourceStorage->manage()->upload($uploadResult, new AnswerImageStakeHolder());
+                    try {
+                        $imageIdentification = $identification->serialize();
+                        $imageUploaded = true;
+                    } catch (Throwable $ex) {
+                        //ignore, act as no image uploaded
+                    }
+                }
+            }
+
+            if (!$imageUploaded && $deleteImage) {
+                $imageIdentification = "";
+            }
+
+            if (!$imageUploaded && !$deleteImage) {
+                //If no image is uploaded and image should not be deleted, try to find existing image identification
+                foreach ($this->object->getAnswers() as $existingKey => $existingAnswer) {
+                    if ($existingAnswer->getAnswerText() === $row["answerText"] && $rowIndex === $existingKey) {
+                        $imageIdentification = $existingAnswer->getAnswerImage();
+                        break;
+                    }
+                }
+            }
+
+            $answers[] = new AnswerData($rowIndex, $row["answerText"], $imageIdentification, $row["answerCorrect"] === "1");
+        }
+
+        $this->object->setAnswers($answers);
+
+        $answersContainImage = false;
+        foreach ($answers as $answer) {
+            if ($answer->getAnswerImage()) {
+                $answersContainImage = true;
+                break;
+            }
+        }
+
+        $answerType = (int) $form->getInput("answerType");
+
+        if ($answersContainImage && $answerType === 1) {
+            $answerType = 0;
+            ilUtil::sendInfo($this->lng->txt("info_answer_type_change"), true);
+        }
+        $this->object->setAnswerType($answerType);
+
 
         return 0;
     }
@@ -152,89 +261,82 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $show_correct_solution = false,
         $show_manual_scoring = false,
         $show_question_text = true
-    )
-    {
-        $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/data/css/styles.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript(
-            $this->plugin->getDirectory() . '/data/js/main.js'
-        );
+    ): string {
+        $solution = new Solution([], "");
+        if ($active_id && !$show_correct_solution) {
+            $solution = $this->object->mapSolution($this->object->getSolutionValues($active_id, $pass));
+        } elseif ($show_correct_solution) {
+            $correctAnswers = [];
+            //Get correct answers
+            foreach ($this->object->getAnswers() as $answer) {
+                if ($answer->isAnswerCorrect()) {
+                    $correctAnswers[$answer->getId()] = $answer;
+                }
+            }
 
-        $measure = '';
-        $notice = '';
-        if (($active_id > 0) && (!$show_correct_solution)) {
-            $solutions = $this->object->getSolutionMapFromSolutionRecords(
-                (array)$this->object->getSolutionValues($active_id, $pass)
-            );
+            $highestPoints = 0;
+            $highestColKey = "certain";
+            foreach ($this->object->getScoringMatrix() as $rowKey => $data) {
+                foreach ($data as $colKey => $value) {
+                    if ($value > $highestPoints) {
+                        $highestPoints = $value;
+                        $highestColKey = $colKey;
+                    }
+                }
+            }
 
-            $checkedAnswer = $solutions[qualityQuestion::DECISION_PARAMETER_NAME] ?? '';
-            $measure = $solutions[qualityQuestion::MEASURE_PARAMETER_NAME] ?? '';
-            $notice = $solutions[qualityQuestion::NOTICE_PARAMETER_NAME] ?? '';
-        } else {
-            $checkedAnswer = $this->dic->language()->txt('yes');
+            $solution = new Solution($correctAnswers, $highestColKey);
         }
 
-        $template = $this->plugin->getTemplate('tpl.il_as_qpl_qualityquestion_output_solution.html');
+        $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output_solution.html"), true, true);
 
         if (($active_id > 0) && (!$show_correct_solution)) {
             if ($graphicalOutput) {
                 $reachedPoints = $this->object->getReachedPoints($active_id, $pass);
-                if ($reachedPoints == $this->object->getMaximumPoints()) {
-                    $template->setCurrentBlock('icon_ok');
-                    $template->setVariable('ICON_OK', ilUtil::getImagePath('icon_ok.svg'));
-                    $template->setVariable('TEXT_OK', $this->lng->txt('answer_is_right'));
+                if ($reachedPoints === $this->object->getMaximumPoints()) {
+                    $tpl->setCurrentBlock("icon_ok");
+                    $tpl->setVariable("ICON_OK", ilUtil::getImagePath("icon_ok.svg"));
+                    $tpl->setVariable("TEXT_OK", $this->lng->txt("answer_is_right"));
                 } else {
-                    $template->setCurrentBlock('icon_ok');
+                    $tpl->setCurrentBlock("icon_ok");
                     if ($reachedPoints > 0) {
-                        $template->setVariable('ICON_NOT_OK', ilUtil::getImagePath('icon_mostly_ok.svg'));
-                        $template->setVariable('TEXT_NOT_OK', $this->lng->txt('answer_is_not_correct_but_positive'));
+                        $tpl->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_mostly_ok.svg"));
+                        $tpl->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_not_correct_but_positive"));
                     } else {
-                        $template->setVariable('ICON_NOT_OK', ilUtil::getImagePath('icon_not_ok.svg'));
-                        $template->setVariable('TEXT_NOT_OK', $this->lng->txt('answer_is_wrong'));
+                        $tpl->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_not_ok.svg"));
+                        $tpl->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_wrong"));
                     }
                 }
-                $template->parseCurrentBlock();
+                $tpl->parseCurrentBlock();
             }
         }
 
-        $checkedAnswer = $this->object->getHtmlUserSolutionPurifier()->purify($checkedAnswer);
-        $measure = $this->object->getHtmlUserSolutionPurifier()->purify($measure);
-        $notice = $this->object->getHtmlUserSolutionPurifier()->purify($notice);
         if ($this->renderPurposeSupportsFormHtml()) {
-            $template->setCurrentBlock('answer_div');
-            $template->setVariable('DIV_ANSWER', $this->object->prepareTextareaOutput($checkedAnswer, true));
+            $tpl->setCurrentBlock("answer_div");
+            $questionContent = $this->object->prepareTextareaOutput(
+                $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
+                true
+            );
+
+            //Remove name attribute from inputs to avoid having them act as inputs
+            $questionContent = preg_replace('/name=["\'](.+?)["\']/', "", $questionContent);
+
+            $tpl->setVariable(
+                "DIV_ANSWER",
+                $questionContent
+            );
         } else {
-            $template->setCurrentBlock('answer_textarea');
-            $template->setVariable('TA_ANSWER', $this->object->prepareTextareaOutput($checkedAnswer, true, true));
+            //ToDo: not rendering correctly
+            $tpl->setCurrentBlock("answer_textarea");
+            $tpl->setVariable("TA_ANSWER", $this->object->prepareTextareaOutput(
+                $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
+                true,
+                true
+            ));
         }
-        $template->parseCurrentBlock();
+        $tpl->parseCurrentBlock();
 
-        if (strlen($measure) > 0) {
-            if (
-                !$this->object->isMeasureHidden() &&
-                0 === strcmp($checkedAnswer, qualityQuestion::DECISION_FAILURE_INDICATOR)
-            ) {
-                $template->setVariable('MEASURE', $this->object->prepareTextareaOutput($measure, true, true));
-            }
-        }
-
-        if (strlen($notice) > 0) {
-            $template->setVariable(
-                'NOTICE',
-                $this->object->prepareTextareaOutput($notice, true, !$this->renderPurposeSupportsFormHtml())
-            );
-        }
-
-        if ($show_question_text) {
-            $template->setVariable(
-                'QUESTIONTEXT',
-                $this->object->prepareTextareaOutput(
-                    $this->object->getQuestion(),
-                    !$this->renderPurposeSupportsFormHtml()
-                )
-            );
-        }
-
-        $content = $template->get();
+        $content = $tpl->get();
         if (!$show_question_only) {
             $content = $this->getILIASPage($content);
         }
@@ -243,17 +345,17 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     }
 
     /**
-     * @inheritDoc
+     *
      * @throws ilTemplateException
      */
-    public function getPreview($show_question_only = false, $showInlineFeedback = false)
+    public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
-        $solutions = [];
+        $solution = new Solution([], "");
         if (is_object($this->getPreviewSession())) {
-            $solutions = (array)$this->getPreviewSession()->getParticipantsSolution();
+            $solution = $this->object->mapSolution((array) $this->getPreviewSession()->getParticipantsSolution());
         }
 
-        $template = $this->renderDynamicQuestionOutput($solutions);
+        $template = $this->renderDynamicQuestionOutput($solution);
 
         $content = $template->get();
         if (!$show_question_only) {
@@ -273,122 +375,114 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $is_question_postponed,
         $user_post_solutions,
         $show_specific_inline_feedback
-    )
-    {
-        $solutions = [];
+    ): string {
+        $solution = new Solution([], "");
         if ($active_id) {
-            $solutions = $this->object->getSolutionMapFromSolutionRecords(
-                (array)$this->object->getTestOutputSolutions($active_id, $pass)
-            );
+            $solution = $this->object->mapSolution((array) $this->object->getTestOutputSolutions($active_id, $pass));
         }
 
         return $this->outQuestionPage(
-            '',
+            "",
             $is_question_postponed,
             $active_id,
-            $this->renderDynamicQuestionOutput($solutions)->get()
+            $this->renderDynamicQuestionOutput($solution)->get()
         );
     }
 
     /**
-     * @param array<string, string> $solutions
+     * @param Solution $solution
+     * @param bool $asSolutionOutput
+     * @param bool $showQuestionText
      * @return ilTemplate
+     * @throws ilTemplateException
      */
-    private function renderDynamicQuestionOutput(array $solutions): ilTemplate
+    private function renderDynamicQuestionOutput(Solution $solution, bool $asSolutionOutput = false, bool $showQuestionText = true): ilTemplate
     {
-        $this->dic->ui()->mainTemplate()->addCss($this->plugin->getDirectory() . '/data/css/styles.css');
-        $this->dic->ui()->mainTemplate()->addJavaScript(
-            $this->plugin->getDirectory() . '/data/js/main.js'
-        );
+        $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
 
-        $checkedAnswer = '';
-        $measure = '';
-        $notice = '';
-        $measureDomContainerId = 'measure-container';
+        if ($showQuestionText) {
+            $tpl->setVariable("QUESTION_TEXT", $this->object->getQuestion());
+        }
+        $tpl->setVariable("CBM_TEXT", $this->plugin->txt("question.cbm.howCertain"));
+        if ($this->object->isCBMAnswerRequired()) {
+            $tpl->setVariable("CBM_REQUIRED_TEXT", $this->plugin->txt("question.cbm.required"));
+        }
+        $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
+        $shuffleAnswers = $this->object->getShuffle();
 
-        foreach ($solutions as $solutionName => $solutionValue) {
-            if (!is_string($solutionValue)) {
-                continue;
+        $answers = $shuffleAnswers ? $this->object->getShuffler()->shuffle($this->object->getAnswers()) : $this->object->getAnswers();
+        $isSingleLineAnswer = $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE;
+        $thumbSize = $this->object->getThumbSize();
+
+        foreach (["certain", "uncertain"] as $value) {
+            $tpl->setCurrentBlock("scoring_matrix_input");
+            if ($asSolutionOutput) {
+                $tpl->setVariable("DISABLED", "disabled");
+            }
+            $tpl->setVariable("SCORING_MATRIX_VALUE", $value);
+            $tpl->setVariable("SCORING_MATRIX_TEXT", $this->plugin->txt("question.cbm.$value"));
+            if ($solution->getCbmChoice() === $value) {
+                $tpl->setVariable("CHECKED", "checked");
+            }
+            $tpl->parseCurrentBlock("scoring_matrix_input");
+        }
+
+        foreach ($answers as $answer) {
+            $tpl->setCurrentBlock($this->object->isAllowMultipleSelection() ? "answer_multi" : "answer_single");
+            $tpl->setVariable("Q_ID", $this->object->getId());
+            $tpl->setVariable("ANSWER_ID", $answer->getId());
+
+            if ($asSolutionOutput) {
+                $tpl->setVariable("DISABLED", "disabled");
+                foreach ($solution->getAnswers() as $solutionAnswer) {
+                    if ($answer->getId() === $solutionAnswer->getId()) {
+                        $tpl->setVariable(
+                            "SOLUTION_ICON_SRC",
+                            ilUtil::getImagePath(
+                                $answer->isAnswerCorrect()
+                                    ? "icon_ok.svg"
+                                    : "icon_not_ok.svg"
+                            )
+                        );
+                        $tpl->setVariable(
+                            "SOLUTION_ICON_TEXT",
+                            $this->lng->txt(
+                                $answer->isAnswerCorrect()
+                                    ? "answer_is_right"
+                                    : "answer_is_wrong"
+                            )
+                        );
+                    }
+                }
             }
 
-            switch ($solutionName) {
-                case qualityQuestion::DECISION_PARAMETER_NAME:
-                    $checkedAnswer = $solutionValue;
+            foreach ($solution->getAnswers() as $solutionAnswer) {
+                if ($answer->getId() === $solutionAnswer->getId()) {
+                    $tpl->setVariable("CHECKED", "checked");
                     break;
-
-                case qualityQuestion::MEASURE_PARAMETER_NAME:
-                    $measure = $solutionValue;
-                    break;
-
-                case qualityQuestion::NOTICE_PARAMETER_NAME:
-                    $notice = $solutionValue;
-                    break;
+                }
             }
+            if ($isSingleLineAnswer && $answer->getAnswerImage()) {
+                $resource = $this->resourceStorage->consume()->src(
+                    $this->resourceStorage->manage()->find($answer->getAnswerImage())
+                );
+                if ($thumbSize) {
+                    $tpl->setVariable("ANSWER_IMAGE_THUMB_SIZE", $thumbSize);
+                }
+                $tpl->setVariable("ANSWER_IMAGE_URL", $resource->getSrc());
+            }
+
+
+            $tpl->setVariable(
+                "ANSWER_TEXT",
+                $isSingleLineAnswer
+                    ? $this->answerTextSanitizer->sanitize($answer->getAnswerText())
+                    : $this->answerTextSanitizer->desanitize($answer->getAnswerText())
+            );
+            $tpl->parseCurrentBlock($this->object->isAllowMultipleSelection() ? "answer_multi" : "answer_single");
         }
 
-        $template = $this->plugin->getTemplate('tpl.il_as_qpl_qualityquestion_output.html');
-
-        $template->setVariable(
-            'QUESTIONTEXT',
-            $this->object->prepareTextareaOutput($this->object->getQuestion(), true)
-        );
-
-        if (0 === strcmp($checkedAnswer, qualityQuestion::DECISION_CORRECTNESS_INDICATOR)) {
-            $template->setCurrentBlock('checked');
-            $template->touchBlock('checked');
-            $template->parseCurrentBlock();
-        }
-        $template->setCurrentBlock('answer_row');
-        $template->setVariable('ANSWER_ID', qualityQuestion::DECISION_CORRECTNESS_INDICATOR);
-        $template->setVariable('ANSWER_TEXT', $this->dic->language()->txt('yes'));
-        $template->setVariable('ANSWER_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::DECISION_PARAMETER_NAME
-        ));
-        $template->parseCurrentBlock();
-
-        if (0 === strcmp($checkedAnswer, qualityQuestion::DECISION_FAILURE_INDICATOR)) {
-            $template->setCurrentBlock('checked');
-            $template->touchBlock('checked');
-            $template->parseCurrentBlock();
-        }
-
-        $template->setCurrentBlock('answer_row');
-        $template->setVariable('ANSWER_ID', qualityQuestion::DECISION_FAILURE_INDICATOR);
-        $template->setVariable('ANSWER_TEXT', $this->dic->language()->txt('no'));
-        $template->setVariable('ANSWER_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::DECISION_PARAMETER_NAME
-        ));
-        $template->parseCurrentBlock();
-
-        $template->setCurrentBlock('qualityExtensionFields');
-        $template->setVariable('MEASURE_CONTAINER_ID', $measureDomContainerId);
-        $template->setVariable('LABEL_MEASURE', $this->plugin->txt('label_measure'));
-        $template->setVariable('MEASURE_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::MEASURE_PARAMETER_NAME
-        ));
-        $template->setVariable('MEASURE', $measure);
-        $template->setVariable('LABEL_NOTICE', $this->plugin->txt('label_notice'));
-        $template->setVariable('NOTICE_PARAMETER_NAME', $this->object->getHttpParameterNameForField(
-            qualityQuestion::NOTICE_PARAMETER_NAME
-        ));
-        $template->setVariable('NOTICE', $notice);
-        $template->parseCurrentBlock();
-
-        $isNotChecked = (0 === strcmp($checkedAnswer, qualityQuestion::DECISION_FAILURE_INDICATOR));
-        $decisionParameterName = $this->object->getHttpParameterNameForField(qualityQuestion::DECISION_PARAMETER_NAME);
-        $this->tpl->addOnLoadCode(
-            'il.qualityQuestion.init(' .
-            json_encode([
-                'measure_container_selector' => '#' . $measureDomContainerId,
-                'measure_initially_visible' => !$this->object->isMeasureHidden() && $isNotChecked,
-                'show_measure_on_dependency' => !$this->object->isMeasureHidden(),
-                'show_measure_indicator_field_selector' => 'input[name="' . $decisionParameterName . '"]',
-                'show_measure_indicator_value' => qualityQuestion::DECISION_FAILURE_INDICATOR,
-            ]) .
-            '); il.qualityQuestion.run();'
-        );
-
-        return $template;
+        return $tpl;
     }
 
     /**
@@ -396,6 +490,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
      */
     public function getSpecificFeedbackOutput($userSolution)
     {
-        return '';
+        return "";
     }
 }

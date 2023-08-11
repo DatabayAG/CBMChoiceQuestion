@@ -70,3 +70,141 @@ if (
     ]);
 }
 ?>
+<#5>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+) {
+    if (!$ilDB->tableColumnExists("cbm_choice_qst_data", "shuffle")) {
+        $ilDB->addTableColumn("cbm_choice_qst_data", "shuffle", [
+            "type" => "integer",
+            "length" => 1,
+            "notnull" => true,
+            "default" => true,
+        ]);
+    }
+
+    if (!$ilDB->tableColumnExists("cbm_choice_qst_data", "thumb_size")) {
+        $ilDB->addTableColumn("cbm_choice_qst_data", "thumb_size", [
+            "type" => "integer",
+            "length" => 4,
+            "notnull" => false,
+            "default" => null
+        ]);
+    }
+}
+?>
+<#6>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "answer_types")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "answer_types", [
+        "type" => "integer",
+        "length" => 2,
+        "notnull" => true,
+        "default" => 0,
+    ]);
+}
+?>
+<#7>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && $ilDB->tableColumnExists("cbm_choice_qst_data", "answer_types")
+) {
+    $ilDB->renameTableColumn("cbm_choice_qst_data", "answer_types", "answer_type");
+}
+?>
+<#8>
+<?php
+if ($ilDB->tableExists("cbm_choice_qst_data")) {
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "answers_variant")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "answers_variant");
+    }
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "answers_single")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "answers_single");
+    }
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "answers_multi")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "answers_multi");
+    }
+
+    if (!$ilDB->tableColumnExists("cbm_choice_qst_data", "answers")) {
+        $ilDB->addTableColumn("cbm_choice_qst_data", "answers", [
+            "type" => "clob",
+            "notnull" => true,
+        ]);
+    }
+}
+?>
+<#9>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "allow_multiple_selection")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "allow_multiple_selection", [
+        "type" => "integer",
+        "length" => 1,
+        "notnull" => true,
+        "default" => false,
+    ]);
+}
+?>
+<#10>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "scoring_matrix")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "scoring_matrix", [
+        "type" => "clob",
+        "notnull" => true,
+    ]);
+}
+?>
+<#11>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "cbm_answer_required")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "cbm_answer_required", [
+        "type" => "integer",
+        "length" => 1,
+        "notnull" => true,
+        "default" => false,
+    ]);
+}
+?>
+<#12>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && !$ilDB->tableColumnExists("cbm_choice_qst_data", "points_for_question")
+) {
+    $ilDB->addTableColumn("cbm_choice_qst_data", "points_for_question", [
+        "type" => "float",
+        "notnull" => true,
+        "default" => 0.0,
+    ]);
+}
+?>
+<#13>
+<?php
+if ($ilDB->tableExists("cbm_choice_qst_data")) {
+    if ($ilDB->tableColumnExists("cbm_choice_qst_data", "hide_measure")) {
+        $ilDB->dropTableColumn("cbm_choice_qst_data", "hide_measure");
+    }
+}
+?>
+<#14>
+<?php
+if (
+    $ilDB->tableExists("cbm_choice_qst_data")
+    && $ilDB->tableColumnExists("cbm_choice_qst_data", "points_for_question")
+) {
+    $ilDB->dropTableColumn("cbm_choice_qst_data", "points_for_question");
+}
+?>

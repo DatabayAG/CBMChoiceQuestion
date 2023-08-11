@@ -1,6 +1,4 @@
 {
-  "field_hide_measure":  "Maßnahmenfeld verstecken",
-  "field_hide_measure_info": "Falls aktiviert, wird das Maßnahmenfeld während der Bearbeitung durch einen Lernenden versteckt.",
   "CBMChoiceQuestion": "Certainty based marking Question",
   "general": {
     "cmd": {
@@ -16,5 +14,26 @@
       "notActivated": "Plugin is not active, yet. Please activate it.",
       "requiredParameterMissing": "The required parameter '%s' could not be found."
     }
+  },
+  "question": {
+    "config": {
+      "correct": "Correct",
+      "answerImage": {
+        "uploadFailure": "An error occurred while uploading the image."
+      },
+      "allowMultipleSelection": "Allow Multiple Selection",
+      "cbmAnswerRequired": "Should the response to the CBM be mandatory?"
+    },
+    "cbm": {
+      "howCertain": "How certain are you about your answer?",
+      "certain": "Certain",
+      "uncertain": "Uncertain",
+      "correct": "Correct",
+      "incorrect": "Incorrect",
+      "required": "Required"
+    }
+  },
+  "scoringMatrix": {
+    "storeAsDefaultForSession": "Store Matrix Values in Session as Default"
   }
 }

@@ -17,10 +17,24 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+namespace ILIAS\Plugin\CBMChoiceQuestion\Stakeholder;
+
+use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
+
 /**
- * Class CBMChoiceQuestionExport
+ * Class AnswerImageStakeHolder
+ * @package ILIAS\Plugin\CBMChoiceQuestion\Stakeholder
  * @author Marvin Beym <mbeym@databay.de>
  */
-class CBMChoiceQuestionExport extends assQuestionExport
+class AnswerImageStakeHolder extends AbstractResourceStakeholder
 {
+    public function getId(): string
+    {
+        return "cbmChoice";
+    }
+
+    public function getOwnerOfNewResources(): int
+    {
+        return 6;
+    }
 }

@@ -1,7 +1,5 @@
 /* This file was automatically generated from the de.lang.json file. DO NOT EDIT! */
 
-field_hide_measure#:#Hide Measure Field
-field_hide_measure_info#:#If enabled, the measure field will by hidden for learners.
 CBMChoiceQuestion#:#Gewissheitsbegründete Bewertung Frage
 general.cmd.undefined#:#Kein Kommando wurde gefunden
 general.cmd.notFound#:#Kommando '%s' wurde nicht gefunden
@@ -10,3 +8,14 @@ general.update.failed#:#Aktualisierung fehlgeschlagen
 general.plugin.settings#:#Plugin-Einstellungen
 general.plugin.notActivated#:#Das Plugin ist nicht aktiviert. Bitte aktivieren Sie dieses zunächst.
 general.plugin.requiredParameterMissing#:#Der benötigte Parameter '%s' konnte nicht gefunden werden.
+question.config.correct#:#Korrekt
+question.config.answerImage.uploadFailure#:#Beim hochladen des Bildes ist eine Fehler aufgetreten.
+question.config.allowMultipleSelection#:#Mehrfachauswahl zulassen
+question.config.cbmAnswerRequired#:#Soll die beantwortung der CBM Verpflichtend sein?
+question.cbm.howCertain#:#Wie sicher sind Sie sich bei Ihrer Antwort?
+question.cbm.certain#:#Sicher
+question.cbm.uncertain#:#Unsicher
+question.cbm.correct#:#Richtig
+question.cbm.incorrect#:#Falsch
+question.cbm.required#:#Erforderlich
+scoringMatrix.storeAsDefaultForSession#:#Matrixwerte als Standard für die Sitzung speichern

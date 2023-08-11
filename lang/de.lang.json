@@ -1,6 +1,4 @@
 {
-  "field_hide_measure":  "Hide Measure Field",
-  "field_hide_measure_info": "If enabled, the measure field will by hidden for learners.",
   "CBMChoiceQuestion": "Gewissheitsbegründete Bewertung Frage",
   "general": {
     "cmd": {
@@ -16,5 +14,26 @@
       "notActivated": "Das Plugin ist nicht aktiviert. Bitte aktivieren Sie dieses zunächst.",
       "requiredParameterMissing": "Der benötigte Parameter '%s' konnte nicht gefunden werden."
     }
+  },
+  "question": {
+    "config": {
+      "correct": "Korrekt",
+      "answerImage": {
+        "uploadFailure": "Beim hochladen des Bildes ist eine Fehler aufgetreten."
+      },
+      "allowMultipleSelection": "Mehrfachauswahl zulassen",
+      "cbmAnswerRequired": "Soll die beantwortung der CBM Verpflichtend sein?"
+    },
+    "cbm": {
+      "howCertain": "Wie sicher sind Sie sich bei Ihrer Antwort?",
+      "certain": "Sicher",
+      "uncertain": "Unsicher",
+      "correct": "Richtig",
+      "incorrect": "Falsch",
+      "required": "Erforderlich"
+    }
+  },
+  "scoringMatrix": {
+    "storeAsDefaultForSession": "Matrixwerte als Standard für die Sitzung speichern"
   }
 }

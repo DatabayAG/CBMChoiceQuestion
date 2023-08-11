@@ -1,4 +1,7 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -15,7 +18,11 @@
  *
  *********************************************************************/
 
-require_once __DIR__ . '/../vendor/autoload.php';
+use ILIAS\DI\Container;
+use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
+use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
+
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilCBMChoiceQuestion
@@ -30,44 +37,90 @@ class CBMChoiceQuestion extends assQuestion
     private $plugin;
 
     /**
-     * @var bool
+     * @var AnswerData[]
      */
-    private $measureHidden = false;
+    private $answers = [];
+    /**
+     * @var ?integer
+     */
+    protected $thumbSize;
+    /**
+     * @var int
+     */
+    private $answerType = 0;
 
     /**
-     * @var ASS_AnswerBinaryStateImage[]
+     * @var bool
      */
-    private $answersSingle = [];
+    private $allowMultipleSelection = false;
+
     /**
-     * @var ASS_AnswerMultipleResponseImage[]
+     * @var array<string, array<string, float>>
      */
-    private $answersMulti = [];
-    private $answersVariant = "answers_variant_single";
+    private $scoringMatrix = [];
+
+    /**
+     * @var bool
+     */
+    private $cbmAnswerRequired = false;
+    /**
+     * @var Container
+     */
+    private $dic;
 
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
+        global $DIC;
+        $this->dic = $DIC;
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
-    public function getHttpParameterNameForField(string $field): string
+    public function isAnswered($active_id, $pass = null): bool
     {
-        return 'question-' . $this->getId() . '-' . $field;
+        //ToDo test if possible to manipulate if cbm is required.
+        return assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId()) >= 1;
     }
 
-    public function saveWorkingData($active_id, $pass = null, $authorized = true)
+    /**
+     * @return array<string, string>
+     */
+    protected function getSolutionSubmit(): array
     {
-        if (null === $pass) {
+        $post = $this->dic->http()->request()->getParsedBody()["answer"];
+
+        $solution = [];
+        $answerIds = [];
+
+        foreach ($post["answer"] as $answerIdSelected) {
+            $answerIds[] = (int) $answerIdSelected;
+        }
+
+        //Verify valid solution answer
+        foreach ($this->getAnswers() as $existingAnswer) {
+            if (in_array($existingAnswer->getId(), $answerIds, true)) {
+                $solution["answer_{$existingAnswer->getId()}"] = $existingAnswer->getId();
+            }
+        }
+        $solution["cbm"] = $post["cbm"] ?? null;
+
+        return $solution;
+    }
+
+    public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
+    {
+        if ($pass === null) {
             $pass = ilObjTest::_getPass($active_id);
         }
 
         $numEnteredValues = 0;
-
+        $cbmSelected = false;
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (
             &$numEnteredValues,
             $active_id,
             $pass,
-            $authorized
+            $authorized,
+            &$cbmSelected
         ) {
             $this->removeCurrentSolution($active_id, $pass, $authorized);
 
@@ -81,7 +134,10 @@ class CBMChoiceQuestion extends assQuestion
                     $authorized
                 );
 
-                if (is_string($solutionValue) && strlen($solutionValue) > 0) {
+                if ($solutionValue !== null) {
+                    if ($solutionName === "cbm") {
+                        $cbmSelected = true;
+                    }
                     $numEnteredValues++;
                 }
             }
@@ -90,8 +146,8 @@ class CBMChoiceQuestion extends assQuestion
         if ($numEnteredValues && ilObjAssessmentFolder::_enabledAssessmentLogging()) {
             assQuestion::logAction(
                 $this->lng->txtlng(
-                    'assessment',
-                    'log_user_entered_values',
+                    "assessment",
+                    "log_user_entered_values",
                     ilObjAssessmentFolder::_getLogLanguage()
                 ),
                 $active_id,
@@ -100,8 +156,8 @@ class CBMChoiceQuestion extends assQuestion
         } elseif (ilObjAssessmentFolder::_enabledAssessmentLogging()) {
             assQuestion::logAction(
                 $this->lng->txtlng(
-                    'assessment',
-                    'log_user_not_entered_values',
+                    "assessment",
+                    "log_user_not_entered_values",
                     ilObjAssessmentFolder::_getLogLanguage()
                 ),
                 $active_id,
@@ -109,25 +165,59 @@ class CBMChoiceQuestion extends assQuestion
             );
         }
 
+        if ($this->isCBMAnswerRequired()) {
+            return $cbmSelected;
+        }
+
         return true;
     }
 
-    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false)
+    /**
+     * @throws ilTestException
+     */
+    public function calculateReachedPoints($active_id, $pass = null, $authorizedSolution = true, $returndetails = false): float
     {
-        $a = "";
+        if ($returndetails) {
+            throw new ilTestException("Return details not implemented for " . __METHOD__);
+        }
 
-        // TODO: Implement calculateReachedPoints() method.
+        if (is_null($pass)) {
+            $pass = $this->getSolutionMaxPass($active_id);
+        }
+
+
+        $solution = $this->mapSolution($this->getSolutionValues($active_id, $pass));
+        if ($solution->getAnswers() === [] || $solution->getCbmChoice() === "") {
+            return 0;
+        }
+        $cbmChoice = $solution->getCbmChoice();
+
+        $allCorrect = true;
+        foreach ($solution->getAnswers() as $answer) {
+            if (!$answer->isAnswerCorrect()) {
+                $allCorrect = false;
+                break;
+            }
+        }
+
+        $scoringMatrix = $this->getScoringMatrix();
+        if ($allCorrect) {
+            $scoringMatrixValue = $scoringMatrix["correct"][$cbmChoice];
+        } else {
+            $scoringMatrixValue = $scoringMatrix["incorrect"][$cbmChoice];
+        }
+
+        return (float) $scoringMatrixValue;
     }
 
-    public function getQuestionType()
+    public function getQuestionType(): string
     {
         return "CBMChoiceQuestion";
-        // TODO: Implement getQuestionType() method.
     }
 
-    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null)
+    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null): ?int
     {
-        if ($this->getId() <= 0) {
+        if ((int) $this->getId() <= 0) {
             return null;
         }
 
@@ -136,35 +226,22 @@ class CBMChoiceQuestion extends assQuestion
         $originalId = assQuestion::_getOriginalId($this->getId());
         $clone->setId(-1);
 
-        if ((int)$testObjId > 0) {
-            $clone->setObjId($testObjId);
-        }
+        $clone->setObjId((int) $testObjId > 0 ? $testObjId : $clone->getObjId());
+        $clone->setTitle($title ?: $clone->getTitle());
+        $clone->setAuthor($author ?: $clone->getAuthor());
+        $clone->setOwner($owner ?: $clone->getOwner());
 
-        if ($title) {
-            $clone->setTitle($title);
-        }
-        if ($author) {
-            $clone->setAuthor($author);
-        }
-        if ($owner) {
-            $clone->setOwner($owner);
-        }
-
-        if ($for_test) {
-            $clone->saveToDb($originalId);
-        } else {
-            $clone->saveToDb('');
-        }
+        $clone->saveToDb($for_test ? $originalId : "");
 
         $clone->copyPageOfQuestion($this->getId());
         $clone->copyXHTMLMediaObjectsOfQuestion($this->getId());
         $clone->onDuplicate($this->getObjId(), $this->getId(), $clone->getObjId(), $clone->getId());
 
-        return $clone->getId();
+        return (int) $clone->getId();
     }
 
 
-    public function saveToDb($originalId = '')
+    public function saveToDb($originalId = ""): void
     {
         $this->saveQuestionDataToDb($originalId);
         $this->saveAdditionalQuestionDataToDb();
@@ -173,35 +250,56 @@ class CBMChoiceQuestion extends assQuestion
     }
 
 
-    public function getAdditionalTableName()
+    public function getAdditionalTableName(): string
     {
         return "cbm_choice_qst_data";
     }
 
-    public function loadFromDb($questionId)
+    /**
+     * @param string $questionId
+     * @return void
+     */
+    public function loadFromDb($questionId): void
     {
-        $res = $this->db->queryF($this->buildQuestionDataQuery(), ['integer'], [$questionId]);
+        $res = $this->db->queryF($this->buildQuestionDataQuery(), ["integer"], [$questionId]);
 
         while ($data = $this->db->fetchAssoc($res)) {
+            $answers = [];
+            foreach (unserialize($data["answers"] ?? "", ["allowed_classes" => true]) ?: [] as $answerData) {
+                $answers[$answerData["id"]] = new AnswerData(
+                    $answerData["id"],
+                    $answerData["answerText"],
+                    $answerData["answerImage"],
+                    $answerData["answerCorrect"]
+                );
+            }
+
             $this->setId($questionId);
-            $this->setOriginalId($data['original_id']);
-            $this->setObjId($data['obj_fi']);
-            $this->setTitle($data['title']);
-            $this->setNrOfTries($data['nr_of_tries']);
-            $this->setComment($data['description']);
-            $this->setAuthor($data['author']);
-            $this->setPoints($data['points']);
-            $this->setOwner($data['owner']);
-            $this->setEstimatedWorkingTimeFromDurationString($data['working_time']);
-            $this->setLastChange($data['tstamp']);
-            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data['question_text'], 1));
-            $this->setHideMeasure((bool)$data['hide_measure']);
-            $this->setAnswersVariant($data['answers_variant']);
-            $this->setAnswersSingle(unserialize($data['answers_single'] ?? "", ["allowed_classes" => true]) ?: []);
-            $this->setAnswersMulti(unserialize($data['answers_multi'] ?? "", ["allowed_classes" => true]) ?: []);
+            $this->setOriginalId($data["original_id"]);
+            $this->setObjId($data["obj_fi"]);
+            $this->setTitle($data["title"]);
+            try {
+                $this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
+            } catch (ilTestQuestionPoolInvalidArgumentException $e) {
+                $this->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
+            }
+            $this->setNrOfTries($data["nr_of_tries"]);
+            $this->setComment($data["description"]);
+            $this->setAuthor($data["author"]);
+            $this->setOwner($data["owner"]);
+            $this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
+            $this->setLastChange($data["tstamp"]);
+            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
+            $this->setShuffle((bool) $data["shuffle"]);
+            $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
+            $this->setAnswerType((int) $data["answer_type"]);
+            $this->setAnswers($answers);
+            $this->setAllowMultipleSelection((bool) $data["allow_multiple_selection"]);
+            $this->setScoringMatrix(unserialize($data["scoring_matrix"] ?? "", ["allowed_classes" => false]) ?: []);
+            $this->setCBMAnswerRequired((bool) $data["cbm_answer_required"]);
 
             try {
-                $this->setAdditionalContentEditingMode($data['add_cont_edit_mode']);
+                $this->setAdditionalContentEditingMode($data["add_cont_edit_mode"]);
             } catch (ilTestQuestionPoolException $e) {
             }
         }
@@ -209,141 +307,212 @@ class CBMChoiceQuestion extends assQuestion
         parent::loadFromDb($questionId);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function saveAdditionalQuestionDataToDb()
+    public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
     {
-        $aa = serialize($this->getAnswersSingle());
+        //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
+        return "";
+    }
+
+    public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping, array $solutionhints = []): void
+    {
+        //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
+    }
+
+    public function isComplete(): bool
+    {
+        foreach ([$this->title, $this->author, $this->question] as $text) {
+            if (!is_string($text) || $text === "") {
+                return false;
+            }
+        }
+
+        if ($this->getAnswers() === []) {
+            return false;
+        }
+
+        return $this->getMaximumPoints() > 0;
+    }
+
+    public function getMaximumPoints(): float
+    {
+        $scoringMatrixPoints = 0;
+        foreach ($this->getScoringMatrix() as $rowIndex => $data) {
+            foreach ($data as $value) {
+                if ($value > $scoringMatrixPoints) {
+                    $scoringMatrixPoints = $value;
+                }
+            }
+        }
+        return $scoringMatrixPoints;
+    }
+
+    public function saveAdditionalQuestionDataToDb(): void
+    {
+        $answers = [];
+        foreach ($this->getAnswers() as $answerData) {
+            $answers[$answerData->getId()] = $answerData->toArray();
+        }
+
         $this->db->replace(
             $this->getAdditionalTableName(),
             [
                 "question_fi" => ["integer", $this->getId()],
             ],
             [
-                "hide_measure" => ["integer", (int)$this->isMeasureHidden()],
-                "answers_variant" => ["text", $this->getAnswersVariant()],
-                "answers_single" => ["clob", serialize($this->getAnswersSingle())],
-                "answers_multi" => ["clob", serialize($this->getAnswersMulti())],
+                "answers" => ["clob", serialize($answers)],
+                "shuffle" => ["integer", (bool) $this->getShuffle()],
+                "thumb_size" => ["integer", $this->getThumbSize()],
+                "answer_type" => ["integer", $this->getAnswerType()],
+                "allow_multiple_selection" => ["integer", $this->isAllowMultipleSelection()],
+                "scoring_matrix" => ["clob", serialize($this->getScoringMatrix())],
+                "cbm_answer_required" => ["integer", $this->isCBMAnswerRequired()],
             ]
         );
     }
 
-    public function isMeasureHidden(): bool
+    public function getCorrectAnswerCount(): int
     {
-        return $this->measureHidden;
-    }
-
-    public function setHideMeasure(bool $status): void
-    {
-        $this->measureHidden = $status;
-    }
-
-    public function addAnswerSingle(string $answerText = "", float $points = 0.0, int $order = 0, string $answerImage = ""): void
-    {
-        $answerText = $this->getHtmlQuestionContentPurifier()->purify($answerText);
-        if (array_key_exists($order, $this->getAnswersSingle())) {
-            // insert answer
-            $answer = new ASS_AnswerBinaryStateImage($answerText, $points, $order, 1, $answerImage);
-            $newChoices = [];
-            for ($i = 0; $i < $order; $i++) {
-                $newChoices[] = $this->getAnswersSingle()[$i];
-            }
-            $newChoices[] = $answer;
-            for ($i = $order; $i < count($this->getAnswersSingle()); $i++) {
-                $changed = $this->getAnswersSingle()[$i];
-                $changed->setOrder($i + 1);
-                $newChoices[] = $changed;
-            }
-            $this->setAnswersMulti($newChoices);
-        } else {
-            // add answer
-            $answer = new ASS_AnswerBinaryStateImage($answerText, $points, count($this->getAnswersSingle()), 1, $answerImage);
-            $this->answersSingle[] = $answer;
+        $count = 0;
+        foreach ($this->getAnswers() as $answer) {
+            $count += $answer->isAnswerCorrect();
         }
+        return $count;
     }
-
-    public function addAnswerMulti(
-        string $answerText = "",
-        float  $points = 0.0,
-        float  $pointsUnchecked = 0.0,
-        int    $order = 0,
-        string $answerImage = ""
-    ): void
-    {
-        $answerText = $this->getHtmlQuestionContentPurifier()->purify($answerText);
-        if (array_key_exists($order, $this->getAnswersMulti())) {
-            // insert answer
-            $answer = new ASS_AnswerMultipleResponseImage($answerText, $points, $order, $pointsUnchecked, $answerImage);
-            $newChoices = [];
-            for ($i = 0; $i < $order; $i++) {
-                $newChoices[] = $this->getAnswersMulti()[$i];
-            }
-            $newChoices[] = $answer;
-            for ($i = $order; $i < count($this->getAnswersMulti()); $i++) {
-                $changed = $this->getAnswersMulti()[$i];
-                $changed->setOrder($i + 1);
-                $newChoices[] = $changed;
-            }
-            $this->setAnswersMulti($newChoices);
-        } else {
-            // add answer
-            $answer = new ASS_AnswerMultipleResponseImage($answerText, $points, count($this->getAnswersMulti()), $pointsUnchecked, $answerImage);
-            $this->answersMulti[] = $answer;
-        }
-    }
-
     /**
-     * @return ASS_AnswerBinaryStateImage[]
+     * @param array<int, array<string, mixed>> $solutionRecords
+     * @return Solution
      */
-    public function getAnswersSingle(): array
+    public function mapSolution(array $solutionRecords): Solution
     {
-        return $this->answersSingle;
+        $answers = [];
+        $cbmChoice = "";
+
+        foreach ($solutionRecords as $solutionRecord) {
+            if (strncmp($solutionRecord["value1"], "answer_", strlen("answer_")) === 0) {
+                foreach ($this->getAnswers() as $existingAnswer) {
+                    if (
+                        isset($solutionRecord["value2"])
+                        && $existingAnswer->getId() === (int) $solutionRecord["value2"]
+                    ) {
+                        $answers[] = $existingAnswer;
+                        break;
+                    }
+                }
+            }
+
+            if ($solutionRecord["value1"] === "cbm") {
+                $cbmChoice = $solutionRecord["value2"] ?? "";
+            }
+        }
+
+        return new Solution($answers, $cbmChoice);
     }
 
     /**
-     * @param ASS_AnswerBinaryStateImage[] $answersSingle
+     * @return int|null
+     */
+    public function getThumbSize(): ?int
+    {
+        return $this->thumbSize;
+    }
+
+    /**
+     * @param int|null $thumbSize
      * @return CBMChoiceQuestion
      */
-    public function setAnswersSingle(array $answersSingle): CBMChoiceQuestion
+    public function setThumbSize(?int $thumbSize): CBMChoiceQuestion
     {
-        $this->answersSingle = $answersSingle;
+        $this->thumbSize = $thumbSize;
         return $this;
     }
 
     /**
-     * @return ASS_AnswerMultipleResponseImage[]
+     * @return int
      */
-    public function getAnswersMulti(): array
+    public function getAnswerType(): int
     {
-        return $this->answersMulti;
+        return $this->answerType;
     }
 
     /**
-     * @param ASS_AnswerMultipleResponseImage[] $answersMulti
+     * @param int $answerType
      * @return CBMChoiceQuestion
      */
-    public function setAnswersMulti(array $answersMulti): CBMChoiceQuestion
+    public function setAnswerType(int $answerType): CBMChoiceQuestion
     {
-        $this->answersMulti = $answersMulti;
+        $this->answerType = $answerType;
         return $this;
     }
 
     /**
-     * @return string
+     * @return AnswerData[]
      */
-    public function getAnswersVariant(): string
+    public function getAnswers(): array
     {
-        return $this->answersVariant;
+        return $this->answers;
     }
 
     /**
-     * @param string $answersVariant
+     * @param AnswerData[] $answers
      * @return CBMChoiceQuestion
      */
-    public function setAnswersVariant(string $answersVariant): CBMChoiceQuestion
+    public function setAnswers(array $answers): CBMChoiceQuestion
     {
-        $this->answersVariant = $answersVariant;
+        $this->answers = $answers;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAllowMultipleSelection(): bool
+    {
+        return $this->allowMultipleSelection;
+    }
+
+    /**
+     * @param bool $allowMultipleSelection
+     * @return CBMChoiceQuestion
+     */
+    public function setAllowMultipleSelection(bool $allowMultipleSelection): CBMChoiceQuestion
+    {
+        $this->allowMultipleSelection = $allowMultipleSelection;
+        return $this;
+    }
+
+    /**
+     * @return array<string, array<string, float>>
+     */
+    public function getScoringMatrix(): array
+    {
+        return $this->scoringMatrix;
+    }
+
+    /**
+     * @param array<string, array<string, float>> $scoringMatrix
+     * @return CBMChoiceQuestion
+     */
+    public function setScoringMatrix(array $scoringMatrix): CBMChoiceQuestion
+    {
+        $this->scoringMatrix = $scoringMatrix;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCBMAnswerRequired(): bool
+    {
+        return $this->cbmAnswerRequired;
+    }
+
+    /**
+     * @param bool $cbmAnswerRequired
+     * @return CBMChoiceQuestion
+     */
+    public function setCBMAnswerRequired(bool $cbmAnswerRequired): CBMChoiceQuestion
+    {
+        $this->cbmAnswerRequired = $cbmAnswerRequired;
         return $this;
     }
 }

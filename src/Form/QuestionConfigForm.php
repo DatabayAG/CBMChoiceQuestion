@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,18 +19,18 @@
 
 namespace ILIAS\Plugin\CBMChoiceQuestion\Form;
 
-use ASS_AnswerBinaryStateImage;
-use ASS_AnswerMultipleResponseImage;
 use CBMChoiceQuestionGUI;
 use ilCBMChoiceQuestionPlugin;
 use ilCheckboxInputGUI;
-use ilHiddenInputGUI;
 use ILIAS\DI\Container;
-use ilMultipleChoiceWizardInputGUI;
+use ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput\ScoringMatrixInput;
+use ILIAS\Plugin\Libraries\FieldMappingInput\FieldMappingInput;
+use ilImageFileInputGUI;
+use ilNumberInputGUI;
 use ilPropertyFormGUI;
-use ilRadioGroupInputGUI;
-use ilRadioOption;
-use ilSingleChoiceWizardInputGUI;
+use ilSelectInputGUI;
+use ilTextAreaInputGUI;
+use ilTextInputGUI;
 
 /**
  * Class QuestionConfigForm
@@ -46,64 +48,99 @@ class QuestionConfigForm extends ilPropertyFormGUI
      */
     private $dic;
 
-    public function __construct(CBMChoiceQuestionGUI $parent)
+    public function __construct(CBMChoiceQuestionGUI $parent, bool $singleLineAnswer = true)
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         global $DIC;
         $this->dic = $DIC;
-        $this->setId('cbmChoiceQuestion');
+        $this->setId("cbmChoiceQuestion");
         parent::__construct();
 
         $this->setFormAction($this->ctrl->getFormAction($parent));
         $this->setTitle($parent->outQuestionType());
         $this->setMultipart(true);
-        $this->setTableWidth('100%');
+        $this->setTableWidth("100%");
 
         $parent->addBasicQuestionFormProperties($this);
 
-        $points = new ilHiddenInputGUI('points');
-        $points->setValue(1);
-        $this->addItem($points);
+        $shuffle = new ilCheckboxInputGUI($this->lng->txt("shuffle_answers"), "shuffle");
+        $shuffle->setValue(true);
+        $shuffle->setRequired(false);
+        $this->addItem($shuffle);
 
-        $measure = new ilCheckboxInputGUI($this->plugin->txt('field_hide_measure'), 'hide_measure');
-        $measure->setInfo($this->plugin->txt('field_hide_measure_info'));
-        $measure->setValue('1');
-        //$measure->setChecked($this->object->isMeasureHidden());
-        $this->addItem($measure);
+        $answerTypes = new ilSelectInputGUI($this->lng->txt("answer_types"), "answerType");
+        $answerTypes->setRequired(false);
+        $answerTypes->setOptions(
+            [
+                $this->lng->txt("answers_singleline"),
+                $this->lng->txt("answers_multiline")
+            ]
+        );
+        $this->addItem($answerTypes);
 
-        //$parent->populateTaxonomyFormSection($form);
-
-        $answersVariant = new ilRadioGroupInputGUI($this->lng->txt("answers"), "answers_variant");
-        $answersSingleOption = new ilRadioOption($this->lng->txt("assSingleChoice"), "answers_variant_single");
-        $answersMultiOption = new ilRadioOption($this->lng->txt("assMultipleChoice"), "answers_variant_multi");
-
-        $answersSingle = new ilSingleChoiceWizardInputGUI("AAA", "answers_single");
-        $answersSingle->setRequired(true);
-        $answersSingle->setQuestionObject($parent->object);
-        $answersSingle->setSingleline(true);
-        if (count($parent->object->getAnswersSingle()) === 0) {
-            $parent->object->addAnswerSingle();
+        if ($singleLineAnswer) {
+            // thumb size
+            $thumbSize = new ilNumberInputGUI($this->lng->txt("thumb_size"), "thumbSize");
+            $thumbSize->setSuffix($this->lng->txt("thumb_size_unit_pixel"));
+            $thumbSize->setMinValue(20);
+            $thumbSize->setDecimals(0);
+            $thumbSize->setSize(6);
+            $thumbSize->setInfo($this->lng->txt("thumb_size_info"));
+            $thumbSize->setRequired(false);
+            $this->addItem($thumbSize);
         }
 
-        $answersMulti = new ilMultipleChoiceWizardInputGUI("BB", "answers_multi");
-        $answersMulti->setRequired(true);
-        $answersMulti->setQuestionObject($parent->object);
-        $answersMulti->setSingleline(true);
-        if (count($parent->object->getAnswersMulti()) === 0) {
-            $parent->object->addAnswerMulti();
+        $allowMultipleSelection = new ilCheckboxInputGUI(
+            $this->plugin->txt("question.config.allowMultipleSelection"),
+            "allowMultipleSelection"
+        );
+        $this->addItem($allowMultipleSelection);
+
+        $cbmAnswerRequired = new ilCheckboxInputGUI(
+            $this->plugin->txt("question.config.cbmAnswerRequired"),
+            "cbmAnswerRequired"
+        );
+        $this->addItem($cbmAnswerRequired);
+
+        $imageFile = new ilImageFileInputGUI($this->lng->txt("answer_image"), "answerImage");
+        $answers = new FieldMappingInput($this->lng->txt("answers"), "answers");
+
+        if ($singleLineAnswer) {
+            $answerText = new ilTextInputGUI($this->lng->txt("answer_text"), "answerText");
+        } else {
+            $answerText = new ilTextAreaInputGUI($this->lng->txt("answer_text"), "answerText");
+            $answerText->setUseRte(true);
+            $answerText->setUseRTE(true);
+            $answerText->setRteTagSet("full");
+        }
+        $aa = new ScoringMatrixInput("Scoring Matrix", "scoringMatrix");
+        $aa->setup([
+            "certain" => $this->plugin->txt("question.cbm.certain"),
+            "uncertain" => $this->plugin->txt("question.cbm.uncertain")
+        ], [
+            "correct" => $this->plugin->txt("question.cbm.correct"),
+            "incorrect" => $this->plugin->txt("question.cbm.incorrect")
+        ]);
+        $this->addItem($aa);
+
+        $answers->addField($answerText);
+        if ($singleLineAnswer) {
+            $answers->addField($imageFile, false);
+        }
+        $answers->addField(new ilCheckboxInputGUI($this->plugin->txt("question.config.correct"), "answerCorrect"));
+        $answers->setRequired(true);
+
+        $defaultData = [
+            "answerText" => "",
+            "answerCorrect" => false
+        ];
+        if ($singleLineAnswer) {
+            $defaultData["answerImage"] = "";
         }
 
-        $answersSingleOption->addSubItem($answersSingle);
-        $answersMultiOption->addSubItem($answersMulti);
+        $answers->setRowData([$defaultData]);
 
-        $answersVariant->setRequired(true);
-        $answersVariant->addOption($answersSingleOption);
-        $answersVariant->addOption($answersMultiOption);
-
-        //ToDo: Aktuells problem: Werter werden nicht mehr angezeigt (also der default leer wert, der erlaubt einen zu definieren für single und multii
-
-        $this->addItem($answersVariant);
-
+        $this->addItem($answers);
         $parent->addQuestionFormCommandButtons($this);
     }
 }

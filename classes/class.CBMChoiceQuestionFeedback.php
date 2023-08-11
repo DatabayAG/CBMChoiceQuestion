@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -26,7 +28,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -55,7 +57,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -63,7 +65,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getAllSpecificAnswerFeedbackContents($questionId)
     {
-        return '';
+        return "";
     }
 
     /**
@@ -107,7 +109,7 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
      */
     public function getSpecificAnswerFeedbackExportPresentation($questionId, $questionIndex, $answerIndex)
     {
-        return '';
+        return "";
     }
 
     /**

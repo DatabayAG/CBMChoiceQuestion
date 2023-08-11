@@ -1,4 +1,7 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
+
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,7 +21,7 @@
 use ILIAS\DI\Container;
 use ILIAS\Plugin\MatrixChatClient\Libs\JsonTranslationLoader\JsonTranslationLoader;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
  * Class ilassCBMChoiceQuestion
@@ -35,6 +38,11 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     public const SLOT_ID = "qst";
     /** @var string */
     public const PNAME = "CBMChoiceQuestion";
+
+    public const CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY = "cbm_choice_scoringMatrix_storeAsDefaultForSession";
+    public const ANSWER_TYPE_SINGLE_LINE = 0;
+    public const ANSWER_TYPE_MULTI_LINE = 1;
+
     /**
      * @var ilCtrl
      */
@@ -62,7 +70,7 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     }
 
     /** @noinspection PhpIncompatibleReturnTypeInspection */
-    public static function getInstance() : self
+    public static function getInstance(): self
     {
         return self::$instance ?? (self::$instance = ilPluginAdmin::getPluginObject(
             self::CTYPE,
@@ -72,47 +80,47 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
         ));
     }
 
-    public function getPluginName() : string
+    public function getPluginName(): string
     {
         return self::PNAME;
     }
 
-    public function getQuestionType() : string
+    public function getQuestionType(): string
     {
         return "CBMChoiceQuestion";
     }
 
-    final public function getQuestionTypeTranslation() : string
+    final public function getQuestionTypeTranslation(): string
     {
         return $this->txt($this->getQuestionType());
     }
 
-    public function assetsFolder(string $file = "") : string
+    public function assetsFolder(string $file = ""): string
     {
         return $this->getDirectory() . "/assets/$file";
     }
 
-    public function cssFolder(string $file = "") : string
+    public function cssFolder(string $file = ""): string
     {
         return $this->assetsFolder("css/$file");
     }
 
-    public function imagesFolder(string $file = "") : string
+    public function imagesFolder(string $file = ""): string
     {
         return $this->assetsFolder("images/$file");
     }
 
-    public function templatesFolder(string $file = "") : string
+    public function templatesFolder(string $file = ""): string
     {
         return $this->assetsFolder("templates/$file");
     }
 
-    public function jsFolder(string $file = "") : string
+    public function jsFolder(string $file = ""): string
     {
         return $this->assetsFolder("js/$file");
     }
 
-    public function redirectToHome() : void
+    public function redirectToHome(): void
     {
         if ($this->isAtLeastIlias6()) {
             $this->ctrl->redirectByClass("ilDashboardGUI", "show");
@@ -121,13 +129,13 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
         }
     }
 
-    public function isAtLeastIlias6() : bool
+    public function isAtLeastIlias6(): bool
     {
         return version_compare(ILIAS_VERSION_NUMERIC, "6", ">=");
     }
 
 
-    public function denyConfigIfPluginNotActive() : void
+    public function denyConfigIfPluginNotActive(): void
     {
         if (!$this->isActive()) {
             ilUtil::sendFailure($this->txt("general.plugin.notActivated"), true);
@@ -135,7 +143,7 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
         }
     }
 
-    public function updateLanguages($a_lang_keys = null) : void
+    public function updateLanguages($a_lang_keys = null): void
     {
         try {
             $jsonTranslationLoader = new JsonTranslationLoader($this->getDirectory() . "/lang");
@@ -146,7 +154,7 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     }
 
 
-    protected function beforeUninstall() : bool
+    protected function beforeUninstall(): bool
     {
         $this->settings->deleteAll();
         return parent::beforeUninstall();

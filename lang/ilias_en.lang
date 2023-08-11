@@ -1,7 +1,5 @@
 /* This file was automatically generated from the en.lang.json file. DO NOT EDIT! */
 
-field_hide_measure#:#Maßnahmenfeld verstecken
-field_hide_measure_info#:#Falls aktiviert, wird das Maßnahmenfeld während der Bearbeitung durch einen Lernenden versteckt.
 CBMChoiceQuestion#:#Certainty based marking Question
 general.cmd.undefined#:#No command was found
 general.cmd.notFound#:#Command '%s' could not be found
@@ -10,3 +8,14 @@ general.update.failed#:#Update failed
 general.plugin.settings#:#Plugin Settings
 general.plugin.notActivated#:#Plugin is not active, yet. Please activate it.
 general.plugin.requiredParameterMissing#:#The required parameter '%s' could not be found.
+question.config.correct#:#Correct
+question.config.answerImage.uploadFailure#:#An error occurred while uploading the image.
+question.config.allowMultipleSelection#:#Allow Multiple Selection
+question.config.cbmAnswerRequired#:#Should the response to the CBM be mandatory?
+question.cbm.howCertain#:#How certain are you about your answer?
+question.cbm.certain#:#Certain
+question.cbm.uncertain#:#Uncertain
+question.cbm.correct#:#Correct
+question.cbm.incorrect#:#Incorrect
+question.cbm.required#:#Required
+scoringMatrix.storeAsDefaultForSession#:#Store Matrix Values in Session as Default
