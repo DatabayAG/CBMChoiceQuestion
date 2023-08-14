@@ -2,11 +2,11 @@
 
 ## Requirements
 
-| Component               | Min                                              | Max                                                                       | Link                      |
-|-------------------------|--------------------------------------------------|---------------------------------------------------------------------------|---------------------------|
-| PHP                     | ![](https://img.shields.io/badge/7.3-blue.svg)   | ![](https://img.shields.io/badge/7.4-blue.svg)                            | [PHP](https://php.net)    |
-| ILIAS                   | ![](https://img.shields.io/badge/7.x-orange.svg) | ![](https://img.shields.io/badge/7.x-orange.svg)                          | [ILIAS](https://ilias.de) |
-| CBMChoiceQuestionExport | ![](https://img.shields.io/badge/r7-blue.svg)    | [GitLab](https://gitlab.databay.de/Ilias-Plugins/CBMChoiceQuestionExport) |
+| Component                                     | Version(s)                                                                                           | Link                                                           |
+|-----------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| PHP                                           | ![](https://img.shields.io/badge/7.3-blue.svg) ![](https://img.shields.io/badge/7.4-blue.svg)        | [PHP](https://php.net)                                         |
+| ILIAS                                         | ![](https://img.shields.io/badge/7-orange.svg) to ![](https://img.shields.io/badge/7.999-orange.svg) | [ILIAS](https://ilias.de)                                      |
+| CBMChoiceQuestionExport (optional for export) | ![](https://img.shields.io/badge/r7-blue.svg)                                                        | [GitHub](https://github.com/DatabayAG/CBMChoiceQuestionExport) |
 
 ---
 ## Table of contents
