@@ -19,7 +19,6 @@ declare(strict_types=1);
  *********************************************************************/
 
 use ILIAS\DI\Container;
-use ILIAS\Plugin\MatrixChatClient\Libs\JsonTranslationLoader\JsonTranslationLoader;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
@@ -142,17 +141,6 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
             $this->ctrl->redirectByClass(ilObjComponentSettingsGUI::class, "view");
         }
     }
-
-    public function updateLanguages($a_lang_keys = null): void
-    {
-        try {
-            $jsonTranslationLoader = new JsonTranslationLoader($this->getDirectory() . "/lang");
-            $jsonTranslationLoader->load();
-        } catch (Exception $e) {
-        }
-        parent::updateLanguages($a_lang_keys);
-    }
-
 
     protected function beforeUninstall(): bool
     {
