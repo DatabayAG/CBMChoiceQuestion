@@ -113,15 +113,16 @@ class QuestionConfigForm extends ilPropertyFormGUI
             $answerText->setUseRTE(true);
             $answerText->setRteTagSet("full");
         }
-        $aa = new ScoringMatrixInput("Scoring Matrix", "scoringMatrix");
-        $aa->setup([
+        $scoringMatrix = new ScoringMatrixInput($this->plugin->txt("scoringMatrix.title"), "scoringMatrix");
+        $scoringMatrix->setup([
             "certain" => $this->plugin->txt("question.cbm.certain"),
             "uncertain" => $this->plugin->txt("question.cbm.uncertain")
         ], [
             "correct" => $this->plugin->txt("question.cbm.correct"),
             "incorrect" => $this->plugin->txt("question.cbm.incorrect")
         ]);
-        $this->addItem($aa);
+        $scoringMatrix->setInfo($this->plugin->txt("scoringMatrix.info"));
+        $this->addItem($scoringMatrix);
 
         $answers->addField($answerText);
         if ($singleLineAnswer) {

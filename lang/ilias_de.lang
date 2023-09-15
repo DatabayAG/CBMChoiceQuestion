@@ -18,4 +18,7 @@ question.cbm.uncertain#:#Unsicher
 question.cbm.correct#:#Richtig
 question.cbm.incorrect#:#Falsch
 question.cbm.required#:#Erforderlich
+
+scoringMatrix.title#:#Bewertungsmatrix
+scoringMatrix.info#:#Die CBM Methode sieht vor, dass nach jeder fachlichen Frage, eine „Zwischenfrage“ eingefügt wird, <br>bei der Lernende auswählen, wie sicher man sich mit der Beantwortung der fachlichen Frage war. <br><br>Beispielsweise wird man „unsicher“ wählen, wenn man „geraten“ hat. <br><br>Die Empfehlung für die Bepunktung ist folgende: <br>- Für richtige und sichere Antworten gibt es 5 Punkte, 4 Punkte wenn „nicht sicher“ aber die Antwort richtig ist. <br>- Für eine falsche und sichere Antwort gibt es 0 Punkte. Es gibt 2 Punkte (trotz falscher Antwort), wenn Sie „unsicher“ ausgewählt haben.
 scoringMatrix.storeAsDefaultForSession#:#Matrixwerte als Standard für die Sitzung speichern
