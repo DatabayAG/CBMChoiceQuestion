@@ -11,10 +11,9 @@
   ],
   "autoload": {
     "psr-4": {
-      "ILIAS\\Plugin\\CBMChoiceQuestion\\": "src/",
-      "ILIAS\\Plugin\\CBMChoiceQuestion\\Libs\\" : "libs/"
+      "ILIAS\\Plugin\\CBMChoiceQuestion\\": "src/"
     },
-    "classmap": ["./src", "./libs"]
+    "classmap": ["./src"]
   },
   "require": {
     "php": ">=7.3",
