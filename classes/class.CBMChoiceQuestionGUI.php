@@ -401,7 +401,10 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output.html"), true, true);
 
         if ($showQuestionText) {
-            $tpl->setVariable("QUESTION_TEXT", $this->object->getQuestion());
+            $tpl->setVariable(
+                "QUESTION_TEXT",
+                ilUtil::prepareTextareaOutput($this->object->getQuestion(), true)
+            );
         }
         $tpl->setVariable("CBM_TEXT", $this->plugin->txt("question.cbm.howCertain"));
         if ($this->object->isCBMAnswerRequired()) {
