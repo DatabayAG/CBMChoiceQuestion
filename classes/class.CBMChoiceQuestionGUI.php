@@ -475,12 +475,13 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $tpl->setVariable("ANSWER_IMAGE_URL", $resource->getSrc());
             }
 
+            $answerText = $isSingleLineAnswer
+                ? $this->answerTextSanitizer->sanitize($answer->getAnswerText())
+                : $this->answerTextSanitizer->desanitize($answer->getAnswerText());
 
             $tpl->setVariable(
                 "ANSWER_TEXT",
-                $isSingleLineAnswer
-                    ? $this->answerTextSanitizer->sanitize($answer->getAnswerText())
-                    : $this->answerTextSanitizer->desanitize($answer->getAnswerText())
+                ilUtil::prepareTextareaOutput($answerText, true)
             );
             $tpl->parseCurrentBlock($this->object->isAllowMultipleSelection() ? "answer_multi" : "answer_single");
         }
