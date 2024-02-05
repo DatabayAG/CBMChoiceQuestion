@@ -28,31 +28,11 @@ use ReflectionClass;
  */
 class AnswerData
 {
-    /**
-     * @var int
-     */
-    private $id;
+    private int $id;
+    private string $answerText;
+    private string $answerImage;
+    private bool $answerCorrect;
 
-    /**
-     * @var string
-     */
-    private $answerText;
-
-    /**
-     * @var string
-     */
-    private $answerImage;
-
-    /**
-     * @var bool
-     */
-    private $answerCorrect;
-
-    /**
-     * @param string $answerText
-     * @param string $answerImage
-     * @param bool $answerCorrect
-     */
     public function __construct(int $id, string $answerText, string $answerImage, bool $answerCorrect)
     {
         $this->id = $id;
@@ -61,62 +41,38 @@ class AnswerData
         $this->answerCorrect = $answerCorrect;
     }
 
-    /**
-     * @return int
-     */
     public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getAnswerText(): string
     {
         return $this->answerText;
     }
 
-    /**
-     * @param string $answerText
-     * @return AnswerData
-     */
     public function setAnswerText(string $answerText): AnswerData
     {
         $this->answerText = $answerText;
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getAnswerImage(): string
     {
         return $this->answerImage;
     }
 
-    /**
-     * @param string $answerImage
-     * @return AnswerData
-     */
     public function setAnswerImage(string $answerImage): AnswerData
     {
         $this->answerImage = $answerImage;
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isAnswerCorrect(): bool
     {
         return $this->answerCorrect;
     }
 
-    /**
-     * @param bool $answerCorrect
-     * @return AnswerData
-     */
     public function setAnswerCorrect(bool $answerCorrect): AnswerData
     {
         $this->answerCorrect = $answerCorrect;

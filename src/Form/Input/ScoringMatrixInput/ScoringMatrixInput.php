@@ -25,6 +25,7 @@ use ilFormPropertyGUI;
 use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 use ilNumberInputGUI;
+use ilSystemStyleException;
 use ilTemplate;
 use ilTemplateException;
 use Psr\Http\Message\RequestInterface;
@@ -37,33 +38,19 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class ScoringMatrixInput extends ilFormPropertyGUI
 {
-    /**
-     * @var ilGlobalTemplateInterface
-     */
-    private $mainTpl;
-
-    /**
-     * @var Container
-     */
-    protected $dic;
-
-    /**
-     * @var ilCBMChoiceQuestionPlugin
-     */
-    private $plugin;
-    /**
-     * @var RequestInterface|ServerRequestInterface
-     */
-    private $request;
+    private ilGlobalTemplateInterface $mainTpl;
+    protected Container $dic;
+    private ilCBMChoiceQuestionPlugin $plugin;
+    protected RequestInterface $request;
 
     /**
      * @var string[]
      */
-    private $columnNames = [];
+    private array $columnNames = [];
     /**
      * @var string[]
      */
-    private $rowNames = [];
+    private array $rowNames = [];
 
     /**
      * @var array<string, ilNumberInputGUI>
@@ -84,7 +71,6 @@ class ScoringMatrixInput extends ilFormPropertyGUI
     /**
      * @param string[] $columnNames
      * @param string[] $rowNames
-     * @return void
      */
     public function setup(array $columnNames, array $rowNames): void
     {
@@ -146,7 +132,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         return $values;
     }
 
-    public function checkInput()
+    public function checkInput(): bool
     {
         $success = true;
 
@@ -178,7 +164,7 @@ class ScoringMatrixInput extends ilFormPropertyGUI
     }
 
     /**
-     * @throws ilTemplateException
+     * @throws ilTemplateException|ilSystemStyleException
      * @noinspection DisconnectedForeachInstructionInspection
      */
     public function insert(ilTemplate $a_tpl): void

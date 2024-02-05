@@ -31,48 +31,25 @@ require_once __DIR__ . "/../vendor/autoload.php";
  */
 class CBMChoiceQuestion extends assQuestion
 {
-    /**
-     * @var ilCBMChoiceQuestionPlugin
-     */
-    private $plugin;
-
+    private ilCBMChoiceQuestionPlugin $plugin;
     /**
      * @var AnswerData[]
      */
-    private $answers = [];
-    /**
-     * @var ?integer
-     */
-    protected $thumbSize;
-    /**
-     * @var int
-     */
-    private $answerType = 0;
-
-    /**
-     * @var bool
-     */
-    private $allowMultipleSelection = false;
-
+    private array $answers = [];
+    protected ?int $thumbSize;
+    private int $answerType = 0;
+    private bool $allowMultipleSelection = false;
     /**
      * @var array<string, array<string, float>>
      */
-    private $scoringMatrix = [];
+    private array $scoringMatrix = [];
+    private bool $cbmAnswerRequired = false;
 
-    /**
-     * @var bool
-     */
-    private $cbmAnswerRequired = false;
-    /**
-     * @var Container
-     */
-    private $dic;
+    protected float $points = 0;
 
     public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
-        global $DIC;
-        $this->dic = $DIC;
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
@@ -215,10 +192,10 @@ class CBMChoiceQuestion extends assQuestion
         return "CBMChoiceQuestion";
     }
 
-    public function duplicate($for_test = true, $title = "", $author = "", $owner = "", $testObjId = null): ?int
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
     {
         if ((int) $this->getId() <= 0) {
-            return null;
+            return -1;
         }
 
         $clone = clone $this;
@@ -237,16 +214,15 @@ class CBMChoiceQuestion extends assQuestion
         $clone->copyXHTMLMediaObjectsOfQuestion($this->getId());
         $clone->onDuplicate($this->getObjId(), $this->getId(), $clone->getObjId(), $clone->getId());
 
-        return (int) $clone->getId();
+        return $clone->getId();
     }
-
 
     public function saveToDb($originalId = ""): void
     {
         $this->saveQuestionDataToDb($originalId);
         $this->saveAdditionalQuestionDataToDb();
 
-        parent::saveToDb($originalId);
+        parent::saveToDb();
     }
 
 
@@ -255,11 +231,8 @@ class CBMChoiceQuestion extends assQuestion
         return "cbm_choice_qst_data";
     }
 
-    /**
-     * @param string $questionId
-     * @return void
-     */
-    public function loadFromDb($questionId): void
+
+    public function loadFromDb(int $questionId): void
     {
         $res = $this->db->queryF($this->buildQuestionDataQuery(), ["integer"], [$questionId]);
 
@@ -276,22 +249,22 @@ class CBMChoiceQuestion extends assQuestion
 
             $this->setId($questionId);
             $this->setOriginalId($data["original_id"]);
-            $this->setObjId($data["obj_fi"]);
-            $this->setTitle($data["title"]);
+            $this->setObjId((int) $data["obj_fi"]);
+            $this->setTitle($data["title"] ?: "");
             try {
                 $this->setLifecycle(ilAssQuestionLifecycle::getInstance($data['lifecycle']));
             } catch (ilTestQuestionPoolInvalidArgumentException $e) {
                 $this->setLifecycle(ilAssQuestionLifecycle::getDraftInstance());
             }
-            $this->setNrOfTries($data["nr_of_tries"]);
-            $this->setComment($data["description"]);
+            $this->setNrOfTries((int) $data["nr_of_tries"]);
+            $this->setComment($data["description"] ?: "");
             $this->setAuthor($data["author"]);
-            $this->setOwner($data["owner"]);
-            $this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
+            $this->setOwner((int) $data["owner"]);
+            //$this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
             $this->setLastChange($data["tstamp"]);
-            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"], 1));
+            $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"] ?: "", 1));
             $this->setShuffle((bool) $data["shuffle"]);
-            $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : null);
+            $this->setThumbSize($data["thumb_size"] ? (int) $data["thumb_size"] : 150);
             $this->setAnswerType((int) $data["answer_type"]);
             $this->setAnswers($answers);
             $this->setAllowMultipleSelection((bool) $data["allow_multiple_selection"]);
@@ -313,9 +286,10 @@ class CBMChoiceQuestion extends assQuestion
         return "";
     }
 
-    public function fromXML(&$item, &$questionpool_id, &$tst_id, &$tst_object, &$question_counter, &$import_mapping, array $solutionhints = []): void
+    public function fromXML($item, $questionpool_id, $tst_id, &$tst_object, &$question_counter, $import_mapping, array &$solutionhints = []): array
     {
         //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
+        return [];
     }
 
     public function isComplete(): bool
@@ -380,7 +354,6 @@ class CBMChoiceQuestion extends assQuestion
     }
     /**
      * @param array<int, array<string, mixed>> $solutionRecords
-     * @return Solution
      */
     public function mapSolution(array $solutionRecords): Solution
     {
@@ -408,36 +381,21 @@ class CBMChoiceQuestion extends assQuestion
         return new Solution($answers, $cbmChoice);
     }
 
-    /**
-     * @return int|null
-     */
-    public function getThumbSize(): ?int
+    public function getThumbSize(): int
     {
         return $this->thumbSize;
     }
 
-    /**
-     * @param int|null $thumbSize
-     * @return CBMChoiceQuestion
-     */
-    public function setThumbSize(?int $thumbSize): CBMChoiceQuestion
+    public function setThumbSize(int $thumbSize): void
     {
         $this->thumbSize = $thumbSize;
-        return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getAnswerType(): int
     {
         return $this->answerType;
     }
 
-    /**
-     * @param int $answerType
-     * @return CBMChoiceQuestion
-     */
     public function setAnswerType(int $answerType): CBMChoiceQuestion
     {
         $this->answerType = $answerType;
@@ -454,7 +412,6 @@ class CBMChoiceQuestion extends assQuestion
 
     /**
      * @param AnswerData[] $answers
-     * @return CBMChoiceQuestion
      */
     public function setAnswers(array $answers): CBMChoiceQuestion
     {
@@ -462,18 +419,11 @@ class CBMChoiceQuestion extends assQuestion
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isAllowMultipleSelection(): bool
     {
         return $this->allowMultipleSelection;
     }
 
-    /**
-     * @param bool $allowMultipleSelection
-     * @return CBMChoiceQuestion
-     */
     public function setAllowMultipleSelection(bool $allowMultipleSelection): CBMChoiceQuestion
     {
         $this->allowMultipleSelection = $allowMultipleSelection;
@@ -490,7 +440,6 @@ class CBMChoiceQuestion extends assQuestion
 
     /**
      * @param array<string, array<string, float>> $scoringMatrix
-     * @return CBMChoiceQuestion
      */
     public function setScoringMatrix(array $scoringMatrix): CBMChoiceQuestion
     {
@@ -498,18 +447,11 @@ class CBMChoiceQuestion extends assQuestion
         return $this;
     }
 
-    /**
-     * @return bool
-     */
     public function isCBMAnswerRequired(): bool
     {
         return $this->cbmAnswerRequired;
     }
 
-    /**
-     * @param bool $cbmAnswerRequired
-     * @return CBMChoiceQuestion
-     */
     public function setCBMAnswerRequired(bool $cbmAnswerRequired): CBMChoiceQuestion
     {
         $this->cbmAnswerRequired = $cbmAnswerRequired;

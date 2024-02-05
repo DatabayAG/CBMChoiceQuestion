@@ -19,6 +19,7 @@ declare(strict_types=1);
  *********************************************************************/
 
 use ILIAS\DI\Container;
+use ILIAS\Plugin\CBMChoiceQuestion\Utils\UiUtil;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
@@ -42,41 +43,36 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     public const ANSWER_TYPE_SINGLE_LINE = 0;
     public const ANSWER_TYPE_MULTI_LINE = 1;
 
-    /**
-     * @var ilCtrl
-     */
-    protected $ctrl;
-    /**
-     * @var ilSetting
-     */
-    public $settings;
-    /**
-     * @var Container
-     */
-    protected $dic;
-    /**
-     * @var self|null
-     */
-    private static $instance = null;
+    protected ilCtrl $ctrl;
+    public ilSetting $settings;
+    protected Container $dic;
+    private static ?ilCBMChoiceQuestionPlugin $instance = null;
+    private UiUtil $uiUtil;
 
-    public function __construct()
+    public function __construct(ilDBInterface $db, ilComponentRepositoryWrite $component_repository, string $id)
     {
         global $DIC;
         $this->dic = $DIC;
         $this->ctrl = $this->dic->ctrl();
         $this->settings = new ilSetting(self::PNAME);
-        parent::__construct();
+        $this->uiUtil = new UiUtil();
+        parent::__construct($db, $component_repository, $id);
     }
 
-    /** @noinspection PhpIncompatibleReturnTypeInspection */
     public static function getInstance(): self
     {
-        return self::$instance ?? (self::$instance = ilPluginAdmin::getPluginObject(
-            self::CTYPE,
-            self::CNAME,
-            self::SLOT_ID,
-            self::PNAME
-        ));
+        if (self::$instance) {
+            return self::$instance;
+        }
+
+        global $DIC;
+
+        /**
+         * @var ilComponentFactory $componentFactory
+         */
+        $componentFactory = $DIC["component.factory"];
+        self::$instance = $componentFactory->getPlugin("cbmChoice");
+        return self::$instance;
     }
 
     public function getPluginName(): string
@@ -121,23 +117,13 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
 
     public function redirectToHome(): void
     {
-        if ($this->isAtLeastIlias6()) {
-            $this->ctrl->redirectByClass("ilDashboardGUI", "show");
-        } else {
-            $this->ctrl->redirectByClass("ilPersonalDesktopGUI");
-        }
+        $this->ctrl->redirectByClass("ilDashboardGUI", "show");
     }
-
-    public function isAtLeastIlias6(): bool
-    {
-        return version_compare(ILIAS_VERSION_NUMERIC, "6", ">=");
-    }
-
 
     public function denyConfigIfPluginNotActive(): void
     {
         if (!$this->isActive()) {
-            ilUtil::sendFailure($this->txt("general.plugin.notActivated"), true);
+            $this->uiUtil->sendFailure($this->txt("general.plugin.notActivated"), true);
             $this->ctrl->redirectByClass(ilObjComponentSettingsGUI::class, "view");
         }
     }

@@ -26,6 +26,8 @@ use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 use ILIAS\Plugin\CBMChoiceQuestion\Stakeholder\AnswerImageStakeHolder;
 use ILIAS\Plugin\CBMChoiceQuestion\Utils\AnswerTextSanitizer;
+use ILIAS\Plugin\CBMChoiceQuestion\Utils\UiUtil;
+use ILIAS\Plugin\Libraries\FieldMappingInput\FieldMappingInput;
 use ILIAS\ResourceStorage\Services;
 
 require_once __DIR__ . "/../vendor/autoload.php";
@@ -39,27 +41,13 @@ require_once __DIR__ . "/../vendor/autoload.php";
 class CBMChoiceQuestionGUI extends assQuestionGUI
 {
     /** @var CBMChoiceQuestion */
-    public $object;
-    /**
-     * @var ilCBMChoiceQuestionPlugin
-     */
-    private $plugin;
-    /**
-     * @var Container
-     */
-    private $dic;
-    /**
-     * @var Services
-     */
-    private $resourceStorage;
-    /**
-     * @var ilGlobalPageTemplate
-     */
-    private $mainTpl;
-    /**
-     * @var AnswerTextSanitizer
-     */
-    private $answerTextSanitizer;
+    public assQuestion $object;
+    private ilCBMChoiceQuestionPlugin $plugin;
+    private Container $dic;
+    private Services $resourceStorage;
+    private ilGlobalPageTemplate $mainTpl;
+    private AnswerTextSanitizer $answerTextSanitizer;
+    private UiUtil $uiUtil;
 
     public function __construct(?int $id = null)
     {
@@ -74,6 +62,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         if ($id && $id >= 0) {
             $this->object->loadFromDb($id);
         }
+        $this->uiUtil = new UiUtil($this->dic);
     }
 
     public function editQuestion(?QuestionConfigForm $form = null): void
@@ -133,9 +122,6 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->tpl->setVariable("QUESTION_DATA", $form->getHTML());
     }
 
-    /**
-     * @inheritDoc
-     */
     public function writePostData($always = false): int
     {
         $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
@@ -149,7 +135,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $thumbSize = (string) $form->getInput("thumbSize");
         //$this->object->setPoints($this->object->getPointsForQuestion());
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
-        $this->object->setThumbSize($thumbSize ? ((int) $thumbSize) : null);
+        $this->object->setThumbSize((int) $thumbSize);
         $this->object->setCBMAnswerRequired((bool) $form->getInput("cbmAnswerRequired"));
         $this->object->setAllowMultipleSelection((bool) $form->getInput("allowMultipleSelection"));
         /**
@@ -174,7 +160,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 }
                 $uploadResults = $upload->getResults();
             } catch (IllegalStateException $e) {
-                ilUtil::sendFailure($this->plugin->txt("question.config.answerImage.uploadFailure"), true);
+                $this->uiUtil->sendFailure($this->plugin->txt("question.config.answerImage.uploadFailure"), true);
                 $this->editQuestion($form);
                 return 1;
             }
@@ -184,15 +170,18 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
          * @var AnswerData[] $answers
          */
         $answers = [];
-        /**
-         * @var array<string, string|array> $answerData
-         * @noinspection PhpUndefinedMethodInspection
-         */
-        foreach ($form->getItemByPostVar("answers")->getValue($form) as $rowIndex => $row) {
-            $answerImage = $row["answerImage"];
-            $file = $answerImage["file"];
-            $deleteImage = (bool) $answerImage["delete"];
+
+        /** @var FieldMappingInput $answersInput */
+        $answersInput = $form->getItemByPostVar("answers");
+        foreach ($answersInput->getValue($form) as $rowIndex => $row) {
             $imageIdentification = "";
+            $file = [];
+            $deleteImage = false;
+            if (isset($row["answerImage"])) {
+                $answerImage = $row["answerImage"];
+                $file = $answerImage["file"];
+                $deleteImage = (bool) $answerImage["delete"];
+            }
 
             $imageUploaded = false;
             if (isset($file["tmp_name"]) && $file["tmp_name"]) {
@@ -239,7 +228,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         if ($answersContainImage && $answerType === 1) {
             $answerType = 0;
-            ilUtil::sendInfo($this->lng->txt("info_answer_type_change"), true);
+            $this->uiUtil->sendInfo($this->lng->txt("info_answer_type_change"), true);
         }
         $this->object->setAnswerType($answerType);
 
@@ -248,8 +237,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     }
 
     /**
-     * @inheritDoc
-     * @throws ilTemplateException
+     * @throws ilTemplateException|ilSystemStyleException
      */
     public function getSolutionOutput(
         $active_id,
@@ -345,8 +333,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     }
 
     /**
-     *
-     * @throws ilTemplateException
+     * @throws ilTemplateException|ilSystemStyleException
      */
     public function getPreview($show_question_only = false, $showInlineFeedback = false): string
     {
@@ -366,8 +353,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     }
 
     /**
-     * @inheritDoc
-     * @throws ilTemplateException
+     * @throws ilTemplateException|ilSystemStyleException
      */
     public function getTestOutput(
         $active_id,
@@ -390,11 +376,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     }
 
     /**
-     * @param Solution $solution
-     * @param bool $asSolutionOutput
-     * @param bool $showQuestionText
-     * @return ilTemplate
-     * @throws ilTemplateException
+     * @throws ilTemplateException|ilSystemStyleException
      */
     private function renderDynamicQuestionOutput(Solution $solution, bool $asSolutionOutput = false, bool $showQuestionText = true): ilTemplate
     {
@@ -403,7 +385,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         if ($showQuestionText) {
             $tpl->setVariable(
                 "QUESTION_TEXT",
-                ilUtil::prepareTextareaOutput($this->object->getQuestion(), true)
+                self::prepareTextareaOutput($this->object->getQuestion(), true)
             );
         }
         $tpl->setVariable("CBM_TEXT", $this->plugin->txt("question.cbm.howCertain"));
@@ -413,7 +395,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
         $shuffleAnswers = $this->object->getShuffle();
 
-        $answers = $shuffleAnswers ? $this->object->getShuffler()->shuffle($this->object->getAnswers()) : $this->object->getAnswers();
+        $answers = $shuffleAnswers ? $this->object->getShuffler()->transform($this->object->getAnswers()) : $this->object->getAnswers();
         $isSingleLineAnswer = $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE;
         $thumbSize = $this->object->getThumbSize();
 
@@ -481,7 +463,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
             $tpl->setVariable(
                 "ANSWER_TEXT",
-                ilUtil::prepareTextareaOutput($answerText, true)
+                self::prepareTextareaOutput($answerText, true)
             );
             $tpl->parseCurrentBlock($this->object->isAllowMultipleSelection() ? "answer_multi" : "answer_single");
         }
@@ -489,10 +471,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         return $tpl;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getSpecificFeedbackOutput($userSolution)
+    public function getSpecificFeedbackOutput($userSolution): string
     {
         return "";
     }
