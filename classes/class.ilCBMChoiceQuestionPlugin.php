@@ -46,7 +46,7 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     protected ilCtrl $ctrl;
     public ilSetting $settings;
     protected Container $dic;
-    private static ?ilCBMChoiceQuestionPlugin $instance = null;
+    private static ?self $instance = null;
     private UiUtil $uiUtil;
 
     public function __construct(ilDBInterface $db, ilComponentRepositoryWrite $component_repository, string $id)
