@@ -1,0 +1,38 @@
+.cbm-answers {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.cbm-answer-text {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.cbm-scoring-matrix {
+  display: flex;
+  flex-direction: column;
+}
+
+.cbm-answer-wrapper {
+  display: grid;
+  grid-template-columns: min-content max-content min-content;
+  gap: 2rem;
+}
+
+.cbm-answer-wrapper > input {
+  margin: 0 !important;
+}
+
+.cbm-required {
+  color: red;
+  font-weight: bolder;
+}
+
+.cbm-answer-result-icon-status {
+  width: 48px;
+}
+
+/*# sourceMappingURL=style.css.map */

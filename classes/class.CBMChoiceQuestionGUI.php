@@ -276,6 +276,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
             $solution = new Solution($correctAnswers, $highestColKey);
         }
 
+        $this->mainTpl->addCss($this->plugin->cssFolder("style.css"));
         $tpl = new ilTemplate($this->plugin->templatesFolder("tpl.cbm_question_output_solution.html"), true, true);
 
         if (($active_id > 0) && (!$show_correct_solution)) {
@@ -392,7 +393,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         if ($this->object->isCBMAnswerRequired()) {
             $tpl->setVariable("CBM_REQUIRED_TEXT", $this->plugin->txt("question.cbm.required"));
         }
-        $this->mainTpl->addCss($this->plugin->cssFolder("cbm_question_output.css"));
+        $this->mainTpl->addCss($this->plugin->cssFolder("style.css"));
         $shuffleAnswers = $this->object->getShuffle();
 
         $answers = $shuffleAnswers ? $this->object->getShuffler()->transform($this->object->getAnswers()) : $this->object->getAnswers();
