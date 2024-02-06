@@ -23,99 +23,60 @@ declare(strict_types=1);
  */
 class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
 {
-    /**
-     * @inheritDoc
-     */
-    public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex)
+    public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex): string
     {
         return "";
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function completeSpecificFormProperties(ilPropertyFormGUI $form)
+    public function completeSpecificFormProperties(ilPropertyFormGUI $form): void
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function initSpecificFormProperties(ilPropertyFormGUI $form)
+    public function initSpecificFormProperties(ilPropertyFormGUI $form): void
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function saveSpecificFormProperties(ilPropertyFormGUI $form)
+    public function saveSpecificFormProperties(ilPropertyFormGUI $form): void
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex)
+    public function getSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex): string
     {
         return "";
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getAllSpecificAnswerFeedbackContents($questionId)
+    public function getAllSpecificAnswerFeedbackContents($questionId): string
     {
         return "";
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function saveSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex, $feedbackContent)
+    public function saveSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex, $feedbackContent): int
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function deleteSpecificAnswerFeedbacks($questionId, $isAdditionalContentEditingModePageObject)
+    public function deleteSpecificAnswerFeedbacks($questionId, $isAdditionalContentEditingModePageObject): void
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function duplicateSpecificFeedback($originalQuestionId, $duplicateQuestionId)
+    protected function duplicateSpecificFeedback($originalQuestionId, $duplicateQuestionId): void
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function isSpecificAnswerFeedbackId($feedbackId)
+    protected function isSpecificAnswerFeedbackId($feedbackId): bool
     {
         return false;
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function syncSpecificFeedback($originalQuestionId, $duplicateQuestionId)
+    protected function syncSpecificFeedback($originalQuestionId, $duplicateQuestionId): void
     {
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getSpecificAnswerFeedbackExportPresentation($questionId, $questionIndex, $answerIndex)
+    public function getSpecificAnswerFeedbackExportPresentation($questionId, $questionIndex, $answerIndex): string
     {
         return "";
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function importSpecificAnswerFeedback($questionId, $questionIndex, $answerIndex, $feedbackContent)
+    public function importSpecificAnswerFeedback($questionId, $questionIndex, $answerIndex, $feedbackContent): void
     {
     }
 }

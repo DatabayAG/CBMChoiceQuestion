@@ -28,10 +28,7 @@ use ilFormPropertyGUI;
  */
 class AnswerTextSanitizer
 {
-    /**
-     * @var ilFormPropertyGUI
-     */
-    private $formInput;
+    private ilFormPropertyGUI $formInput;
 
     public function __construct()
     {

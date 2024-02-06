@@ -39,14 +39,8 @@ use ilTextInputGUI;
  */
 class QuestionConfigForm extends ilPropertyFormGUI
 {
-    /**
-     * @var ilCBMChoiceQuestionPlugin
-     */
-    private $plugin;
-    /**
-     * @var Container
-     */
-    private $dic;
+    private ilCBMChoiceQuestionPlugin $plugin;
+    private Container $dic;
 
     public function __construct(CBMChoiceQuestionGUI $parent, bool $singleLineAnswer = true)
     {
@@ -64,7 +58,7 @@ class QuestionConfigForm extends ilPropertyFormGUI
         $parent->addBasicQuestionFormProperties($this);
 
         $shuffle = new ilCheckboxInputGUI($this->lng->txt("shuffle_answers"), "shuffle");
-        $shuffle->setValue(true);
+        $shuffle->setValue("1");
         $shuffle->setRequired(false);
         $this->addItem($shuffle);
 

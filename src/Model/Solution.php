@@ -29,15 +29,11 @@ class Solution
     /**
      * @var AnswerData[]
      */
-    private $answers;
-    /**
-     * @var string
-     */
-    private $cbmChoice;
+    private array $answers;
+    private string $cbmChoice;
 
     /**
      * @param AnswerData[] $answers
-     * @param string $cbmChoice
      */
     public function __construct(array $answers, string $cbmChoice)
     {
@@ -69,7 +65,6 @@ class Solution
 
     /**
      * @param AnswerData[] $answers
-     * @return Solution
      */
     public function setAnswers(array $answers): Solution
     {
@@ -77,18 +72,11 @@ class Solution
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getCbmChoice(): string
     {
         return $this->cbmChoice;
     }
 
-    /**
-     * @param string $cbmChoice
-     * @return Solution
-     */
     public function setCbmChoice(string $cbmChoice): Solution
     {
         $this->cbmChoice = $cbmChoice;
