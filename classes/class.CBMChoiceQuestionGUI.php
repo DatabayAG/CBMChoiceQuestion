@@ -250,6 +250,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $show_manual_scoring = false,
         $show_question_text = true
     ): string {
+        $active_id = (int) $active_id;
         $solution = new Solution([], "");
         if ($active_id && !$show_correct_solution) {
             $solution = $this->object->mapSolution($this->object->getSolutionValues($active_id, $pass));
@@ -281,7 +282,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         if (($active_id > 0) && (!$show_correct_solution)) {
             if ($graphicalOutput) {
-                $reachedPoints = $this->object->getReachedPoints($active_id, $pass);
+                $reachedPoints = $this->object->getReachedPoints($active_id, (int) $pass);
                 if ($reachedPoints === $this->object->getMaximumPoints()) {
                     $tpl->setCurrentBlock("icon_ok");
                     $tpl->setVariable("ICON_OK", ilUtil::getImagePath("icon_ok.svg"));
