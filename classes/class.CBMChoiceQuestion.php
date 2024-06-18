@@ -248,7 +248,7 @@ class CBMChoiceQuestion extends assQuestion
             }
 
             $this->setId($questionId);
-            $this->setOriginalId($data["original_id"]);
+            $this->setOriginalId((int) $data["original_id"]);
             $this->setObjId((int) $data["obj_fi"]);
             $this->setTitle($data["title"] ?: "");
             try {
