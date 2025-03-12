@@ -30,15 +30,6 @@ require_once __DIR__ . "/../vendor/autoload.php";
  */
 class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
 {
-    /** @var string */
-    public const CTYPE = "Modules";
-    /** @var string */
-    public const CNAME = "TestQuestionPool";
-    /** @var string */
-    public const SLOT_ID = "qst";
-    /** @var string */
-    public const PNAME = "CBMChoiceQuestion";
-
     public const CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY = "cbm_choice_scoringMatrix_storeAsDefaultForSession";
     public const ANSWER_TYPE_SINGLE_LINE = 0;
     public const ANSWER_TYPE_MULTI_LINE = 1;
@@ -52,7 +43,7 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     {
         global $DIC;
         $this->dic = $DIC;
-        $this->settings = new ilSetting(self::PNAME);
+        $this->settings = new ilSetting("CBMChoiceQuestion");
         $this->uiUtil = new UiUtil();
         parent::__construct($db, $component_repository, $id);
     }
@@ -71,11 +62,6 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
         $componentFactory = $DIC["component.factory"];
         self::$instance = $componentFactory->getPlugin("cbmChoice");
         return self::$instance;
-    }
-
-    public function getPluginName(): string
-    {
-        return self::PNAME;
     }
 
     public function getQuestionType(): string
