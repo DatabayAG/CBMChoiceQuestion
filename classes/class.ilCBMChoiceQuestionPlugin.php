@@ -43,7 +43,6 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     public const ANSWER_TYPE_SINGLE_LINE = 0;
     public const ANSWER_TYPE_MULTI_LINE = 1;
 
-    protected ilCtrl $ctrl;
     public ilSetting $settings;
     protected Container $dic;
     private static ?self $instance = null;
@@ -53,7 +52,6 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     {
         global $DIC;
         $this->dic = $DIC;
-        $this->ctrl = $this->dic->ctrl();
         $this->settings = new ilSetting(self::PNAME);
         $this->uiUtil = new UiUtil();
         parent::__construct($db, $component_repository, $id);
@@ -117,14 +115,14 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
 
     public function redirectToHome(): void
     {
-        $this->ctrl->redirectByClass("ilDashboardGUI", "show");
+        $this->dic->ctrl()->redirectByClass("ilDashboardGUI", "show");
     }
 
     public function denyConfigIfPluginNotActive(): void
     {
         if (!$this->isActive()) {
             $this->uiUtil->sendFailure($this->txt("general.plugin.notActivated"), true);
-            $this->ctrl->redirectByClass(ilObjComponentSettingsGUI::class, "view");
+            $this->dic->ctrl()->redirectByClass(ilObjComponentSettingsGUI::class, "view");
         }
     }
 
