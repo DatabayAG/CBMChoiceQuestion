@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -11,12 +9,14 @@ declare(strict_types=1);
  * You should have received a copy of said license along with the
  * source code, too.
  *
- * If this is not the case or you just want to try ILIAS, you"ll find
+ * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\DI\Container;
 use ILIAS\FileUpload\Exception\IllegalStateException;
