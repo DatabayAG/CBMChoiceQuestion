@@ -94,9 +94,10 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
         return $this->assetsFolder("js/$file");
     }
 
-    public function redirectToHome(): void
+    public function redirectToHome(): never
     {
         $this->dic->ctrl()->redirectByClass("ilDashboardGUI", "show");
+        exit;
     }
 
     public function denyConfigIfPluginNotActive(): void
