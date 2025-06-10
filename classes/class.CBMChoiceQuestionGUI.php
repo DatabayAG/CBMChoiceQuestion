@@ -300,7 +300,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         if ($this->renderPurposeSupportsFormHtml()) {
             $tpl->setCurrentBlock("answer_div");
-            $questionContent = $this->object->prepareTextareaOutput(
+            $questionContent = self::prepareTextareaOutput(
                 $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
                 true
             );
@@ -315,7 +315,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         } else {
             //ToDo: not rendering correctly
             $tpl->setCurrentBlock("answer_textarea");
-            $tpl->setVariable("TA_ANSWER", $this->object->prepareTextareaOutput(
+            $tpl->setVariable("TA_ANSWER", self::prepareTextareaOutput(
                 $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
                 true,
                 true
