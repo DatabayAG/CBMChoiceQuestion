@@ -86,7 +86,6 @@ class AnswerData
             if (in_array($property->getName(), $propertyBlacklist, true)) {
                 continue;
             }
-            $property->setAccessible(true);
             $values[$property->getName()] = $property->getValue($this);
         }
 

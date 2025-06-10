@@ -28,14 +28,12 @@ use ilNumberInputGUI;
 use ilSystemStyleException;
 use ilTemplate;
 use ilTemplateException;
-use Psr\Http\Message\RequestInterface;
 
 class ScoringMatrixInput extends ilFormPropertyGUI
 {
     private ilGlobalTemplateInterface $mainTpl;
     protected Container $dic;
     private ilCBMChoiceQuestionPlugin $plugin;
-    protected RequestInterface $request;
 
     /**
      * @var string[]
@@ -57,7 +55,6 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         $this->dic = $DIC;
         $this->mainTpl = $this->dic->ui()->mainTemplate();
         $this->lng = $DIC->language();
-        $this->request = $DIC->http()->request();
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         parent::__construct($title, $postVar);
     }
