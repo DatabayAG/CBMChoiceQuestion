@@ -18,7 +18,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-use ILIAS\DI\Container;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 

@@ -29,7 +29,6 @@ use ilSystemStyleException;
 use ilTemplate;
 use ilTemplateException;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class ScoringMatrixInput
