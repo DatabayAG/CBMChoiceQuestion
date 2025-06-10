@@ -23,11 +23,6 @@ use ILIAS\Plugin\CBMChoiceQuestion\Utils\UiUtil;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-/**
- * Class ilassCBMChoiceQuestion
- *
- * @author Marvin Beym <mbeym@databay.de>
- */
 class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
 {
     public const CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY = "cbm_choice_scoringMatrix_storeAsDefaultForSession";

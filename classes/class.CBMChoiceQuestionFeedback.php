@@ -17,10 +17,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-/**
- * Class ilCBMChoiceQuestionFeedback
- * @author Marvin Beym <mbeym@databay.de>
- */
 class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
 {
     public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex): string

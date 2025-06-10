@@ -21,11 +21,6 @@ namespace ILIAS\Plugin\CBMChoiceQuestion\Utils;
 
 use ilFormPropertyGUI;
 
-/**
- * Class AnswerTextSanitizer
- * @package ILIAS\Plugin\CBMChoiceQuestion\Utils
- * @author Marvin Beym <mbeym@databay.de>
- */
 class AnswerTextSanitizer
 {
     private ilFormPropertyGUI $formInput;

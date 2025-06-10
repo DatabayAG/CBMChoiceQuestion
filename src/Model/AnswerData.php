@@ -21,11 +21,6 @@ namespace ILIAS\Plugin\CBMChoiceQuestion\Model;
 
 use ReflectionClass;
 
-/**
- * Class AnswerData
- * @package ILIAS\Plugin\CBMChoiceQuestion\Model
- * @author Marvin Beym <mbeym@databay.de>
- */
 class AnswerData
 {
     private int $id;

@@ -19,11 +19,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\CBMChoiceQuestion\Model;
 
-/**
- * Class Solution
- * @package ILIAS\Plugin\CBMChoiceQuestion\Model
- * @author Marvin Beym <mbeym@databay.de>
- */
 class Solution
 {
     /**

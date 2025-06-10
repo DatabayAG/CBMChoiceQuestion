@@ -30,11 +30,6 @@ use ilTemplate;
 use ilTemplateException;
 use Psr\Http\Message\RequestInterface;
 
-/**
- * Class ScoringMatrixInput
- * @package ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput
- * @author Marvin Beym <mbeym@databay.de>
- */
 class ScoringMatrixInput extends ilFormPropertyGUI
 {
     private ilGlobalTemplateInterface $mainTpl;

@@ -33,9 +33,6 @@ use ILIAS\ResourceStorage\Services;
 require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
- * Class ilCBMChoiceQuestionGUI
- *
- * @author Marvin Beym <mbeym@databay.de>
  * @ilCtrl_IsCalledBy CBMChoiceQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  */
 class CBMChoiceQuestionGUI extends assQuestionGUI

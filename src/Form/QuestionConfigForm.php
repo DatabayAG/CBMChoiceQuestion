@@ -32,11 +32,6 @@ use ilSelectInputGUI;
 use ilTextAreaInputGUI;
 use ilTextInputGUI;
 
-/**
- * Class QuestionConfigForm
- * @package ILIAS\Plugin\CBMChoiceQuestion\Form
- * @author Marvin Beym <mbeym@databay.de>
- */
 class QuestionConfigForm extends ilPropertyFormGUI
 {
     private ilCBMChoiceQuestionPlugin $plugin;

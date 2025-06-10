@@ -23,11 +23,6 @@ use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-/**
- * Class ilCBMChoiceQuestion
- *
- * @author Marvin Beym <mbeym@databay.de>
- */
 class CBMChoiceQuestion extends assQuestion
 {
     private ilCBMChoiceQuestionPlugin $plugin;

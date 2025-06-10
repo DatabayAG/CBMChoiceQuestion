@@ -17,10 +17,6 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-/**
- * Class CBMChoiceQuestionExport
- * @author Marvin Beym <mbeym@databay.de>
- */
 class CBMChoiceQuestionExport extends assQuestionExport
 {
 }

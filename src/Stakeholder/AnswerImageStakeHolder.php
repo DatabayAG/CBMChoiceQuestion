@@ -21,11 +21,6 @@ namespace ILIAS\Plugin\CBMChoiceQuestion\Stakeholder;
 
 use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
 
-/**
- * Class AnswerImageStakeHolder
- * @package ILIAS\Plugin\CBMChoiceQuestion\Stakeholder
- * @author Marvin Beym <mbeym@databay.de>
- */
 class AnswerImageStakeHolder extends AbstractResourceStakeholder
 {
     public function getId(): string
