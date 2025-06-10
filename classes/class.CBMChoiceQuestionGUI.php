@@ -42,7 +42,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     private readonly ilCBMChoiceQuestionPlugin $plugin;
     private readonly Container $dic;
     private readonly Services $resourceStorage;
-    private readonly ilGlobalPageTemplate $mainTpl;
+    private readonly ilGlobalTemplateInterface $mainTpl;
     private readonly AnswerTextSanitizer $answerTextSanitizer;
     private readonly UiUtil $uiUtil;
 
@@ -130,7 +130,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
         $thumbSize = (string) $form->getInput("thumbSize");
-        //$this->object->setPoints($this->object->getPointsForQuestion());
+
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize((int) $thumbSize);
         $this->object->setCBMAnswerRequired((bool) $form->getInput("cbmAnswerRequired"));

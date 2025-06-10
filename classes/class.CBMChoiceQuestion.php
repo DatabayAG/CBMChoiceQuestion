@@ -186,7 +186,7 @@ class CBMChoiceQuestion extends assQuestion
         return "CBMChoiceQuestion";
     }
 
-    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", int $owner = -1, $testObjId = null): int
     {
         if ((int) $this->getId() <= 0) {
             return -1;
@@ -194,7 +194,9 @@ class CBMChoiceQuestion extends assQuestion
 
         $clone = clone $this;
 
-        $originalId = assQuestion::_getOriginalId($this->getId());
+        $questionInfo = $this->dic->testQuestionPool()->questionInfo();
+
+        $originalId = $questionInfo->getOriginalId($this->getId());
         $clone->setId(-1);
 
         $clone->setObjId((int) $testObjId > 0 ? $testObjId : $clone->getObjId());
@@ -254,7 +256,6 @@ class CBMChoiceQuestion extends assQuestion
             $this->setComment($data["description"] ?: "");
             $this->setAuthor($data["author"]);
             $this->setOwner((int) $data["owner"]);
-            //$this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
             $this->setLastChange($data["tstamp"]);
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"] ?: "", 1));
             $this->setShuffle((bool) $data["shuffle"]);
@@ -450,5 +451,10 @@ class CBMChoiceQuestion extends assQuestion
     {
         $this->cbmAnswerRequired = $cbmAnswerRequired;
         return $this;
+    }
+
+    public function getAnswerTableName(): string
+    {
+        return "";
     }
 }
