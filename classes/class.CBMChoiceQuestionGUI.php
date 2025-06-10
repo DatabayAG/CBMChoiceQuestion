@@ -42,12 +42,12 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 {
     /** @var CBMChoiceQuestion */
     public assQuestion $object;
-    private ilCBMChoiceQuestionPlugin $plugin;
-    private Container $dic;
-    private Services $resourceStorage;
-    private ilGlobalPageTemplate $mainTpl;
-    private AnswerTextSanitizer $answerTextSanitizer;
-    private UiUtil $uiUtil;
+    private readonly ilCBMChoiceQuestionPlugin $plugin;
+    private readonly Container $dic;
+    private readonly Services $resourceStorage;
+    private readonly ilGlobalPageTemplate $mainTpl;
+    private readonly AnswerTextSanitizer $answerTextSanitizer;
+    private readonly UiUtil $uiUtil;
 
     public function __construct(?int $id = null)
     {
@@ -159,7 +159,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     $upload->process();
                 }
                 $uploadResults = $upload->getResults();
-            } catch (IllegalStateException $e) {
+            } catch (IllegalStateException) {
                 $this->uiUtil->sendFailure($this->plugin->txt("question.config.answerImage.uploadFailure"), true);
                 $this->editQuestion($form);
                 return 1;
@@ -191,7 +191,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     try {
                         $imageIdentification = $identification->serialize();
                         $imageUploaded = true;
-                    } catch (Throwable $ex) {
+                    } catch (Throwable) {
                         //ignore, act as no image uploaded
                     }
                 }

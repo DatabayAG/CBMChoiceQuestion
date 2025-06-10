@@ -36,7 +36,7 @@ class CBMChoiceQuestion extends assQuestion
      * @var AnswerData[]
      */
     private array $answers = [];
-    protected ?int $thumbSize;
+    protected ?int $thumbSize = null;
     private int $answerType = 0;
     private bool $allowMultipleSelection = false;
     /**
@@ -273,7 +273,7 @@ class CBMChoiceQuestion extends assQuestion
 
             try {
                 $this->setAdditionalContentEditingMode($data["add_cont_edit_mode"]);
-            } catch (ilTestQuestionPoolException $e) {
+            } catch (ilTestQuestionPoolException) {
             }
         }
 
@@ -361,7 +361,7 @@ class CBMChoiceQuestion extends assQuestion
         $cbmChoice = "";
 
         foreach ($solutionRecords as $solutionRecord) {
-            if (strncmp($solutionRecord["value1"], "answer_", strlen("answer_")) === 0) {
+            if (str_starts_with((string) $solutionRecord["value1"], "answer_")) {
                 foreach ($this->getAnswers() as $existingAnswer) {
                     if (
                         isset($solutionRecord["value2"])
