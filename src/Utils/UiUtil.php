@@ -18,6 +18,7 @@
 
 namespace ILIAS\Plugin\CBMChoiceQuestion\Utils;
 
+use ilGlobalTemplateInterface;
 use ILIAS\DI\Container;
 
 class UiUtil
@@ -35,21 +36,37 @@ class UiUtil
 
     public function sendQuestion(string $message, bool $keep = false): void
     {
-        $this->dic->ui()->mainTemplate()->setOnScreenMessage("question", $message, $keep);
+        $this->dic->ui()->mainTemplate()->setOnScreenMessage(
+            ilGlobalTemplateInterface::MESSAGE_TYPE_QUESTION,
+            $message,
+            $keep
+        );
     }
 
     public function sendInfo(string $message, bool $keep = false): void
     {
-        $this->dic->ui()->mainTemplate()->setOnScreenMessage("info", $message, $keep);
+        $this->dic->ui()->mainTemplate()->setOnScreenMessage(
+            ilGlobalTemplateInterface::MESSAGE_TYPE_INFO,
+            $message,
+            $keep
+        );
     }
 
     public function sendFailure(string $message, bool $keep = false): void
     {
-        $this->dic->ui()->mainTemplate()->setOnScreenMessage("failure", $message, $keep);
+        $this->dic->ui()->mainTemplate()->setOnScreenMessage(
+            ilGlobalTemplateInterface::MESSAGE_TYPE_FAILURE,
+            $message,
+            $keep
+        );
     }
 
     public function sendSuccess(string $message, bool $keep = false): void
     {
-        $this->dic->ui()->mainTemplate()->setOnScreenMessage("success", $message, $keep);
+        $this->dic->ui()->mainTemplate()->setOnScreenMessage(
+            ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
+            $message,
+            $keep
+        );
     }
 }
