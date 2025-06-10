@@ -2,11 +2,11 @@
 
 ## Requirements
 
-| Component                                     | Version(s)                                                                                         | Link                                                           |
-|-----------------------------------------------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
-| PHP                                           | ![](https://img.shields.io/badge/7.3-blue.svg) ![](https://img.shields.io/badge/8.0-blue.svg)      | [PHP](https://php.net)                                         |
-| ILIAS                                         | ![](https://img.shields.io/badge/8-orange.svg) to ![](https://img.shields.io/badge/8.x-orange.svg) | [ILIAS](https://ilias.de)                                      |
-| CBMChoiceQuestionExport (optional for export) | ![](https://img.shields.io/badge/r7-blue.svg)                                                      | [GitHub](https://github.com/DatabayAG/CBMChoiceQuestionExport) |
+| Component                                     | Version(s)                                                                                           | Link                                                           |
+|-----------------------------------------------|------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|
+| PHP               | ![](https://img.shields.io/badge/8.1-blue.svg) ![](https://img.shields.io/badge/8.2-blue.svg)        | [PHP](https://php.net)                                   |
+| ILIAS             | ![](https://img.shields.io/badge/9-orange.svg) to ![](https://img.shields.io/badge/9.999-orange.svg) | [ILIAS](https://ilias.de)                                |
+| CBMChoiceQuestionExport (optional for export) | Branch ![](https://img.shields.io/badge/release9__ilias9-blue.svg)                                   | [GitHub](https://github.com/DatabayAG/CBMChoiceQuestionExport) |
 
 ---
 ## Table of contents
