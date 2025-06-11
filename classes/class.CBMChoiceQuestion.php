@@ -213,7 +213,7 @@ class CBMChoiceQuestion extends assQuestion
         return $clone->getId();
     }
 
-    public function saveToDb($originalId = ""): void
+    public function saveToDb(int $originalId = -1): void
     {
         $this->saveQuestionDataToDb($originalId);
         $this->saveAdditionalQuestionDataToDb();
