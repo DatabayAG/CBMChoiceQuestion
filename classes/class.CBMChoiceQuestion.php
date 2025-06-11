@@ -41,13 +41,13 @@ class CBMChoiceQuestion extends assQuestion
 
     protected float $points = 0;
 
-    public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
+    public function __construct(string $title = "", string $comment = "", string $author = "", int $owner = -1, string $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
-    public function isAnswered($active_id, $pass = null): bool
+    public function isAnswered(int $active_id, int $pass): bool
     {
         //ToDo test if possible to manipulate if cbm is required.
         return assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId()) >= 1;
@@ -78,7 +78,7 @@ class CBMChoiceQuestion extends assQuestion
         return $solution;
     }
 
-    public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
+    public function saveWorkingData(int $active_id, int $pass, bool $authorized = true): bool
     {
         if ($pass === null) {
             $pass = ilObjTest::_getPass($active_id);
@@ -275,13 +275,13 @@ class CBMChoiceQuestion extends assQuestion
         parent::loadFromDb($questionId);
     }
 
-    public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
+    public function toXML(bool $a_include_header = true, bool $a_include_binary = true, bool $a_shuffle = false, bool $test_output = false, bool $force_image_references = false): string
     {
         //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
         return "";
     }
 
-    public function fromXML($item, $questionpool_id, $tst_id, &$tst_object, &$question_counter, $import_mapping, array &$solutionhints = []): array
+    public function fromXML($item, int $questionpool_id, ?int $tst_id, &$tst_object, int &$question_counter, array $import_mapping, array &$solutionhints = []): array
     {
         //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
         return [];
@@ -347,6 +347,7 @@ class CBMChoiceQuestion extends assQuestion
         }
         return $count;
     }
+
     /**
      * @param array<int, array<string, mixed>> $solutionRecords
      */

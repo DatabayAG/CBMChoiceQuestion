@@ -119,7 +119,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->tpl->setVariable("QUESTION_DATA", $form->getHTML());
     }
 
-    public function writePostData($always = false): int
+    public function writePostData(bool $always = false): int
     {
         $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
         if (!$form->checkInput()) {
@@ -470,7 +470,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         return $tpl;
     }
 
-    public function getSpecificFeedbackOutput($userSolution): string
+    public function getSpecificFeedbackOutput(array $userSolution): string
     {
         return "";
     }
