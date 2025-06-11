@@ -29,6 +29,8 @@ use ILIAS\Plugin\CBMChoiceQuestion\Utils\AnswerTextSanitizer;
 use ILIAS\Plugin\CBMChoiceQuestion\Utils\UiUtil;
 use ILIAS\Plugin\Libraries\FieldMappingInput\FieldMappingInput;
 use ILIAS\ResourceStorage\Services;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
@@ -45,6 +47,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
     private readonly ilGlobalTemplateInterface $mainTpl;
     private readonly AnswerTextSanitizer $answerTextSanitizer;
     private readonly UiUtil $uiUtil;
+    private Factory $uiFactory;
+    private Renderer $uiRenderer;
 
     public function __construct(?int $id = null)
     {
@@ -53,6 +57,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->dic = $DIC;
         $this->mainTpl = $this->dic->ui()->mainTemplate();
         $this->resourceStorage = $this->dic->resourceStorage();
+        $this->uiFactory = $this->dic->ui()->factory();
+        $this->uiRenderer = $this->dic->ui()->renderer();
         $this->answerTextSanitizer = new AnswerTextSanitizer();
         parent::__construct();
         $this->object = new CBMChoiceQuestion();
@@ -282,15 +288,24 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $reachedPoints = $this->object->getReachedPoints($active_id, (int) $pass);
                 if ($reachedPoints === $this->object->getMaximumPoints()) {
                     $tpl->setCurrentBlock("icon_ok");
-                    $tpl->setVariable("ICON_OK", ilUtil::getImagePath("icon_ok.svg"));
+                    $tpl->setVariable("ICON_OK", $this->getIcon(
+                        $this->lng->txt("answer_is_right"),
+                        "standard/icon_ok.svg"
+                    ));
                     $tpl->setVariable("TEXT_OK", $this->lng->txt("answer_is_right"));
                 } else {
                     $tpl->setCurrentBlock("icon_ok");
                     if ($reachedPoints > 0) {
-                        $tpl->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_mostly_ok.svg"));
+                        $tpl->setVariable("ICON_NOT_OK", $this->getIcon(
+                            $this->lng->txt("answer_is_not_correct_but_positive"),
+                            "standard/icon_mostly_ok.svg"
+                        ));
                         $tpl->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_not_correct_but_positive"));
                     } else {
-                        $tpl->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_not_ok.svg"));
+                        $tpl->setVariable("ICON_NOT_OK", $this->getIcon(
+                            $this->lng->txt("answer_is_wrong"),
+                            "standard/icon_not_ok.svg"
+                        ));
                         $tpl->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_wrong"));
                     }
                 }
@@ -329,6 +344,16 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
 
         return $content;
+    }
+
+    private function getIcon(string $label, string $iconPath): string
+    {
+        return $this->uiRenderer->render(
+            $this->uiFactory->symbol()->icon()->custom(
+                ilUtil::getImagePath("standard/icon_ok.svg"),
+                $label
+            )
+        );
     }
 
     /**
@@ -421,19 +446,16 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 foreach ($solution->getAnswers() as $solutionAnswer) {
                     if ($answer->getId() === $solutionAnswer->getId()) {
                         $tpl->setVariable(
-                            "SOLUTION_ICON_SRC",
-                            ilUtil::getImagePath(
+                            "SOLUTION_ICON",
+                            $this->getIcon(
+                                $this->lng->txt(
+                                    $answer->isAnswerCorrect()
+                                        ? "answer_is_right"
+                                        : "answer_is_wrong"
+                                ),
                                 $answer->isAnswerCorrect()
                                     ? "icon_ok.svg"
                                     : "icon_not_ok.svg"
-                            )
-                        );
-                        $tpl->setVariable(
-                            "SOLUTION_ICON_TEXT",
-                            $this->lng->txt(
-                                $answer->isAnswerCorrect()
-                                    ? "answer_is_right"
-                                    : "answer_is_wrong"
                             )
                         );
                     }

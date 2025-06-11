@@ -80,10 +80,6 @@ class CBMChoiceQuestion extends assQuestion
 
     public function saveWorkingData(int $active_id, int $pass, bool $authorized = true): bool
     {
-        if ($pass === null) {
-            $pass = ilObjTest::_getPass($active_id);
-        }
-
         $numEnteredValues = 0;
         $cbmSelected = false;
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (
