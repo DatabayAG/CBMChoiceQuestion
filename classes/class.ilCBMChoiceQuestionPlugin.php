@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,16 +16,13 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CBMChoiceQuestion\Utils\UiUtil;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-/**
- * Class ilassCBMChoiceQuestion
- *
- * @author Marvin Beym <mbeym@databay.de>
- */
 class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
 {
     public const CBM_CHOICE_SCORING_MATRIX_STORE_AS_DEFAULT_IN_SESSION_KEY = "cbm_choice_scoringMatrix_storeAsDefaultForSession";
@@ -37,7 +32,7 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
     public ilSetting $settings;
     protected Container $dic;
     private static ?self $instance = null;
-    private UiUtil $uiUtil;
+    private readonly UiUtil $uiUtil;
 
     public function __construct(ilDBInterface $db, ilComponentRepositoryWrite $component_repository, string $id)
     {
@@ -99,9 +94,10 @@ class ilCBMChoiceQuestionPlugin extends ilQuestionsPlugin
         return $this->assetsFolder("js/$file");
     }
 
-    public function redirectToHome(): void
+    public function redirectToHome(): never
     {
         $this->dic->ctrl()->redirectByClass("ilDashboardGUI", "show");
+        exit;
     }
 
     public function denyConfigIfPluginNotActive(): void

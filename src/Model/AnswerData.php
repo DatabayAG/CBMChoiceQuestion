@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,15 +16,12 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\CBMChoiceQuestion\Model;
 
 use ReflectionClass;
 
-/**
- * Class AnswerData
- * @package ILIAS\Plugin\CBMChoiceQuestion\Model
- * @author Marvin Beym <mbeym@databay.de>
- */
 class AnswerData
 {
     private int $id;
@@ -91,7 +87,6 @@ class AnswerData
             if (in_array($property->getName(), $propertyBlacklist, true)) {
                 continue;
             }
-            $property->setAccessible(true);
             $values[$property->getName()] = $property->getValue($this);
         }
 

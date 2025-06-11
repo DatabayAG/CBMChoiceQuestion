@@ -18,23 +18,19 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Plugin\CBMChoiceQuestion\Stakeholder;
+use Rector\Config\RectorConfig;
+use Rector\Set\ValueObject\LevelSetList;
+use Rector\Set\ValueObject\SetList;
+use Rector\ValueObject\PhpVersion;
 
-use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
-
-class AnswerImageStakeHolder extends AbstractResourceStakeholder
-{
-    public function getId(): string
-    {
-        return "cbmChoice";
-    }
-
-    public function getOwnerOfNewResources(): int
-    {
-        return 6;
-    }
-
-    public function __construct()
-    {
-    }
-}
+return RectorConfig::configure()
+    ->withPaths([
+        __DIR__ . '/classes',
+    ])
+    ->withoutParallel()
+    ->withPhpVersion(PhpVersion::PHP_81)
+    ->withSets([
+        SetList::PHP_81,
+        SetList::PHP_82,
+        LevelSetList::UP_TO_PHP_81,
+    ]);

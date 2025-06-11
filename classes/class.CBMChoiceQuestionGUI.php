@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -11,12 +9,14 @@ declare(strict_types=1);
  * You should have received a copy of said license along with the
  * source code, too.
  *
- * If this is not the case or you just want to try ILIAS, you"ll find
+ * If this is not the case or you just want to try ILIAS, you'll find
  * us at:
  * https://www.ilias.de
  * https://github.com/ILIAS-eLearning
  *
  *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\DI\Container;
 use ILIAS\FileUpload\Exception\IllegalStateException;
@@ -29,25 +29,26 @@ use ILIAS\Plugin\CBMChoiceQuestion\Utils\AnswerTextSanitizer;
 use ILIAS\Plugin\CBMChoiceQuestion\Utils\UiUtil;
 use ILIAS\Plugin\Libraries\FieldMappingInput\FieldMappingInput;
 use ILIAS\ResourceStorage\Services;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
 /**
- * Class ilCBMChoiceQuestionGUI
- *
- * @author Marvin Beym <mbeym@databay.de>
  * @ilCtrl_IsCalledBy CBMChoiceQuestionGUI: ilObjQuestionPoolGUI, ilObjTestGUI, ilQuestionEditGUI, ilTestExpressPageObjectGUI
  */
 class CBMChoiceQuestionGUI extends assQuestionGUI
 {
     /** @var CBMChoiceQuestion */
     public assQuestion $object;
-    private ilCBMChoiceQuestionPlugin $plugin;
-    private Container $dic;
-    private Services $resourceStorage;
-    private ilGlobalPageTemplate $mainTpl;
-    private AnswerTextSanitizer $answerTextSanitizer;
-    private UiUtil $uiUtil;
+    private readonly ilCBMChoiceQuestionPlugin $plugin;
+    private readonly Container $dic;
+    private readonly Services $resourceStorage;
+    private readonly ilGlobalTemplateInterface $mainTpl;
+    private readonly AnswerTextSanitizer $answerTextSanitizer;
+    private readonly UiUtil $uiUtil;
+    private Factory $uiFactory;
+    private Renderer $uiRenderer;
 
     public function __construct(?int $id = null)
     {
@@ -56,6 +57,8 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->dic = $DIC;
         $this->mainTpl = $this->dic->ui()->mainTemplate();
         $this->resourceStorage = $this->dic->resourceStorage();
+        $this->uiFactory = $this->dic->ui()->factory();
+        $this->uiRenderer = $this->dic->ui()->renderer();
         $this->answerTextSanitizer = new AnswerTextSanitizer();
         parent::__construct();
         $this->object = new CBMChoiceQuestion();
@@ -122,7 +125,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $this->tpl->setVariable("QUESTION_DATA", $form->getHTML());
     }
 
-    public function writePostData($always = false): int
+    public function writePostData(bool $always = false): int
     {
         $form = new QuestionConfigForm($this, $this->object->getAnswerType() === ilCBMChoiceQuestionPlugin::ANSWER_TYPE_SINGLE_LINE);
         if (!$form->checkInput()) {
@@ -133,7 +136,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         $form->setValuesByPost();
         $this->writeQuestionGenericPostData();
         $thumbSize = (string) $form->getInput("thumbSize");
-        //$this->object->setPoints($this->object->getPointsForQuestion());
+
         $this->object->setShuffle((bool) $form->getInput("shuffle"));
         $this->object->setThumbSize((int) $thumbSize);
         $this->object->setCBMAnswerRequired((bool) $form->getInput("cbmAnswerRequired"));
@@ -159,7 +162,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     $upload->process();
                 }
                 $uploadResults = $upload->getResults();
-            } catch (IllegalStateException $e) {
+            } catch (IllegalStateException) {
                 $this->uiUtil->sendFailure($this->plugin->txt("question.config.answerImage.uploadFailure"), true);
                 $this->editQuestion($form);
                 return 1;
@@ -191,7 +194,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                     try {
                         $imageIdentification = $identification->serialize();
                         $imageUploaded = true;
-                    } catch (Throwable $ex) {
+                    } catch (Throwable) {
                         //ignore, act as no image uploaded
                     }
                 }
@@ -285,15 +288,24 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 $reachedPoints = $this->object->getReachedPoints($active_id, (int) $pass);
                 if ($reachedPoints === $this->object->getMaximumPoints()) {
                     $tpl->setCurrentBlock("icon_ok");
-                    $tpl->setVariable("ICON_OK", ilUtil::getImagePath("icon_ok.svg"));
+                    $tpl->setVariable("ICON_OK", $this->getIcon(
+                        $this->lng->txt("answer_is_right"),
+                        "standard/icon_ok.svg"
+                    ));
                     $tpl->setVariable("TEXT_OK", $this->lng->txt("answer_is_right"));
                 } else {
                     $tpl->setCurrentBlock("icon_ok");
                     if ($reachedPoints > 0) {
-                        $tpl->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_mostly_ok.svg"));
+                        $tpl->setVariable("ICON_NOT_OK", $this->getIcon(
+                            $this->lng->txt("answer_is_not_correct_but_positive"),
+                            "standard/icon_mostly_ok.svg"
+                        ));
                         $tpl->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_not_correct_but_positive"));
                     } else {
-                        $tpl->setVariable("ICON_NOT_OK", ilUtil::getImagePath("icon_not_ok.svg"));
+                        $tpl->setVariable("ICON_NOT_OK", $this->getIcon(
+                            $this->lng->txt("answer_is_wrong"),
+                            "standard/icon_not_ok.svg"
+                        ));
                         $tpl->setVariable("TEXT_NOT_OK", $this->lng->txt("answer_is_wrong"));
                     }
                 }
@@ -303,7 +315,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
 
         if ($this->renderPurposeSupportsFormHtml()) {
             $tpl->setCurrentBlock("answer_div");
-            $questionContent = $this->object->prepareTextareaOutput(
+            $questionContent = self::prepareTextareaOutput(
                 $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
                 true
             );
@@ -318,7 +330,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         } else {
             //ToDo: not rendering correctly
             $tpl->setCurrentBlock("answer_textarea");
-            $tpl->setVariable("TA_ANSWER", $this->object->prepareTextareaOutput(
+            $tpl->setVariable("TA_ANSWER", self::prepareTextareaOutput(
                 $this->renderDynamicQuestionOutput($solution, true, $show_question_text)->get(),
                 true,
                 true
@@ -332,6 +344,16 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         }
 
         return $content;
+    }
+
+    private function getIcon(string $label, string $iconPath): string
+    {
+        return $this->uiRenderer->render(
+            $this->uiFactory->symbol()->icon()->custom(
+                ilUtil::getImagePath("standard/icon_ok.svg"),
+                $label
+            )
+        );
     }
 
     /**
@@ -424,19 +446,16 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
                 foreach ($solution->getAnswers() as $solutionAnswer) {
                     if ($answer->getId() === $solutionAnswer->getId()) {
                         $tpl->setVariable(
-                            "SOLUTION_ICON_SRC",
-                            ilUtil::getImagePath(
+                            "SOLUTION_ICON",
+                            $this->getIcon(
+                                $this->lng->txt(
+                                    $answer->isAnswerCorrect()
+                                        ? "answer_is_right"
+                                        : "answer_is_wrong"
+                                ),
                                 $answer->isAnswerCorrect()
                                     ? "icon_ok.svg"
                                     : "icon_not_ok.svg"
-                            )
-                        );
-                        $tpl->setVariable(
-                            "SOLUTION_ICON_TEXT",
-                            $this->lng->txt(
-                                $answer->isAnswerCorrect()
-                                    ? "answer_is_right"
-                                    : "answer_is_wrong"
                             )
                         );
                     }
@@ -473,7 +492,7 @@ class CBMChoiceQuestionGUI extends assQuestionGUI
         return $tpl;
     }
 
-    public function getSpecificFeedbackOutput($userSolution): string
+    public function getSpecificFeedbackOutput(array $userSolution): string
     {
         return "";
     }

@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput;
 
 use ilCBMChoiceQuestionPlugin;
@@ -28,20 +29,12 @@ use ilNumberInputGUI;
 use ilSystemStyleException;
 use ilTemplate;
 use ilTemplateException;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * Class ScoringMatrixInput
- * @package ILIAS\Plugin\CBMChoiceQuestion\Form\Input\ScoringMatrixInput
- * @author Marvin Beym <mbeym@databay.de>
- */
 class ScoringMatrixInput extends ilFormPropertyGUI
 {
     private ilGlobalTemplateInterface $mainTpl;
     protected Container $dic;
     private ilCBMChoiceQuestionPlugin $plugin;
-    protected RequestInterface $request;
 
     /**
      * @var string[]
@@ -63,7 +56,6 @@ class ScoringMatrixInput extends ilFormPropertyGUI
         $this->dic = $DIC;
         $this->mainTpl = $this->dic->ui()->mainTemplate();
         $this->lng = $DIC->language();
-        $this->request = $DIC->http()->request();
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         parent::__construct($title, $postVar);
     }

@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,6 +16,8 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
 namespace ILIAS\Plugin\CBMChoiceQuestion\Form;
 
 use CBMChoiceQuestionGUI;
@@ -32,11 +33,6 @@ use ilSelectInputGUI;
 use ilTextAreaInputGUI;
 use ilTextInputGUI;
 
-/**
- * Class QuestionConfigForm
- * @package ILIAS\Plugin\CBMChoiceQuestion\Form
- * @author Marvin Beym <mbeym@databay.de>
- */
 class QuestionConfigForm extends ilPropertyFormGUI
 {
     private ilCBMChoiceQuestionPlugin $plugin;

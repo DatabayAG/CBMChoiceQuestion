@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,17 +16,13 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-use ILIAS\DI\Container;
+declare(strict_types=1);
+
 use ILIAS\Plugin\CBMChoiceQuestion\Model\AnswerData;
 use ILIAS\Plugin\CBMChoiceQuestion\Model\Solution;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-/**
- * Class ilCBMChoiceQuestion
- *
- * @author Marvin Beym <mbeym@databay.de>
- */
 class CBMChoiceQuestion extends assQuestion
 {
     private ilCBMChoiceQuestionPlugin $plugin;
@@ -36,7 +30,7 @@ class CBMChoiceQuestion extends assQuestion
      * @var AnswerData[]
      */
     private array $answers = [];
-    protected ?int $thumbSize;
+    protected ?int $thumbSize = null;
     private int $answerType = 0;
     private bool $allowMultipleSelection = false;
     /**
@@ -47,13 +41,13 @@ class CBMChoiceQuestion extends assQuestion
 
     protected float $points = 0;
 
-    public function __construct($title = "", $comment = "", $author = "", $owner = -1, $question = "")
+    public function __construct(string $title = "", string $comment = "", string $author = "", int $owner = -1, string $question = "")
     {
         $this->plugin = ilCBMChoiceQuestionPlugin::getInstance();
         parent::__construct($title, $comment, $author, $owner, $question);
     }
 
-    public function isAnswered($active_id, $pass = null): bool
+    public function isAnswered(int $active_id, int $pass): bool
     {
         //ToDo test if possible to manipulate if cbm is required.
         return assQuestion::getNumExistingSolutionRecords($active_id, $pass, $this->getId()) >= 1;
@@ -84,12 +78,8 @@ class CBMChoiceQuestion extends assQuestion
         return $solution;
     }
 
-    public function saveWorkingData($active_id, $pass = null, $authorized = true): bool
+    public function saveWorkingData(int $active_id, int $pass, bool $authorized = true): bool
     {
-        if ($pass === null) {
-            $pass = ilObjTest::_getPass($active_id);
-        }
-
         $numEnteredValues = 0;
         $cbmSelected = false;
         $this->getProcessLocker()->executeUserSolutionUpdateLockOperation(function () use (
@@ -192,7 +182,7 @@ class CBMChoiceQuestion extends assQuestion
         return "CBMChoiceQuestion";
     }
 
-    public function duplicate(bool $for_test = true, string $title = "", string $author = "", string $owner = "", $testObjId = null): int
+    public function duplicate(bool $for_test = true, string $title = "", string $author = "", int $owner = -1, $testObjId = null): int
     {
         if ((int) $this->getId() <= 0) {
             return -1;
@@ -200,7 +190,9 @@ class CBMChoiceQuestion extends assQuestion
 
         $clone = clone $this;
 
-        $originalId = assQuestion::_getOriginalId($this->getId());
+        $questionInfo = $this->dic->testQuestionPool()->questionInfo();
+
+        $originalId = $questionInfo->getOriginalId($this->getId());
         $clone->setId(-1);
 
         $clone->setObjId((int) $testObjId > 0 ? $testObjId : $clone->getObjId());
@@ -217,7 +209,7 @@ class CBMChoiceQuestion extends assQuestion
         return $clone->getId();
     }
 
-    public function saveToDb($originalId = ""): void
+    public function saveToDb(int $originalId = -1): void
     {
         $this->saveQuestionDataToDb($originalId);
         $this->saveAdditionalQuestionDataToDb();
@@ -260,7 +252,6 @@ class CBMChoiceQuestion extends assQuestion
             $this->setComment($data["description"] ?: "");
             $this->setAuthor($data["author"]);
             $this->setOwner((int) $data["owner"]);
-            //$this->setEstimatedWorkingTimeFromDurationString($data["working_time"]);
             $this->setLastChange($data["tstamp"]);
             $this->setQuestion(ilRTE::_replaceMediaObjectImageSrc($data["question_text"] ?: "", 1));
             $this->setShuffle((bool) $data["shuffle"]);
@@ -273,20 +264,20 @@ class CBMChoiceQuestion extends assQuestion
 
             try {
                 $this->setAdditionalContentEditingMode($data["add_cont_edit_mode"]);
-            } catch (ilTestQuestionPoolException $e) {
+            } catch (ilTestQuestionPoolException) {
             }
         }
 
         parent::loadFromDb($questionId);
     }
 
-    public function toXML($a_include_header = true, $a_include_binary = true, $a_shuffle = false, $test_output = false, $force_image_references = false): string
+    public function toXML(bool $a_include_header = true, bool $a_include_binary = true, bool $a_shuffle = false, bool $test_output = false, bool $force_image_references = false): string
     {
         //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
         return "";
     }
 
-    public function fromXML($item, $questionpool_id, $tst_id, &$tst_object, &$question_counter, $import_mapping, array &$solutionhints = []): array
+    public function fromXML($item, int $questionpool_id, ?int $tst_id, &$tst_object, int &$question_counter, array $import_mapping, array &$solutionhints = []): array
     {
         //ToDo: not yet implemented as not desired in concept, method override to avoid exception when exporting test
         return [];
@@ -352,6 +343,7 @@ class CBMChoiceQuestion extends assQuestion
         }
         return $count;
     }
+
     /**
      * @param array<int, array<string, mixed>> $solutionRecords
      */
@@ -361,7 +353,7 @@ class CBMChoiceQuestion extends assQuestion
         $cbmChoice = "";
 
         foreach ($solutionRecords as $solutionRecord) {
-            if (strncmp($solutionRecord["value1"], "answer_", strlen("answer_")) === 0) {
+            if (str_starts_with((string) $solutionRecord["value1"], "answer_")) {
                 foreach ($this->getAnswers() as $existingAnswer) {
                     if (
                         isset($solutionRecord["value2"])
@@ -456,5 +448,10 @@ class CBMChoiceQuestion extends assQuestion
     {
         $this->cbmAnswerRequired = $cbmAnswerRequired;
         return $this;
+    }
+
+    public function getAnswerTableName(): string
+    {
+        return "";
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-declare(strict_types=1);
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -17,13 +16,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-/**
- * Class ilCBMChoiceQuestionFeedback
- * @author Marvin Beym <mbeym@databay.de>
- */
+declare(strict_types=1);
+
 class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
 {
-    public function getSpecificAnswerFeedbackTestPresentation($questionId, $questionIndex, $answerIndex): string
+    public function getSpecificAnswerFeedbackTestPresentation(int $question_id, int $question_index, int $answer_index): string
     {
         return "";
     }
@@ -40,43 +37,44 @@ class CBMChoiceQuestionFeedback extends ilAssQuestionFeedback
     {
     }
 
-    public function getSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex): string
+    public function getSpecificAnswerFeedbackContent(int $question_id, int $question_index, int $answer_index): string
     {
         return "";
     }
 
-    public function getAllSpecificAnswerFeedbackContents($questionId): string
+    public function getAllSpecificAnswerFeedbackContents(int $question_id): string
     {
         return "";
     }
 
-    public function saveSpecificAnswerFeedbackContent($questionId, $questionIndex, $answerIndex, $feedbackContent): int
+    public function saveSpecificAnswerFeedbackContent(int $question_id, int $question_index, int $answer_index, string $feedback_content): int
+    {
+        return 0;
+    }
+
+    public function deleteSpecificAnswerFeedbacks(int $question_id, bool $isAdditionalContentEditingModePageObject): void
     {
     }
 
-    public function deleteSpecificAnswerFeedbacks($questionId, $isAdditionalContentEditingModePageObject): void
+    protected function duplicateSpecificFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
     }
 
-    protected function duplicateSpecificFeedback($originalQuestionId, $duplicateQuestionId): void
-    {
-    }
-
-    protected function isSpecificAnswerFeedbackId($feedbackId): bool
+    protected function isSpecificAnswerFeedbackId(int $feedbackId): bool
     {
         return false;
     }
 
-    protected function syncSpecificFeedback($originalQuestionId, $duplicateQuestionId): void
+    protected function syncSpecificFeedback(int $originalQuestionId, int $duplicateQuestionId): void
     {
     }
 
-    public function getSpecificAnswerFeedbackExportPresentation($questionId, $questionIndex, $answerIndex): string
+    public function getSpecificAnswerFeedbackExportPresentation(int $question_id, int $question_index, int $answer_index): string
     {
         return "";
     }
 
-    public function importSpecificAnswerFeedback($questionId, $questionIndex, $answerIndex, $feedbackContent): void
+    public function importSpecificAnswerFeedback(int $question_id, int $question_index, int $answer_index, string $feedback_content): void
     {
     }
 }
